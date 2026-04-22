@@ -58,7 +58,8 @@ function Hero() {
         Product Manager · 14+ years
       </p>
       <h1 className="mt-5 text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
-        Hi, I&apos;m Tirath Chhatriwala.
+        Hi, I&apos;m{" "}
+        <span className="text-accent">Tirath Chhatriwala</span>.
       </h1>
       <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
         I build products and tools at the intersection of EdTech, regulatory
@@ -91,7 +92,7 @@ function SectionHeading({
   icon: Icon,
 }: {
   eyebrow: string;
-  title: string;
+  title: React.ReactNode;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
 }) {
@@ -119,7 +120,7 @@ function ToolsGrid() {
     >
       <SectionHeading
         eyebrow="My Tools"
-        title="Small tools, sharper PM work."
+        title={<>Small tools, <span className="text-accent">sharper PM work</span>.</>}
         description="Side projects I build to make my own product work easier — and share with anyone who finds them useful."
         icon={Wrench}
       />
@@ -134,10 +135,10 @@ function ToolsGrid() {
             className="group relative flex flex-col rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_8px_30px_-12px_color-mix(in_oklab,var(--accent)_35%,transparent)]"
           >
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-semibold tracking-tight text-foreground group-hover:text-accent">
+              <h3 className="text-lg font-semibold tracking-tight text-accent">
                 {tool.name}
               </h3>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+              <ArrowUpRight className="h-4 w-4 text-accent transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </div>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               {tool.description}
@@ -156,15 +157,15 @@ function ToolsGrid() {
             className="relative flex cursor-not-allowed flex-col rounded-xl border border-dashed border-border bg-muted/40 p-6 opacity-80"
           >
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-semibold tracking-tight text-muted-foreground">
+              <h3 className="text-lg font-semibold tracking-tight text-accent/70">
                 {name}
               </h3>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-accent/60" />
             </div>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground/80">
               In the workshop. A new tool to help PMs move faster will land here.
             </p>
-            <span className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
+            <span className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/20 bg-background px-2.5 py-1 text-xs font-medium text-accent/70">
               Coming soon
             </span>
           </div>
@@ -182,7 +183,7 @@ function Strategy() {
     >
       <SectionHeading
         eyebrow="My Strategy"
-        title="Frameworks from the field."
+        title={<>Frameworks <span className="text-accent">from the field</span>.</>}
         description="Notes on how I think about product strategy, prioritisation, and operating in regulated, high-stakes domains."
         icon={Compass}
       />
@@ -204,7 +205,7 @@ function Writing() {
     >
       <SectionHeading
         eyebrow="My Writing"
-        title="Essays in progress."
+        title={<>Essays <span className="text-accent">in progress</span>.</>}
         description="Long-form thinking on product, EdTech, and the strange beauty of regulatory complexity."
         icon={PenLine}
       />
@@ -225,7 +226,7 @@ function Footer() {
     >
       <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-medium text-foreground">
+          <p className="text-sm font-medium text-accent">
             Tirath Chhatriwala
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
