@@ -29,14 +29,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tirath Chhatriwala — myproduct.life" },
+      { title: "tirath's - myproduct.life" },
       {
         name: "description",
         content:
           "Personal hub of Tirath Chhatriwala — Product Manager with 14+ years in EdTech, regulatory compliance, and higher education. Tools, strategy, and writing.",
       },
       { name: "author", content: "Tirath Chhatriwala" },
-      { property: "og:title", content: "Tirath Chhatriwala — myproduct.life" },
+      { property: "og:title", content: "tirath's - myproduct.life" },
       {
         property: "og:description",
         content:
@@ -44,6 +44,12 @@ export const Route = createRootRoute({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "tirath's - myproduct.life" },
+      { name: "description", content: "I build products and tools at the intersection of EdTech, regulatory compliance, and higher education." },
+      { property: "og:description", content: "I build products and tools at the intersection of EdTech, regulatory compliance, and higher education." },
+      { name: "twitter:description", content: "I build products and tools at the intersection of EdTech, regulatory compliance, and higher education." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3425280b-5370-445d-9a8a-6766a8b28070" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3425280b-5370-445d-9a8a-6766a8b28070" },
     ],
     links: [
       {
