@@ -29,14 +29,21 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Tirath Chhatriwala — myproduct.life" },
+      {
+        name: "description",
+        content:
+          "Personal hub of Tirath Chhatriwala — Product Manager with 14+ years in EdTech, regulatory compliance, and higher education. Tools, strategy, and writing.",
+      },
+      { name: "author", content: "Tirath Chhatriwala" },
+      { property: "og:title", content: "Tirath Chhatriwala — myproduct.life" },
+      {
+        property: "og:description",
+        content:
+          "Tools, strategy notes, and writing from a PM working in EdTech, regulatory compliance, and higher education.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
