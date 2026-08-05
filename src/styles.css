@@ -42,6 +42,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-complement: var(--accent-complement);
+  --color-accent-complement-foreground: var(--accent-complement-foreground);
+  --color-accent-complement-soft: var(--accent-complement-soft);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -79,7 +82,10 @@
   --muted-foreground: oklch(0.554 0.046 257.417);
   --accent: oklch(0.515 0.115 17);
   --accent-foreground: oklch(0.984 0.003 247.858);
-  --accent-soft: oklch(0.955 0.025 17);
+  --accent-soft: oklch(0.96 0.008 17);
+  --accent-complement: oklch(0.55 0.14 50);
+  --accent-complement-foreground: oklch(0.984 0.003 247.858);
+  --accent-complement-soft: oklch(0.93 0.04 55);
   --accent-hover: oklch(0.45 0.13 17);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
@@ -152,3 +158,22 @@
     scroll-behavior: smooth;
   }
 }
+
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes nodeGlow { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 4px var(--pulse-color, var(--accent-soft)); } }
+@keyframes arrowMove { 0% { left: 0%; opacity: 0; } 14% { opacity: 1; } 82% { opacity: 1; } 100% { left: calc(100% - 9px); opacity: 0; } }
+
+.flow-track { position: relative; flex: 1; height: 2px; background: var(--border); min-width: 24px; }
+.flow-arrowhead {
+  position: absolute; top: 50%; left: 0; width: 0; height: 0;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 9px solid var(--flow-color, var(--accent));
+  transform: translateY(-50%);
+  animation: arrowMove 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.35s);
+}
+.flow-node { animation: nodeGlow 3.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 0.35s); }
+.hover-tile { transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease; }
+.hover-tile:hover { transform: translateY(-3px); box-shadow: 0 8px 24px -8px oklch(0.129 0.042 264.695 / 0.18); background-color: var(--muted); }
+footer a { transition: color 0.15s ease, padding-left 0.15s ease; display: inline-block; }
+footer a:hover { padding-left: 3px; }
