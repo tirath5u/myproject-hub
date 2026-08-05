@@ -111,7 +111,7 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center justify-between px-5 sm:px-8 py-4 border-b">
-        <a href="#top" className="font-extrabold text-lg">myproduct.life</a>
+        <a href="/" className="font-extrabold text-lg">myproduct.life</a>
         <div className="flex items-center gap-6">
           <a href="#tools" className="text-sm font-semibold hidden sm:inline">Tools</a>
           <a href="#process" className="text-sm font-semibold hidden sm:inline">Process</a>
@@ -281,7 +281,7 @@ function HomePage() {
         <div className="max-w-[1180px] mx-auto">
           <div className="grid sm:grid-cols-[1.4fr_1fr_1fr_1fr] gap-8 mb-8">
             <div>
-              <div className="font-extrabold text-base mb-2.5">myproduct.life</div>
+              <a href="/" className="font-extrabold text-base mb-2.5 inline-block">myproduct.life</a>
               <p className="text-sm opacity-65 max-w-[32ch]">Product management in higher-education technology. Built in public and source-backed: open Schedule of Reductions calculators, a public API, and agent integrations for federal student aid.</p>
             </div>
             <div>
