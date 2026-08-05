@@ -32,6 +32,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "google-site-verification",
+        content: "opTE2zSCnofPyLCtrf6d5-wJMAZvJsWJLJw59hDizfM",
+      },
       { title: "tirath's - myproduct.life" },
       {
         name: "description",
