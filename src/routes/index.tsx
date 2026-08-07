@@ -352,22 +352,7 @@ function HomePage() {
             <p className="text-[11.5px] opacity-55 max-w-[80ch] mb-2">Estimates only. Not an award, approval, or guarantee. Authority is 34 CFR 685.203 and current Federal Student Aid guidance; a school must verify every figure.</p>
             <p className="text-[11.5px] opacity-55">Copyright 2026 myproduct.life — built by Tirath Chhatriwala</p>
             <div className="mt-4">
-              <div
-                className="badge-base LI-profile-badge"
-                data-locale="en_US"
-                data-size="medium"
-                data-theme="light"
-                data-type="HORIZONTAL"
-                data-vanity="tirath-c-7228b814"
-                data-version="v1"
-              >
-                <a
-                  className="badge-base__link LI-simple-link"
-                  href="https://www.linkedin.com/in/tirath-c-7228b814?trk=profile-badge"
-                >
-                  Tirath C.
-                </a>
-              </div>
+              <LinkedInBadge />
             </div>
           </div>
         </div>
