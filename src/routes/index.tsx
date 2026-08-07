@@ -87,20 +87,25 @@ function LinkedInBadge() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Re-scan so React-hydrated markup is picked up by LinkedIn's badge script.
-    const el = ref.current;
-    if (!el) return;
-    const inner = el.innerHTML;
-    el.innerHTML = "";
-    requestAnimationFrame(() => {
-      el.innerHTML = inner;
-    });
+    // Load the LinkedIn badge script client-side after React has rendered the
+    // placeholder markup, so the badge (with photo) is reliably initialized.
+    const existing = document.querySelector(
+      'script[src="https://platform.linkedin.com/badges/js/profile.js"]'
+    );
+    if (!existing) {
+      const script = document.createElement("script");
+      script.src = "https://platform.linkedin.com/badges/js/profile.js";
+      script.async = true;
+      script.defer = true;
+      script.type = "text/javascript";
+      document.body.appendChild(script);
+    }
   }, []);
 
   return (
     <div
       ref={ref}
-      className="badge-base LI-profile-badge inline-block"
+      className="badge-base LI-profile-badge inline-block max-w-[280px]"
       data-locale="en_US"
       data-size="small"
       data-theme="light"
