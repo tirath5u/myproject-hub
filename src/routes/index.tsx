@@ -82,6 +82,32 @@ const PRINCIPLES = [
   { title: "Ship the boring parts", body: "Versioning, disclaimers, release markers, and regression fixtures are the product when the domain is compliance." },
 ];
 
+function LinkedInBadge() {
+  return (
+    <a
+      href="https://www.linkedin.com/in/tirath-c-7228b814/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="linkedin-badge inline-flex flex-nowrap items-center gap-1.5 rounded-full border border-white/20 bg-white/5 pl-1 pr-2 py-1 transition-colors hover:bg-white/10 min-w-max"
+    >
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-bold">
+        TC
+      </span>
+      <span className="shrink-0 whitespace-nowrap text-xs font-semibold text-accent">
+        Tirath C.
+      </span>
+      <svg
+        className="h-3 w-3 shrink-0 text-accent"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      </svg>
+    </a>
+  );
+}
+
 function StepFlow({ steps, flowColor, pulseColor }: { steps: string[]; flowColor: string; pulseColor: string }) {
   return (
     <div className="flex items-start" style={{ "--flow-color": flowColor } as React.CSSProperties}>
@@ -316,22 +342,7 @@ function HomePage() {
             <p className="text-[11.5px] opacity-55 max-w-[80ch] mb-2">Estimates only. Not an award, approval, or guarantee. Authority is 34 CFR 685.203 and current Federal Student Aid guidance; a school must verify every figure.</p>
             <p className="text-[11.5px] opacity-55">Copyright 2026 myproduct.life — built by Tirath Chhatriwala</p>
             <div className="mt-4">
-              <div
-                className="badge-base LI-profile-badge"
-                data-locale="en_US"
-                data-size="medium"
-                data-theme="light"
-                data-type="HORIZONTAL"
-                data-vanity="tirath-c-7228b814"
-                data-version="v1"
-              >
-                <a
-                  className="badge-base__link LI-simple-link"
-                  href="https://www.linkedin.com/in/tirath-c-7228b814?trk=profile-badge"
-                >
-                  Tirath C.
-                </a>
-              </div>
+              <LinkedInBadge />
             </div>
           </div>
         </div>
