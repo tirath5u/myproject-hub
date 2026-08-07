@@ -83,12 +83,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script
-          src="https://platform.linkedin.com/badges/js/profile.js"
-          async
-          defer
-          type="text/javascript"
-        />
       </head>
       <body>
         {children}
