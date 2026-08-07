@@ -84,42 +84,29 @@ const PRINCIPLES = [
 ];
 
 function LinkedInBadge() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Load the LinkedIn badge script client-side after React has rendered the
-    // placeholder markup, so the badge (with photo) is reliably initialized.
-    const existing = document.querySelector(
-      'script[src="https://platform.linkedin.com/badges/js/profile.js"]'
-    );
-    if (!existing) {
-      const script = document.createElement("script");
-      script.src = "https://platform.linkedin.com/badges/js/profile.js";
-      script.async = true;
-      script.defer = true;
-      script.type = "text/javascript";
-      document.body.appendChild(script);
-    }
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="badge-base LI-profile-badge inline-block max-w-[280px]"
-      data-locale="en_US"
-      data-size="small"
-      data-theme="light"
-      data-type="HORIZONTAL"
-      data-vanity="tirath-c-7228b814"
-      data-version="v1"
+    <a
+      href="https://www.linkedin.com/in/tirath-c-7228b814/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/5 pl-1 pr-3 py-1 transition-colors hover:bg-white/10"
     >
-      <a
-        className="badge-base__link LI-simple-link"
-        href="https://www.linkedin.com/in/tirath-c-7228b814?trk=profile-badge"
+      <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-accent-foreground text-xs font-bold">
+        TC
+      </span>
+      <span className="flex flex-col leading-none">
+        <span className="text-sm font-bold text-accent">Tirath Chhatriwala</span>
+        <span className="text-[11px] opacity-70">View LinkedIn profile</span>
+      </span>
+      <svg
+        className="ml-1 h-4 w-4 shrink-0 text-accent"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
       >
-        Tirath C.
-      </a>
-    </div>
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      </svg>
+    </a>
   );
 }
 
