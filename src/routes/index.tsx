@@ -88,17 +88,16 @@ function LinkedInBadge() {
       href="https://www.linkedin.com/in/tirath-c-7228b814/"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/5 pl-1 pr-3 py-1 transition-colors hover:bg-white/10"
+      className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 pl-1 pr-2.5 py-1 transition-colors hover:bg-white/10"
     >
-      <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-accent-foreground text-xs font-bold">
+      <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-accent-foreground text-[11px] font-bold">
         TC
       </span>
-      <span className="flex flex-col leading-none">
-        <span className="text-sm font-bold text-accent">Tirath Chhatriwala</span>
-        <span className="text-[11px] opacity-70">View LinkedIn profile</span>
+      <span className="whitespace-nowrap text-sm font-semibold text-accent">
+        Tirath Chhatriwala
       </span>
       <svg
-        className="ml-1 h-4 w-4 shrink-0 text-accent"
+        className="h-3.5 w-3.5 shrink-0 text-accent"
         viewBox="0 0 24 24"
         fill="currentColor"
         aria-hidden="true"
