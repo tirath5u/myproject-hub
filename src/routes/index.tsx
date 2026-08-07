@@ -83,6 +83,41 @@ const PRINCIPLES = [
   { title: "Ship the boring parts", body: "Versioning, disclaimers, release markers, and regression fixtures are the product when the domain is compliance." },
 ];
 
+function LinkedInBadge() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Re-scan so React-hydrated markup is picked up by LinkedIn's badge script.
+    const el = ref.current;
+    if (!el) return;
+    const inner = el.innerHTML;
+    el.innerHTML = "";
+    requestAnimationFrame(() => {
+      el.innerHTML = inner;
+    });
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="badge-base LI-profile-badge inline-block"
+      data-locale="en_US"
+      data-size="small"
+      data-theme="light"
+      data-type="HORIZONTAL"
+      data-vanity="tirath-c-7228b814"
+      data-version="v1"
+    >
+      <a
+        className="badge-base__link LI-simple-link"
+        href="https://www.linkedin.com/in/tirath-c-7228b814?trk=profile-badge"
+      >
+        Tirath C.
+      </a>
+    </div>
+  );
+}
+
 function StepFlow({ steps, flowColor, pulseColor }: { steps: string[]; flowColor: string; pulseColor: string }) {
   return (
     <div className="flex items-start" style={{ "--flow-color": flowColor } as React.CSSProperties}>
