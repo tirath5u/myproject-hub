@@ -88,7 +88,7 @@ function LinkedInBadge() {
       href="https://www.linkedin.com/in/tirath-c-7228b814/"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-nowrap items-center gap-1.5 rounded-full border border-white/20 bg-white/5 pl-1 pr-2 py-1 transition-colors hover:bg-white/10 min-w-max"
+      className="linkedin-badge flex flex-nowrap items-center gap-1.5 rounded-full border border-white/20 bg-white/5 pl-1 pr-2 py-1 transition-colors hover:bg-white/10 min-w-max"
     >
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-bold">
         TC
