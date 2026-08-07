@@ -175,5 +175,5 @@
 .flow-node { animation: nodeGlow 3.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 0.35s); }
 .hover-tile { transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease; }
 .hover-tile:hover { transform: translateY(-3px); box-shadow: 0 8px 24px -8px oklch(0.129 0.042 264.695 / 0.18); background-color: var(--muted); }
-footer a { transition: color 0.15s ease, padding-left 0.15s ease; display: inline-block; }
-footer a:hover { padding-left: 3px; }
+footer a:not(.linkedin-badge) { transition: color 0.15s ease, padding-left 0.15s ease; display: inline-block; }
+footer a:not(.linkedin-badge):hover { padding-left: 3px; }
