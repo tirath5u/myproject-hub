@@ -47,7 +47,7 @@ const CASE_STUDIES = [
     desc: "An open calculator for the OBBBA less-than-full-time Direct Loan reduction, built for financial aid offices and the students they serve.",
     stats: [
       { k: "Audiences served", v: "4" },
-      { k: "Regression tests", v: "89 passing" },
+      { k: "Regression tests", v: "160 passing" },
       { k: "Public endpoints", v: "V1 + V2" },
     ],
   },
@@ -164,6 +164,7 @@ function HomePage() {
           <Button asChild className="bg-accent hover:bg-accent-hover text-accent-foreground"><a href="#tools">See the tools</a></Button>
           <Button asChild variant="outline"><a href="#principles">How I work</a></Button>
           <Button asChild variant="ghost" className="text-accent"><a href="https://www.linkedin.com/in/tirath-c-7228b814/">Connect on LinkedIn</a></Button>
+          <Button asChild variant="ghost" className="text-accent"><a href="https://github.com/tirath5u">GitHub</a></Button>
         </div>
         <div className="border-t pt-4 flex flex-wrap items-center gap-2.5">
           <span className="text-xs uppercase tracking-wide opacity-60 mr-1">Start here —</span>
@@ -199,7 +200,7 @@ function HomePage() {
       <section id="proof" className="border-y bg-muted">
         <div className="max-w-[1180px] mx-auto px-5 sm:px-8 py-7 grid grid-cols-2 sm:grid-cols-4 gap-6">
           {[
-            ["89", "Regression tests passing"],
+            ["160", "Regression tests passing"],
             ["V1 + V2", "Public API contract"],
             ["5", "MCP tools for AI agents"],
             ["2026-27", "Policy year, sources dated"],
@@ -223,11 +224,11 @@ function HomePage() {
             <p className="text-sm opacity-75 flex-1">A COD annual-update portfolio hub: schema diffs, report-change dashboards, field logic, and the product narrative behind each year's release.</p>
             <span className="text-sm font-semibold text-accent">View the hub →</span>
           </a>
-          <div className="bg-background p-6 flex flex-col">
-            <div className="flex justify-between items-start mb-3"><h3 className="font-extrabold text-lg">In the workshop</h3><Badge variant="secondary">Next up</Badge></div>
-            <p className="text-sm opacity-75 flex-1">An advanced student SOR estimator with scenario comparison, plus a lifecycle tracker for how a reduction evolves across a student's enrollment. Both build on the same engine — no forked logic.</p>
-            <span className="text-sm font-semibold opacity-50">In progress</span>
-          </div>
+          <a href="https://sor.myproduct.life/student/advanced" className="hover-tile bg-background p-6 flex flex-col">
+            <div className="flex justify-between items-start mb-3"><h3 className="font-extrabold text-lg">Advanced estimate and lifecycle tracker</h3><Badge className="bg-accent-hover text-accent-foreground">Live</Badge></div>
+            <p className="text-sm opacity-75 flex-1">An advanced student SOR estimate with scenario comparison, plus a lifecycle tracker for how a reduction evolves across a student's enrollment. Both run on the same engine, with no forked logic.</p>
+            <span className="text-sm font-semibold text-accent">Open the advanced estimate →</span>
+          </a>
         </div>
       </section>
 
@@ -300,6 +301,7 @@ function HomePage() {
         <div className="mt-9 flex flex-wrap gap-3">
           <Button asChild variant="outline"><a href="https://sor.myproduct.life/work">Work with me — case studies</a></Button>
           <Button asChild variant="ghost" className="text-accent"><a href="https://www.linkedin.com/in/tirath-c-7228b814/">Connect on LinkedIn</a></Button>
+          <Button asChild variant="ghost" className="text-accent"><a href="https://github.com/tirath5u">GitHub</a></Button>
         </div>
       </section>
 
@@ -335,6 +337,7 @@ function HomePage() {
                 <a href="https://sor.myproduct.life/methodology">Methodology</a>
                 <a href="https://sor.myproduct.life/releases">Releases</a>
                 <a href="https://sor.myproduct.life/about">About Tirath</a>
+                <a href="https://github.com/tirath5u">GitHub</a>
               </div>
             </div>
           </div>
