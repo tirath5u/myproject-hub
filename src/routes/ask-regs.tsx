@@ -50,6 +50,7 @@ const REASONS: Record<string, string> = {
   "student-specific": "This asks about a specific student's eligibility.",
   "private-member-content": "This asks for private membership content.",
   "non-ed-tax-advice": "This is individual tax advice, outside Department of Education rules.",
+  "vendor-internal-config": "This asks about vendor or internal software setup, which isn't public law.",
 };
 
 const DISPLAY_CAP = 6000;
@@ -223,7 +224,7 @@ function ResultCard({ r }: { r: Result }) {
     return (
       <div className="border p-5 text-sm">
         {r.no_confident_cite
-          ? "No confident citation. Some documents came back, but none matched your question closely enough to cite. Try a section number like 668.34."
+          ? "No confident citation — nothing matched your question closely enough to cite. Try including a section number like 34 CFR 668.34, or rephrase."
           : "No matching Education Department documents found. Try a section number like 668.34."}
       </div>
     );
@@ -235,6 +236,7 @@ function ResultCard({ r }: { r: Result }) {
       <div className="p-6 border-b bg-accent-soft">
         <div className="flex flex-wrap items-center gap-2 mb-1">
           <span className="font-mono text-xs text-accent font-bold">{r.citation_id}</span>
+          <span className="font-mono text-xs opacity-60">mode: {r.mode}</span>
           {r.authority_label && (
             <Badge variant="outline" className={r.authority_rank === 3 ? "border-accent-complement text-accent-complement" : "border-accent text-accent"}>
               Authority {r.authority_rank} · {r.authority_label}
