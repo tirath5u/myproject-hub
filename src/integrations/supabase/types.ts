@@ -14,7 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chunks: {
+        Row: {
+          citation_ref: string | null
+          created_at: string
+          document_version_id: string
+          heading: string | null
+          id: string
+          ordinal: number
+          text: string
+        }
+        Insert: {
+          citation_ref?: string | null
+          created_at?: string
+          document_version_id: string
+          heading?: string | null
+          id?: string
+          ordinal: number
+          text: string
+        }
+        Update: {
+          citation_ref?: string | null
+          created_at?: string
+          document_version_id?: string
+          heading?: string | null
+          id?: string
+          ordinal?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chunks_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          award_year: string | null
+          content_hash: string
+          created_at: string
+          document_version_key: string
+          effective_date: string | null
+          id: string
+          official_url: string
+          publication_date: string | null
+          retrieved_at: string
+          source_class: string
+          source_status: string
+          title: string | null
+        }
+        Insert: {
+          award_year?: string | null
+          content_hash: string
+          created_at?: string
+          document_version_key: string
+          effective_date?: string | null
+          id?: string
+          official_url: string
+          publication_date?: string | null
+          retrieved_at?: string
+          source_class: string
+          source_status?: string
+          title?: string | null
+        }
+        Update: {
+          award_year?: string | null
+          content_hash?: string
+          created_at?: string
+          document_version_key?: string
+          effective_date?: string | null
+          id?: string
+          official_url?: string
+          publication_date?: string | null
+          retrieved_at?: string
+          source_class?: string
+          source_status?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
