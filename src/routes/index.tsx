@@ -140,6 +140,7 @@ function HomePage() {
         <a href="/" className="font-extrabold text-lg">myproduct.life</a>
         <div className="flex items-center gap-6">
           <a href="#tools" className="text-sm font-semibold hidden sm:inline">Tools</a>
+          <a href="#ai-work" className="text-sm font-semibold hidden sm:inline">AI Work</a>
           <a href="#process" className="text-sm font-semibold hidden sm:inline">Process</a>
           <a href="#work" className="text-sm font-semibold hidden sm:inline">Work</a>
           <a href="#principles" className="text-sm font-semibold hidden sm:inline">How I think</a>
@@ -213,7 +214,7 @@ function HomePage() {
       <section id="tools" className="px-5 sm:px-8 py-16 max-w-[1180px] mx-auto">
         <h6 className="text-accent text-xs font-bold uppercase tracking-wide mb-1.5">My Tools</h6>
         <h2 className="text-3xl font-extrabold max-w-[20ch] mb-9">Small tools, built for the offices and students living the reduction.</h2>
-        <div className="grid sm:grid-cols-3 gap-px bg-border border">
+        <div className="grid sm:grid-cols-2 gap-px bg-border border">
           <a href="https://sor.myproduct.life/" className="hover-tile bg-background p-6 flex flex-col">
             <div className="flex justify-between items-start mb-3"><h3 className="font-extrabold text-lg">SOR Calculator</h3><Badge className="bg-accent-hover text-accent-foreground">Live</Badge></div>
             <p className="text-sm opacity-75 flex-1">The full staff engine: SOR %, per-term Sub/Unsub/Grad PLUS, disbursement schedules — plus a plain-English student estimate on the same tested logic.</p>
@@ -229,6 +230,36 @@ function HomePage() {
             <p className="text-sm opacity-75 flex-1">An advanced student SOR estimate with scenario comparison, plus a lifecycle tracker for how a reduction evolves across a student's enrollment. Both run on the same engine, with no forked logic.</p>
             <span className="text-sm font-semibold text-accent">Open the advanced estimate →</span>
           </a>
+          <a href="/ask-regs" className="hover-tile bg-background p-6 flex flex-col">
+            <div className="flex justify-between items-start mb-3"><h3 className="font-extrabold text-lg">Ask Regs</h3><Badge className="bg-accent-hover text-accent-foreground">Live · Beta</Badge></div>
+            <p className="text-sm opacity-75 flex-1">Ask a financial aid regulation question and get the official citation, an excerpt, and a link to the source. Refuses student-specific questions.</p>
+            <span className="text-sm font-semibold text-accent">Ask a question →</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="ai-work" className="px-5 sm:px-8 py-16 max-w-[1180px] mx-auto">
+        <h6 className="text-accent text-xs font-bold uppercase tracking-wide mb-1.5">AI Work</h6>
+        <h2 className="text-3xl font-extrabold max-w-[26ch] mb-3">AI in RegTech — grounded, cited, and it refuses when it should.</h2>
+        <p className="opacity-70 max-w-[62ch] mb-9 text-sm">I'm building this in public, one layer at a time. Citations come first; the model comes last and has to quote its sources.</p>
+        <div className="grid sm:grid-cols-3 gap-px bg-border border">
+          {[
+            { n: "1", t: "Cite", s: "Live now", d: "Ask a question, get the official regulation and a link. No AI model, $0 per question, tested against a golden set.", live: true },
+            { n: "2", t: "Search the handbooks", s: "Next", d: "FSA Handbook, Dear Colleague letters, and guidance, searchable by meaning, not just keywords.", live: false },
+            { n: "3", t: "Explain", s: "Later", d: "A plain-English answer that must quote its citations, and refuses when the sources don't support one.", live: false },
+          ].map((x) => (
+            <div key={x.n} className={`bg-background p-6 ${x.live ? "" : "opacity-70"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-9 h-9 border-2 border-accent text-accent font-extrabold flex items-center justify-center">{x.n}</span>
+                <Badge variant={x.live ? "default" : "outline"} className={x.live ? "bg-accent-hover text-accent-foreground" : ""}>{x.s}</Badge>
+              </div>
+              <h3 className="font-extrabold text-lg mb-2">{x.t}</h3>
+              <p className="text-sm opacity-75">{x.d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-7">
+          <Button asChild className="bg-accent hover:bg-accent-hover text-accent-foreground"><a href="/ask-regs">Try Ask Regs →</a></Button>
         </div>
       </section>
 
@@ -326,6 +357,7 @@ function HomePage() {
               <div className="flex flex-col gap-2 text-sm">
                 <a href="https://sor.myproduct.life/api-docs">Public SOR API</a>
                 <a href="https://sor.myproduct.life/mcp-guide">Ask an AI agent (MCP)</a>
+                <a href="/ask-regs">Ask Regs (regulation citations)</a>
                 <a href="https://sor.myproduct.life/compare">Parity compare</a>
                 <a href="https://sor.myproduct.life/migration">Version migration</a>
               </div>

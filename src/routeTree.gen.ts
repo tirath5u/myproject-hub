@@ -9,38 +9,88 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
+import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
 
+const AskRegsRoute = AskRegsRouteImport.update({
+  id: '/ask-regs',
+  path: '/ask-regs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEdSourceDeskLookupRoute = ApiEdSourceDeskLookupRouteImport.update({
+  id: '/api/ed-source-desk/lookup',
+  path: '/api/ed-source-desk/lookup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
+  id: '/api/ed-source-desk/goldens',
+  path: '/api/ed-source-desk/goldens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
+  '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
+  '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
+  '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ask-regs'
+    | '/api/ed-source-desk/goldens'
+    | '/api/ed-source-desk/lookup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ask-regs'
+    | '/api/ed-source-desk/goldens'
+    | '/api/ed-source-desk/lookup'
+  id:
+    | '__root__'
+    | '/'
+    | '/ask-regs'
+    | '/api/ed-source-desk/goldens'
+    | '/api/ed-source-desk/lookup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AskRegsRoute: typeof AskRegsRoute
+  ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
+  ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ask-regs': {
+      id: '/ask-regs'
+      path: '/ask-regs'
+      fullPath: '/ask-regs'
+      preLoaderRoute: typeof AskRegsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +98,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ed-source-desk/lookup': {
+      id: '/api/ed-source-desk/lookup'
+      path: '/api/ed-source-desk/lookup'
+      fullPath: '/api/ed-source-desk/lookup'
+      preLoaderRoute: typeof ApiEdSourceDeskLookupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/goldens': {
+      id: '/api/ed-source-desk/goldens'
+      path: '/api/ed-source-desk/goldens'
+      fullPath: '/api/ed-source-desk/goldens'
+      preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AskRegsRoute: AskRegsRoute,
+  ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
+  ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
