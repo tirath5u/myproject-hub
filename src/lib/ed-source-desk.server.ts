@@ -195,7 +195,7 @@ const RELEVANCE_MIN = FIT_MIN;
 
 async function frSearch(q: string, perPage = 3) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
-  u.searchParams.set("conditions[term]", q);
+  u.searchParams.set("conditions[term]", distinctiveTerms(q).join(" ") || q); // search on key terms, not filler words
   u.searchParams.append("conditions[agencies][]", "education-department");
   u.searchParams.set("per_page", "10");
   u.searchParams.set("order", "relevance");
