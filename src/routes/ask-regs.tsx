@@ -33,7 +33,10 @@ type Result = {
   fetched_at?: string;
   as_of_date?: string;
   no_match?: boolean;
-  results?: { citation_id: string; title: string; source_url: string; publication_date: string }[];
+  no_confident_cite?: boolean;
+  authority_rank?: number;
+  authority_label?: string;
+  results?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
 const EXAMPLES = [
@@ -217,14 +220,27 @@ function ResultCard({ r }: { r: Result }) {
     );
   }
   if (r.no_match) {
-    return <div className="border p-5 text-sm">No matching Education Department documents found. Try a section number like 668.34.</div>;
+    return (
+      <div className="border p-5 text-sm">
+        {r.no_confident_cite
+          ? "No confident citation. Some documents came back, but none matched your question closely enough to cite. Try a section number like 668.34."
+          : "No matching Education Department documents found. Try a section number like 668.34."}
+      </div>
+    );
   }
   const text = r.text ?? "";
   const shown = text.length > DISPLAY_CAP ? text.slice(0, DISPLAY_CAP) + "…" : text;
   return (
     <div className="border-2 border-accent/40 bg-background">
       <div className="p-6 border-b bg-accent-soft">
-        <div className="font-mono text-xs text-accent font-bold mb-1">{r.citation_id}</div>
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          <span className="font-mono text-xs text-accent font-bold">{r.citation_id}</span>
+          {r.authority_label && (
+            <Badge variant="outline" className={r.authority_rank === 3 ? "border-accent-complement text-accent-complement" : "border-accent text-accent"}>
+              Authority {r.authority_rank} · {r.authority_label}
+            </Badge>
+          )}
+        </div>
         <h2 className="text-xl font-extrabold">{r.title}</h2>
         <div className="text-xs opacity-60 mt-1">
           Fetched {r.fetched_at ? new Date(r.fetched_at).toLocaleString() : ""}
