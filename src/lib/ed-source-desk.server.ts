@@ -148,18 +148,54 @@ async function reggovDoc(id: string) {
   };
 }
 
-const STOP = new Set("a an the of to in on for and or is are was be what how does do when who which with under by from about this that it its i my me can title iv".split(" "));
-function relevance(q: string, hay: string) {
-  const terms = q.toLowerCase().match(/[a-z0-9]{3,}/g)?.filter((t) => !STOP.has(t)) ?? [];
-  if (!terms.length) return 0;
-  const h = hay.toLowerCase();
-  return terms.filter((t) => h.includes(t)).length / terms.length;
+// ---- Topical-fit check -------------------------------------------------------
+// A citation is only kept if the question's *distinctive* words appear in the cited
+// text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
+// so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
+const STOP = new Set((
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways"
+).split(" "));
+const GENERIC = new Set((
+  "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
+).split(" "));
+
+export function distinctiveTerms(q: string) {
+  const cleaned = q.toLowerCase().replace(/§\s*/g, " ").replace(/\b\d+(\.\d+)*[a-z]?\b/g, " ");
+  const terms = cleaned.match(/[a-z][a-z0-9-]{2,}/g) ?? [];
+  return [...new Set(terms.filter((t) => !STOP.has(t) && !GENERIC.has(t)))];
 }
-const RELEVANCE_MIN = 0.5;
+
+const SYNONYMS: Record<string, string[]> = {
+  r2t4: ["return of title iv", "withdraw"], sap: ["satisfactory academic progress"], isir: ["institutional student information record"],
+  sai: ["student aid index"], efc: ["expected family contribution"], coa: ["cost of attendance"], mpn: ["master promissory note"],
+  loa: ["leave of absence"], nslds: ["national student loan data system"], cod: ["common origination and disbursement"],
+  fafsa: ["free application for federal student aid"], leu: ["lifetime eligibility used"], bbay: ["borrower-based academic year"],
+  say: ["scheduled academic year"], obbba: ["one big beautiful bill"],
+};
+
+function stemHit(term: string, hay: string) {
+  if (SYNONYMS[term]?.some((p) => hay.toLowerCase().includes(p))) return true;
+  const stem = term.length > 6 ? term.slice(0, Math.max(5, term.length - 3)) : term.replace(/s$/, "");
+  return new RegExp(`\\b${stem.replace(/[-]/g, "[- ]?")}`, "i").test(hay);
+}
+
+export function topicalFit(q: string, hay: string) {
+  const terms = distinctiveTerms(q);
+  if (!terms.length) return { score: 1, terms, missing: [] as string[] };
+  const missing = terms.filter((t) => !stemHit(t, hay));
+  return { score: (terms.length - missing.length) / terms.length, terms, missing };
+}
+const FIT_MIN = 0.6; // explicit section / document number named by the user
+const FIT_MIN_KEYWORD = 0.8; // section guessed from a broad keyword trigger — stricter
+
+function relevance(q: string, hay: string) {
+  return topicalFit(q, hay).score;
+}
+const RELEVANCE_MIN = FIT_MIN;
 
 async function frSearch(q: string, perPage = 3) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
-  u.searchParams.set("conditions[term]", q);
+  u.searchParams.set("conditions[term]", distinctiveTerms(q).join(" ") || q); // search on key terms, not filler words
   u.searchParams.append("conditions[agencies][]", "education-department");
   u.searchParams.set("per_page", "10");
   u.searchParams.set("order", "relevance");
@@ -191,23 +227,95 @@ async function frSearch(q: string, perPage = 3) {
   };
 }
 
+// ---- Imported handbook passages (Phase 2 pilot, read-only, exact vector search) ----
+const HANDBOOK_SIM_MIN = 0.74;
+async function handbookSearch(q: string) {
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey) return { passages: [], error: "handbook search not configured" };
+  try {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "google/gemini-embedding-2", input: [q] }),
+    });
+    if (!res.ok) throw new Error(`embeddings ${res.status}`);
+    const emb = ((await res.json()) as { data: { embedding: number[] }[] }).data[0].embedding;
+    if (emb.length !== 3072) throw new Error(`unexpected dimension ${emb.length}`);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("match_chunks" as never, { query_embedding: JSON.stringify(emb), match_count: 5 } as never);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as {
+      heading: string; text: string; citation_ref: string; ordinal: number; similarity: number; official_url: string; title: string;
+      award_year: string | null; source_class: string; source_status: string; publication_date: string | null; last_modified_date: string | null;
+      retrieved_at: string; content_hash: string; document_version_key: string;
+    }[];
+    const passages = rows
+      .map((r) => ({ ...r, fit: topicalFit(q, `${r.heading} ${r.text}`) }))
+      .filter((r) => r.similarity >= HANDBOOK_SIM_MIN && r.fit.score >= FIT_MIN)
+      .slice(0, 3)
+      .map((r) => {
+        const locator = r.citation_ref.match(/https?:\/\/\S+/)?.[0] ?? r.official_url;
+        return {
+          citation_id: `fsa-hb:${r.award_year ?? "unknown"}:${r.document_version_key}#${r.ordinal}`,
+          label: r.citation_ref.replace(/\s*https?:\/\/\S+/, "").replace(/[—–-]\s*$/, "").trim(),
+          heading: r.heading, passage: r.text, source_url: locator, official_url: r.official_url, document_title: r.title,
+          award_year: r.award_year, source_status: r.source_status, publication_date: r.publication_date,
+          last_modified_date: r.last_modified_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
+          similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100,
+          authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
+        };
+      });
+    return { passages };
+  } catch (e) {
+    console.error("handbook search failed", e);
+    return { passages: [], error: "Handbook search is temporarily unavailable." };
+  }
+}
+
+type AnyResult = Record<string, unknown> & { ok: boolean; mode?: string; title?: string; text?: string | null; citation_id?: string };
+
+async function routedLookup(routed: Extract<LookupInput, { mode: string }>): Promise<AnyResult> {
+  switch (routed.mode) {
+    case "ecfr-section": return await ecfr(routed.title ?? "34", routed.section);
+    case "fr-doc": return await frDoc(routed.document_number);
+    case "reggov-doc": return await reggovDoc(routed.document_id);
+    case "fr-search": return await frSearch(routed.q, routed.per_page);
+  }
+}
+
 export async function lookup(input: LookupInput) {
   try {
-    let routed = input;
-    if (!("mode" in input)) {
-      const reason = detectRefuse(input.q);
-      if (reason) {
-        return { ok: true, mode: "refuse", refuse: true, refuse_reason: reason, citation_ids: [], text: null, query: input.q, fetched_at: now() };
-      }
-      routed = route(input.q);
+    if ("mode" in input) return await routedLookup(input);
+    const q = input.q;
+    const reason = detectRefuse(q);
+    if (reason) {
+      return { ok: true, mode: "refuse", refuse: true, refuse_reason: reason, citation_ids: [], text: null, query: q, fetched_at: now() };
     }
-    if (!("mode" in routed)) throw new Error("unreachable");
-    switch (routed.mode) {
-      case "ecfr-section": return await ecfr(routed.title ?? "34", routed.section);
-      case "fr-doc": return await frDoc(routed.document_number);
-      case "reggov-doc": return await reggovDoc(routed.document_id);
-      case "fr-search": return await frSearch(routed.q, routed.per_page);
+    const routed = route(q) as Extract<LookupInput, { mode: string }>;
+    const [primary, hb] = await Promise.all([routedLookup(routed), handbookSearch(q)]);
+    let result: AnyResult = primary;
+    // Topical-fit gate: explicit numbers and keyword triggers can't validate unrelated questions.
+    if (primary.ok && primary.mode !== "no-confident-cite" && primary.mode !== "fr-search") {
+      const fit = topicalFit(q, `${primary.title ?? ""} ${primary.text ?? ""}`);
+      const explicit = /(?:§\s*)?\b\d{3}\.\d{1,4}[a-z]?\b|\bED-\d{4}-|\b(19|20)\d{2}-\d{4,5}\b/i.test(q);
+      if (fit.score < (explicit ? FIT_MIN : FIT_MIN_KEYWORD)) {
+        result = {
+          ok: true, mode: "no-confident-cite", refuse: false, no_match: true, no_confident_cite: true, citation_ids: [], text: null, query: q, fetched_at: now(),
+          rejected_candidate: { citation_id: primary.citation_id, title: primary.title, reason: "cited text does not contain the question's key terms", missing_terms: fit.missing, fit: Math.round(fit.score * 100) / 100 },
+          message: "No confident citation — the section that matched your wording doesn't address the rest of your question.",
+        };
+      } else result = { ...primary, fit: Math.round(fit.score * 100) / 100 };
     }
+    const handbook = hb.passages;
+    if (result.mode === "no-confident-cite" && handbook.length) {
+      const top = handbook[0];
+      result = {
+        ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false,
+        citation_id: top.citation_id, title: `${top.document_title ?? "FSA Handbook"} — ${top.heading}`, source_url: top.source_url,
+        text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
+      };
+    }
+    return { ...result, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_coverage: "2025-26 FSA Handbook Vol 5 Ch 1 only" };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
     console.error("ed-source-desk lookup failed", e);

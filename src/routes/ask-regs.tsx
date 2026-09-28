@@ -37,6 +37,16 @@ type Result = {
   authority_rank?: number;
   authority_label?: string;
   results?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
+  award_year?: string | null;
+  rejected_candidate?: { citation_id?: string; title?: string; missing_terms?: string[] };
+  handbook_passages?: Passage[];
+  handbook_error?: string | null;
+  handbook_coverage?: string;
+};
+
+type Passage = {
+  citation_id: string; label: string; heading: string; passage: string; source_url: string; official_url: string;
+  award_year: string | null; source_status: string; last_modified_date: string | null; retrieved_at: string; similarity: number;
 };
 
 const EXAMPLES = [
@@ -222,10 +232,19 @@ function ResultCard({ r }: { r: Result }) {
   }
   if (r.no_match) {
     return (
-      <div className="border p-5 text-sm">
-        {r.no_confident_cite
-          ? "No confident citation — nothing matched your question closely enough to cite. Try including a section number like 34 CFR 668.34, or rephrase."
-          : "No matching Education Department documents found. Try a section number like 668.34."}
+      <div className="border p-5 text-sm space-y-2">
+        <p>
+          {r.no_confident_cite
+            ? "No confident citation — nothing matched your question closely enough to cite. Try including a section number like 34 CFR 668.34, or rephrase."
+            : "No matching Education Department documents found. Try a section number like 668.34."}
+        </p>
+        {r.rejected_candidate?.citation_id && (
+          <p className="text-xs opacity-70">
+            Checked and set aside: <span className="font-mono">{r.rejected_candidate.citation_id}</span> ({r.rejected_candidate.title}) — it doesn't mention{" "}
+            {r.rejected_candidate.missing_terms?.map((t) => `"${t}"`).join(", ")}.
+          </p>
+        )}
+        <p className="text-xs opacity-60">Imported handbook coverage today: {r.handbook_coverage ?? "2025-26 FSA Handbook Vol 5 Ch 1 only"}.</p>
       </div>
     );
   }
@@ -247,6 +266,7 @@ function ResultCard({ r }: { r: Result }) {
         <div className="text-xs opacity-60 mt-1">
           Fetched {r.fetched_at ? new Date(r.fetched_at).toLocaleString() : ""}
           {r.as_of_date && ` · eCFR as of ${r.as_of_date}`}
+          {r.award_year && ` · Award year ${r.award_year}`}
         </div>
       </div>
       <div className="p-6">
@@ -255,6 +275,10 @@ function ResultCard({ r }: { r: Result }) {
         <Button asChild className="mt-5 bg-accent hover:bg-accent-hover text-accent-foreground">
           <a href={r.source_url} target="_blank" rel="noopener noreferrer">Open official source ↗</a>
         </Button>
+        {r.mode === "handbook-passage" && (
+          <p className="text-xs opacity-60 mt-2">Exact passage from the imported handbook, shown word for word. Guidance for the {r.award_year} award year — check it applies to yours.</p>
+        )}
+        <HandbookPassages list={(r.handbook_passages ?? []).filter((p) => p.citation_id !== r.citation_id)} />
         {r.results && r.results.length > 1 && (
           <div className="mt-6">
             <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Other matches</div>
@@ -268,6 +292,27 @@ function ResultCard({ r }: { r: Result }) {
             </ul>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function HandbookPassages({ list }: { list: Passage[] }) {
+  if (!list.length) return null;
+  return (
+    <div className="mt-6 border-t pt-4">
+      <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Related FSA Handbook passages (exact text)</div>
+      <div className="space-y-4">
+        {list.map((p) => (
+          <div key={p.citation_id} className="border-l-2 border-accent/40 pl-3">
+            <div className="text-sm font-semibold">{p.heading}</div>
+            <div className="text-xs opacity-60 mb-1">
+              FSA Handbook {p.award_year} · {p.source_status} · last modified {p.last_modified_date ?? "unknown"} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
+            </div>
+            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-48 overflow-auto opacity-85">{p.passage}</pre>
+            <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open this passage on fsapartners.ed.gov ↗</a>
+          </div>
+        ))}
       </div>
     </div>
   );
