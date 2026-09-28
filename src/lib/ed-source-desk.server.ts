@@ -153,7 +153,7 @@ async function reggovDoc(id: string) {
 // text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
 // so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
 const STOP = new Set((
-  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents doc docs thing things way ways"
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways"
 ).split(" "));
 const GENERIC = new Set((
   "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
@@ -166,7 +166,7 @@ export function distinctiveTerms(q: string) {
 }
 
 const SYNONYMS: Record<string, string[]> = {
-  r2t4: ["return of title iv"], sap: ["satisfactory academic progress"], isir: ["institutional student information record"],
+  r2t4: ["return of title iv", "withdraw"], sap: ["satisfactory academic progress"], isir: ["institutional student information record"],
   sai: ["student aid index"], efc: ["expected family contribution"], coa: ["cost of attendance"], mpn: ["master promissory note"],
   loa: ["leave of absence"], nslds: ["national student loan data system"], cod: ["common origination and disbursement"],
   fafsa: ["free application for federal student aid"], leu: ["lifetime eligibility used"], bbay: ["borrower-based academic year"],
