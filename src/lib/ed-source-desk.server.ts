@@ -22,13 +22,50 @@ class UpstreamError extends Error {
   }
 }
 
-async function get(url: string, headers: Record<string, string> = {}) {
-  const res = await fetch(url, { headers: { "User-Agent": UA, ...headers } });
-  if (!res.ok) {
-    const body = (await res.text()).slice(0, 300);
-    throw new UpstreamError(res.status, `Upstream ${new URL(url).host} returned ${res.status}: ${body}`);
+// Bounded upstream access: at most ECFR_MAX_CONCURRENT eCFR requests at once (per server
+// instance), and 429/503 responses are retried with backoff (honouring Retry-After, capped).
+const ECFR_MAX_CONCURRENT = 2;
+const MAX_RETRIES = 3;
+let ecfrActive = 0;
+const ecfrQueue: (() => void)[] = [];
+async function ecfrSlot<T>(fn: () => Promise<T>): Promise<T> {
+  if (ecfrActive >= ECFR_MAX_CONCURRENT) await new Promise<void>((r) => ecfrQueue.push(r));
+  ecfrActive++;
+  try {
+    return await fn();
+  } finally {
+    ecfrActive--;
+    ecfrQueue.shift()?.();
   }
-  return res;
+}
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function get(url: string, headers: Record<string, string> = {}) {
+  const host = new URL(url).host;
+  const once = () => fetch(url, { headers: { "User-Agent": UA, ...headers } });
+  for (let attempt = 0; ; attempt++) {
+    const res = await (host === "www.ecfr.gov" ? ecfrSlot(once) : once());
+    if (res.ok) return res;
+    const retryable = res.status === 429 || res.status === 503;
+    if (retryable && attempt < MAX_RETRIES) {
+      const ra = Number(res.headers.get("retry-after"));
+      const wait = Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 800 * 2 ** attempt + Math.random() * 300, 5000);
+      await res.body?.cancel();
+      await sleep(wait);
+      continue;
+    }
+    const body = (await res.text()).slice(0, 300);
+    throw new UpstreamError(res.status, `Upstream ${host} returned ${res.status}${retryable ? ` after ${attempt + 1} attempts` : ""}: ${body}`);
+  }
+}
+
+// eCFR's latest issue date changes at most daily; cache it to halve eCFR calls.
+let titlesCache: { at: number; data: { titles: { number: number; latest_issue_date: string }[] } } | null = null;
+async function ecfrTitles() {
+  if (titlesCache && Date.now() - titlesCache.at < 60 * 60 * 1000) return titlesCache.data;
+  const data = (await (await get("https://www.ecfr.gov/api/versioner/v1/titles.json")).json()) as { titles: { number: number; latest_issue_date: string }[] };
+  titlesCache = { at: Date.now(), data };
+  return data;
 }
 
 const REFUSE_RULES: { reason: string; re: RegExp }[] = [
@@ -85,9 +122,7 @@ async function cap(text: string) {
 }
 
 async function ecfr(title: string, section: string) {
-  const titles = (await (await get("https://www.ecfr.gov/api/versioner/v1/titles.json")).json()) as {
-    titles: { number: number; latest_issue_date: string }[];
-  };
+  const titles = await ecfrTitles();
   const date = titles.titles.find((t) => String(t.number) === title)?.latest_issue_date;
   if (!date) throw new UpstreamError(404, `Title ${title} not found in eCFR`);
   const res = await get(
