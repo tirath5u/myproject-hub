@@ -50,6 +50,7 @@ const REASONS: Record<string, string> = {
   "student-specific": "This asks about a specific student's eligibility.",
   "private-member-content": "This asks for private membership content.",
   "non-ed-tax-advice": "This is individual tax advice, outside Department of Education rules.",
+  "vendor-internal-config": "This asks about vendor or internal software setup, which isn't public law.",
 };
 
 const DISPLAY_CAP = 6000;
