@@ -193,12 +193,20 @@ function relevance(q: string, hay: string) {
 }
 const RELEVANCE_MIN = FIT_MIN;
 
+// A Federal Register search hit is only an *answer* when the question asks for FR documents.
+// Otherwise a notice (e.g. an annual rate notice) or a proposed rule is not an answer to a
+// "what determines / what happens" question — it's listed as related, never cited as the answer.
+const FR_INTENT = /federal register|\bfr\b|\bnotices?\b|proposed|\bnprm\b|rulemaking|\brecent\b|\blatest\b|announce/i;
+const PROPOSED_INTENT = /proposed|\bnprm\b|rulemaking/i;
+const RECENT_INTENT = /\brecent\b|\blatest\b|\bnewest\b/i;
+
 async function frSearch(q: string, perPage = 3) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
   u.searchParams.set("conditions[term]", distinctiveTerms(q).join(" ") || q); // search on key terms, not filler words
   u.searchParams.append("conditions[agencies][]", "education-department");
   u.searchParams.set("per_page", "10");
-  u.searchParams.set("order", "relevance");
+  const recent = RECENT_INTENT.test(q);
+  u.searchParams.set("order", recent ? "newest" : "relevance");
   const res = await get(u.toString());
   const j = (await res.json()) as { results?: { document_number: string; title: string; html_url: string; abstract?: string; publication_date: string; type?: string }[] };
   const scored = (j.results ?? []).map((r) => ({
@@ -207,10 +215,19 @@ async function frSearch(q: string, perPage = 3) {
     ...frAuthority(r.type), score: relevance(q, `${r.title} ${r.abstract ?? ""}`),
   }));
   // Relevance gate, then rank by authority (lower rank wins), then relevance.
-  const results = scored
-    .filter((r) => r.score >= RELEVANCE_MIN)
-    .sort((a, b) => a.authority_rank - b.authority_rank || b.score - a.score)
+  const relevant = scored.filter((r) => r.score >= RELEVANCE_MIN);
+  const results = relevant
+    .filter((r) => r.authority_rank !== 3 || PROPOSED_INTENT.test(q)) // proposed rules are not in effect
+    .sort((a, b) => (recent ? b.publication_date.localeCompare(a.publication_date) : a.authority_rank - b.authority_rank || b.score - a.score))
     .slice(0, Math.min(Math.max(perPage, 1), 10));
+  if (!FR_INTENT.test(q) && relevant.length) {
+    return {
+      ok: true, mode: "no-confident-cite", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(),
+      no_match: true, no_confident_cite: true,
+      related_documents: relevant.slice(0, 3).map(({ citation_id, title, source_url, publication_date, authority_label }) => ({ citation_id, title, source_url, publication_date, authority_label })),
+      message: "No confident citation. Related Federal Register documents were found, but a notice or proposed rule does not answer this question.",
+    };
+  }
   if (!results.length) {
     return {
       ok: true, mode: "no-confident-cite", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(),
@@ -229,6 +246,7 @@ async function frSearch(q: string, perPage = 3) {
 
 // ---- Imported handbook passages (Phase 2 pilot, read-only, exact vector search) ----
 const HANDBOOK_SIM_MIN = 0.74;
+export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { passages: [], error: "handbook search not configured" };
@@ -249,7 +267,9 @@ async function handbookSearch(q: string) {
       award_year: string | null; source_class: string; source_status: string; publication_date: string | null; last_modified_date: string | null;
       retrieved_at: string; content_hash: string; document_version_key: string;
     }[];
+    const priorYearExcluded = rows.filter((r) => r.award_year !== CURRENT_AWARD_YEAR).length;
     const passages = rows
+      .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
       .map((r) => ({ ...r, fit: topicalFit(q, `${r.heading} ${r.text}`) }))
       .filter((r) => r.similarity >= HANDBOOK_SIM_MIN && r.fit.score >= FIT_MIN)
       .slice(0, 3)
@@ -265,10 +285,10 @@ async function handbookSearch(q: string) {
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
       });
-    return { passages };
+    return { passages, prior_year_excluded: priorYearExcluded };
   } catch (e) {
     console.error("handbook search failed", e);
-    return { passages: [], error: "Handbook search is temporarily unavailable." };
+    return { passages: [], prior_year_excluded: 0, error: "Handbook search is temporarily unavailable." };
   }
 }
 
@@ -315,7 +335,8 @@ export async function lookup(input: LookupInput) {
         text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
       };
     }
-    return { ...result, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_coverage: "2025-26 FSA Handbook Vol 5 Ch 1 only" };
+    return { ...result, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded,
+      handbook_coverage: `No ${CURRENT_AWARD_YEAR} FSA Handbook chapters imported yet (2025-26 Vol 5 Ch 1 is stored but excluded from current results)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
     console.error("ed-source-desk lookup failed", e);
