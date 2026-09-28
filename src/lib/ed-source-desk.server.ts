@@ -37,6 +37,7 @@ const REFUSE_RULES: { reason: string; re: RegExp }[] = [
     re: /\b(my|his|her|their)\s+(isir|sai|efc|fafsa|pell|aid|loan|eligibility)\b|\bis\s+(student\s+)?[A-Z][a-z]+(\s+[A-Z][a-z]+)?\s+eligible\b|\bam i eligible\b|\bwill i (get|qualify)\b|\bcan i get\b|\bstudent\s+[A-Z][a-z]+\s+[A-Z][a-z]+/,
   },
   { reason: "private-member-content", re: /\bnasfaa\b.*\b(member|tip|private|autopilot|ask regs)\b/i },
+  { reason: "vendor-internal-config", re: /\b(anthology|campusnexus|vendor|internal)\b.*\b(config|configuration|setup|setting|help|knowledge)\b/i },
   { reason: "non-ed-tax-advice", re: /\b(irs|tax return|deduct|1040|w-?2|tax credit|file my taxes)\b/i },
 ];
 
@@ -175,7 +176,11 @@ async function frSearch(q: string, perPage = 3) {
     .sort((a, b) => a.authority_rank - b.authority_rank || b.score - a.score)
     .slice(0, Math.min(Math.max(perPage, 1), 10));
   if (!results.length) {
-    return { ok: true, mode: "fr-search", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(), no_match: true, no_confident_cite: scored.length > 0 };
+    return {
+      ok: true, mode: "no-confident-cite", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(),
+      no_match: true, no_confident_cite: true,
+      message: "No confident citation. Include a CFR section (e.g. 34 CFR 668.34) or rephrase.",
+    };
   }
   const top = results[0];
   return {

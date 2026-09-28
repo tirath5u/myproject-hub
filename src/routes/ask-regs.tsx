@@ -235,6 +235,7 @@ function ResultCard({ r }: { r: Result }) {
       <div className="p-6 border-b bg-accent-soft">
         <div className="flex flex-wrap items-center gap-2 mb-1">
           <span className="font-mono text-xs text-accent font-bold">{r.citation_id}</span>
+          <span className="font-mono text-xs opacity-60">mode: {r.mode}</span>
           {r.authority_label && (
             <Badge variant="outline" className={r.authority_rank === 3 ? "border-accent-complement text-accent-complement" : "border-accent text-accent"}>
               Authority {r.authority_rank} · {r.authority_label}
