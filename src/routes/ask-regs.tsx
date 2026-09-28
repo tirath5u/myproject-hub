@@ -64,6 +64,17 @@ const REASONS: Record<string, string> = {
 };
 
 const DISPLAY_CAP = 6000;
+const CURRENT_AWARD_YEAR = "2026-27";
+const isPriorYear = (y?: string | null) => !!y && y !== CURRENT_AWARD_YEAR;
+
+function PriorYearWarning({ year }: { year?: string | null }) {
+  if (!isPriorYear(year)) return null;
+  return (
+    <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-3">
+      <strong className="text-accent-complement">Prior award year:</strong> this is {year} guidance. This site answers for {CURRENT_AWARD_YEAR}; the {CURRENT_AWARD_YEAR} handbook chapter has not been imported yet, so confirm the rule still applies.
+    </div>
+  );
+}
 
 function AskRegsPage() {
   const [q, setQ] = useState("");
@@ -270,13 +281,14 @@ function ResultCard({ r }: { r: Result }) {
         </div>
       </div>
       <div className="p-6">
+        <PriorYearWarning year={r.award_year} />
         <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-96 overflow-auto opacity-85">{shown}</pre>
         {(r.truncated || text.length > DISPLAY_CAP) && <p className="text-xs opacity-60 mt-2">Excerpt shortened. Read the full text at the source.</p>}
         <Button asChild className="mt-5 bg-accent hover:bg-accent-hover text-accent-foreground">
           <a href={r.source_url} target="_blank" rel="noopener noreferrer">Open official source ↗</a>
         </Button>
         {r.mode === "handbook-passage" && (
-          <p className="text-xs opacity-60 mt-2">Exact passage from the imported handbook, shown word for word. Guidance for the {r.award_year} award year — check it applies to yours.</p>
+          <p className="text-xs opacity-60 mt-2">Exact passage from the imported handbook, shown word for word.</p>
         )}
         <HandbookPassages list={(r.handbook_passages ?? []).filter((p) => p.citation_id !== r.citation_id)} />
         {r.results && r.results.length > 1 && (
@@ -309,6 +321,7 @@ function HandbookPassages({ list }: { list: Passage[] }) {
             <div className="text-xs opacity-60 mb-1">
               FSA Handbook {p.award_year} · {p.source_status} · last modified {p.last_modified_date ?? "unknown"} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
             </div>
+            <PriorYearWarning year={p.award_year} />
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-48 overflow-auto opacity-85">{p.passage}</pre>
             <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open this passage on fsapartners.ed.gov ↗</a>
           </div>
