@@ -371,7 +371,7 @@ export async function lookup(input: LookupInput) {
       };
     }
     return { ...result, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded,
-      handbook_coverage: `No ${CURRENT_AWARD_YEAR} FSA Handbook chapters imported yet (2025-26 Vol 5 Ch 1 is stored but excluded from current results)` };
+      handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
     console.error("ed-source-desk lookup failed", e);
