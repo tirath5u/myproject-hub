@@ -4,3 +4,4 @@
 - Golden eval cases live in `src/data/ed-source-desk/goldens.ts`; the pass badge only shows real published results — never compute percentages client-side.
 - Phase 2 library tables `documents`/`chunks` are server-only (RLS on, no anon/authenticated grants, service_role only) — visitors never read or write content directly.
 - Chunk embeddings use `google/gemini-embedding-2` at 3072 dims (`chunks.embedding vector(3072)`); changing model means re-embedding everything. HNSW needs a `halfvec(3072)` cast index (vector index limit is 2000 dims).
+- Pilot retrieval uses exact vector search (no approximate index) on `chunks.embedding`; each chunk's `citation_ref` = human label + official URL text-fragment locator — keeps citations traceable to the source page.

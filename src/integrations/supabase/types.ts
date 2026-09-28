@@ -66,6 +66,7 @@ export type Database = {
           document_version_key: string
           effective_date: string | null
           id: string
+          last_modified_date: string | null
           official_url: string
           publication_date: string | null
           retrieved_at: string
@@ -80,6 +81,7 @@ export type Database = {
           document_version_key: string
           effective_date?: string | null
           id?: string
+          last_modified_date?: string | null
           official_url: string
           publication_date?: string | null
           retrieved_at?: string
@@ -94,6 +96,7 @@ export type Database = {
           document_version_key?: string
           effective_date?: string | null
           id?: string
+          last_modified_date?: string | null
           official_url?: string
           publication_date?: string | null
           retrieved_at?: string
