@@ -264,7 +264,7 @@ async function handbookSearch(q: string) {
 
 type AnyResult = Record<string, unknown> & { ok: boolean; mode?: string; title?: string; text?: string | null; citation_id?: string };
 
-async function routedLookup(routed: Exclude<LookupInput, { q: string }>): Promise<AnyResult> {
+async function routedLookup(routed: Extract<LookupInput, { mode: string }>): Promise<AnyResult> {
   switch (routed.mode) {
     case "ecfr-section": return await ecfr(routed.title ?? "34", routed.section);
     case "fr-doc": return await frDoc(routed.document_number);
@@ -281,7 +281,7 @@ export async function lookup(input: LookupInput) {
     if (reason) {
       return { ok: true, mode: "refuse", refuse: true, refuse_reason: reason, citation_ids: [], text: null, query: q, fetched_at: now() };
     }
-    const routed = route(q) as Exclude<LookupInput, { q: string }>;
+    const routed = route(q) as Extract<LookupInput, { mode: string }>;
     const [primary, hb] = await Promise.all([routedLookup(routed), handbookSearch(q)]);
     let result: AnyResult = primary;
     // Topical-fit gate: explicit numbers and keyword triggers can't validate unrelated questions.
