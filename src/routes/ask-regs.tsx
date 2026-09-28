@@ -42,6 +42,7 @@ type Result = {
   handbook_passages?: Passage[];
   handbook_error?: string | null;
   handbook_coverage?: string;
+  related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
 type Passage = {
@@ -115,7 +116,7 @@ function AskRegsPage() {
           {g.eval ? (
             <Badge variant="outline" className="border-accent text-accent">Eval {g.eval.pass_count}/{g.eval.total} pass</Badge>
           ) : (
-            <Badge variant="outline">Beta · phase 1</Badge>
+            <Badge variant="outline">Beta · eval re-run pending</Badge>
           )}
         </div>
         <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-2">
@@ -191,7 +192,11 @@ function AskRegsPage() {
               <span className="opacity-60">ran {new Date(g.eval.ran_at).toLocaleString()}</span>
             </span>
           ) : (
-            <span className="text-xs opacity-60">Full 12-case set and results loading soon</span>
+            <span className="text-xs opacity-60">
+              {g.previous_eval
+                ? `Earlier run ${g.previous_eval.pass_count}/${g.previous_eval.total} (${new Date(g.previous_eval.ran_at).toLocaleDateString()}) is out of date. ${g.previous_eval.superseded_reason}`
+                : "Results pending"}
+            </span>
           )}
         </div>
         <div className="border divide-y">
@@ -255,7 +260,20 @@ function ResultCard({ r }: { r: Result }) {
             {r.rejected_candidate.missing_terms?.map((t) => `"${t}"`).join(", ")}.
           </p>
         )}
-        <p className="text-xs opacity-60">Imported handbook coverage today: {r.handbook_coverage ?? "2025-26 FSA Handbook Vol 5 Ch 1 only"}.</p>
+        {!!r.related_documents?.length && (
+          <div className="text-xs">
+            <div className="opacity-70 mb-1">Related Federal Register documents (not an answer to this question):</div>
+            <ul className="space-y-1">
+              {r.related_documents.map((d) => (
+                <li key={d.citation_id}>
+                  <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{d.title}</a>{" "}
+                  <span className="font-mono opacity-60">{d.citation_id}</span> <span className="opacity-60">· {d.authority_label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
       </div>
     );
   }
