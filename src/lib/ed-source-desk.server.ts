@@ -107,8 +107,17 @@ async function ecfr(title: string, section: string) {
     fetched_at: now(),
     http_status: res.status,
     as_of_date: date,
+    authority_rank: 1,
+    authority_label: "eCFR regulation text (highest authority)",
     refuse: false,
   };
+}
+
+// FAIS authority rank (lower number = higher authority).
+export function frAuthority(type?: string) {
+  if (type === "Rule") return { authority_rank: 2, authority_label: "Federal Register final rule" };
+  if (type === "Proposed Rule") return { authority_rank: 3, authority_label: "Federal Register PROPOSED rule — not in effect" };
+  return { authority_rank: 7, authority_label: "Federal Register notice (lowest authority)" };
 }
 
 async function frDoc(n: string) {
@@ -117,7 +126,7 @@ async function frDoc(n: string) {
   const body = [d.abstract, d.action && `Action: ${d.action}`, d.dates && `Dates: ${d.dates}`, d.publication_date && `Published: ${d.publication_date}`]
     .filter(Boolean).join("\n\n");
   return {
-    ok: true, mode: "fr-doc", citation_id: `fr:${n}`, title: d.title, source_url: d.html_url,
+    ok: true, mode: "fr-doc", citation_id: `fr:${n}`, title: d.title, source_url: d.html_url, ...frAuthority(d.type),
     ...(await cap(body || "(No abstract provided.)")), fetched_at: now(), http_status: res.status, refuse: false,
   };
 }
@@ -133,28 +142,45 @@ async function reggovDoc(id: string) {
   return {
     ok: true, mode: "reggov-doc", citation_id: `reggov:${id}`, title: a.title,
     source_url: `https://www.regulations.gov/document/${id}`,
+    ...frAuthority(a.documentType === "Rule" ? "Rule" : a.documentType === "Proposed Rule" ? "Proposed Rule" : undefined),
     ...(await cap(body)), fetched_at: now(), http_status: res.status, refuse: false,
   };
 }
+
+const STOP = new Set("a an the of to in on for and or is are was be what how does do when who which with under by from about this that it its i my me can title iv".split(" "));
+function relevance(q: string, hay: string) {
+  const terms = q.toLowerCase().match(/[a-z0-9]{3,}/g)?.filter((t) => !STOP.has(t)) ?? [];
+  if (!terms.length) return 0;
+  const h = hay.toLowerCase();
+  return terms.filter((t) => h.includes(t)).length / terms.length;
+}
+const RELEVANCE_MIN = 0.5;
 
 async function frSearch(q: string, perPage = 3) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
   u.searchParams.set("conditions[term]", q);
   u.searchParams.append("conditions[agencies][]", "education-department");
-  u.searchParams.set("per_page", String(Math.min(Math.max(perPage, 1), 10)));
+  u.searchParams.set("per_page", "10");
   u.searchParams.set("order", "relevance");
   const res = await get(u.toString());
-  const j = (await res.json()) as { results?: { document_number: string; title: string; html_url: string; abstract?: string; publication_date: string }[] };
-  const results = (j.results ?? []).map((r) => ({
+  const j = (await res.json()) as { results?: { document_number: string; title: string; html_url: string; abstract?: string; publication_date: string; type?: string }[] };
+  const scored = (j.results ?? []).map((r) => ({
     citation_id: `fr:${r.document_number}`, title: r.title, source_url: r.html_url,
     publication_date: r.publication_date, abstract: r.abstract ?? null,
+    ...frAuthority(r.type), score: relevance(q, `${r.title} ${r.abstract ?? ""}`),
   }));
+  // Relevance gate, then rank by authority (lower rank wins), then relevance.
+  const results = scored
+    .filter((r) => r.score >= RELEVANCE_MIN)
+    .sort((a, b) => a.authority_rank - b.authority_rank || b.score - a.score)
+    .slice(0, Math.min(Math.max(perPage, 1), 10));
   if (!results.length) {
-    return { ok: true, mode: "fr-search", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(), no_match: true };
+    return { ok: true, mode: "fr-search", refuse: false, citation_ids: [], results: [], text: null, query: q, fetched_at: now(), no_match: true, no_confident_cite: scored.length > 0 };
   }
   const top = results[0];
   return {
     ok: true, mode: "fr-search", citation_id: top.citation_id, title: top.title, source_url: top.source_url,
+    authority_rank: top.authority_rank, authority_label: top.authority_label,
     ...(await cap(top.abstract ?? "(No abstract provided.)")),
     citation_ids: results.map((r) => r.citation_id), results, query: q, fetched_at: now(), http_status: res.status, refuse: false,
   };
