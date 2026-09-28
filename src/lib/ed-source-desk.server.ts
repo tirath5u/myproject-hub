@@ -153,7 +153,7 @@ async function reggovDoc(id: string) {
 // text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
 // so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
 const STOP = new Set((
-  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement"
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents doc docs thing things way ways"
 ).split(" "));
 const GENERIC = new Set((
   "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
@@ -165,7 +165,16 @@ export function distinctiveTerms(q: string) {
   return [...new Set(terms.filter((t) => !STOP.has(t) && !GENERIC.has(t)))];
 }
 
+const SYNONYMS: Record<string, string[]> = {
+  r2t4: ["return of title iv"], sap: ["satisfactory academic progress"], isir: ["institutional student information record"],
+  sai: ["student aid index"], efc: ["expected family contribution"], coa: ["cost of attendance"], mpn: ["master promissory note"],
+  loa: ["leave of absence"], nslds: ["national student loan data system"], cod: ["common origination and disbursement"],
+  fafsa: ["free application for federal student aid"], leu: ["lifetime eligibility used"], bbay: ["borrower-based academic year"],
+  say: ["scheduled academic year"], obbba: ["one big beautiful bill"],
+};
+
 function stemHit(term: string, hay: string) {
+  if (SYNONYMS[term]?.some((p) => hay.toLowerCase().includes(p))) return true;
   const stem = term.length > 6 ? term.slice(0, Math.max(5, term.length - 3)) : term.replace(/s$/, "");
   return new RegExp(`\\b${stem.replace(/[-]/g, "[- ]?")}`, "i").test(hay);
 }
@@ -176,7 +185,8 @@ export function topicalFit(q: string, hay: string) {
   const missing = terms.filter((t) => !stemHit(t, hay));
   return { score: (terms.length - missing.length) / terms.length, terms, missing };
 }
-const FIT_MIN = 0.6;
+const FIT_MIN = 0.6; // explicit section / document number named by the user
+const FIT_MIN_KEYWORD = 0.8; // section guessed from a broad keyword trigger — stricter
 
 function relevance(q: string, hay: string) {
   return topicalFit(q, hay).score;
@@ -218,7 +228,7 @@ async function frSearch(q: string, perPage = 3) {
 }
 
 // ---- Imported handbook passages (Phase 2 pilot, read-only, exact vector search) ----
-const HANDBOOK_SIM_MIN = 0.7;
+const HANDBOOK_SIM_MIN = 0.74;
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { passages: [], error: "handbook search not configured" };
@@ -287,7 +297,8 @@ export async function lookup(input: LookupInput) {
     // Topical-fit gate: explicit numbers and keyword triggers can't validate unrelated questions.
     if (primary.ok && primary.mode !== "no-confident-cite" && primary.mode !== "fr-search") {
       const fit = topicalFit(q, `${primary.title ?? ""} ${primary.text ?? ""}`);
-      if (fit.score < FIT_MIN) {
+      const explicit = /(?:§\s*)?\b\d{3}\.\d{1,4}[a-z]?\b|\bED-\d{4}-|\b(19|20)\d{2}-\d{4,5}\b/i.test(q);
+      if (fit.score < (explicit ? FIT_MIN : FIT_MIN_KEYWORD)) {
         result = {
           ok: true, mode: "no-confident-cite", refuse: false, no_match: true, no_confident_cite: true, citation_ids: [], text: null, query: q, fetched_at: now(),
           rejected_candidate: { citation_id: primary.citation_id, title: primary.title, reason: "cited text does not contain the question's key terms", missing_terms: fit.missing, fit: Math.round(fit.score * 100) / 100 },
