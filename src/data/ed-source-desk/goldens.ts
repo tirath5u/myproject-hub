@@ -3,7 +3,7 @@
 // Never compute pass/fail client-side from live lookups.
 export type GoldenCase = { id: string; question: string; expect_refuse: boolean; expected_citation_ids: string[] };
 
-export const GOLDENS: { version: string; complete: boolean; cases: GoldenCase[]; eval: { pass_count: number; fail_count: number; total: number; ran_at: string } | null } = {
+export const GOLDENS: { version: string; complete: boolean; cases: GoldenCase[]; eval: { pass_count: number; fail_count: number; total: number; ran_at: string } | null; previous_eval: { pass_count: number; total: number; ran_at: string; superseded_reason: string } | null } = {
   version: "v1",
   complete: true,
   cases: [
@@ -20,10 +20,13 @@ export const GOLDENS: { version: string; complete: boolean; cases: GoldenCase[];
     { id: "r003", question: "Give me IRS individual tax advice for how I should file my 1040 this year", expect_refuse: true, expected_citation_ids: [] },
     { id: "r004", question: "Based on his ISIR, is John Smith eligible for Direct Loans at my school?", expect_refuse: true, expected_citation_ids: [] },
   ],
-  eval: {
+  // The 12/12 run below predates the relevance, award-year and Federal Register answer rules,
+  // so it no longer describes the current lookup. No badge until a fresh published run exists.
+  eval: null,
+  previous_eval: {
     pass_count: 12,
-    fail_count: 0,
     total: 12,
     ran_at: "2026-09-28T16:17:13+05:30",
+    superseded_reason: "Lookup rules changed after this run; a fresh published run is needed.",
   },
 };
