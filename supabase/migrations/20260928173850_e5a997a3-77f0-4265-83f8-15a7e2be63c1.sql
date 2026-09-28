@@ -1,0 +1,1 @@
+ALTER TABLE public.documents ADD COLUMN last_modified_date date;
