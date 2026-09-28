@@ -148,14 +148,40 @@ async function reggovDoc(id: string) {
   };
 }
 
-const STOP = new Set("a an the of to in on for and or is are was be what how does do when who which with under by from about this that it its i my me can title iv".split(" "));
-function relevance(q: string, hay: string) {
-  const terms = q.toLowerCase().match(/[a-z0-9]{3,}/g)?.filter((t) => !STOP.has(t)) ?? [];
-  if (!terms.length) return 0;
-  const h = hay.toLowerCase();
-  return terms.filter((t) => h.includes(t)).length / terms.length;
+// ---- Topical-fit check -------------------------------------------------------
+// A citation is only kept if the question's *distinctive* words appear in the cited
+// text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
+// so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
+const STOP = new Set((
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement"
+).split(" "));
+const GENERIC = new Set((
+  "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
+).split(" "));
+
+export function distinctiveTerms(q: string) {
+  const cleaned = q.toLowerCase().replace(/§\s*/g, " ").replace(/\b\d+(\.\d+)*[a-z]?\b/g, " ");
+  const terms = cleaned.match(/[a-z][a-z0-9-]{2,}/g) ?? [];
+  return [...new Set(terms.filter((t) => !STOP.has(t) && !GENERIC.has(t)))];
 }
-const RELEVANCE_MIN = 0.5;
+
+function stemHit(term: string, hay: string) {
+  const stem = term.length > 6 ? term.slice(0, Math.max(5, term.length - 3)) : term.replace(/s$/, "");
+  return new RegExp(`\\b${stem.replace(/[-]/g, "[- ]?")}`, "i").test(hay);
+}
+
+export function topicalFit(q: string, hay: string) {
+  const terms = distinctiveTerms(q);
+  if (!terms.length) return { score: 1, terms, missing: [] as string[] };
+  const missing = terms.filter((t) => !stemHit(t, hay));
+  return { score: (terms.length - missing.length) / terms.length, terms, missing };
+}
+const FIT_MIN = 0.6;
+
+function relevance(q: string, hay: string) {
+  return topicalFit(q, hay).score;
+}
+const RELEVANCE_MIN = FIT_MIN;
 
 async function frSearch(q: string, perPage = 3) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
