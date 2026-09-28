@@ -19,8 +19,9 @@ export const Route = createFileRoute("/api/ed-source-desk/lookup")({
           return Response.json({ ok: false, error: "Please enter a question between 2 and 500 characters." }, { status: 400 });
         }
         const { lookup } = await import("@/lib/ed-source-desk.server");
-        const result = await lookup(parsed.data);
-        const status = result.ok ? 200 : result.http_status && result.http_status >= 400 ? (result.http_status === 503 ? 503 : 502) : 500;
+        const result = (await lookup(parsed.data)) as { ok: boolean; http_status?: number };
+        const hs = result.http_status ?? 500;
+        const status = result.ok ? 200 : hs === 503 ? 503 : hs >= 400 && hs !== 500 ? 502 : 500;
         return Response.json(result, { status });
       },
     },
