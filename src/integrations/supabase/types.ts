@@ -19,6 +19,8 @@ export type Database = {
           citation_ref: string | null
           created_at: string
           document_version_id: string
+          embedding: string | null
+          embedding_model: string | null
           heading: string | null
           id: string
           ordinal: number
@@ -28,6 +30,8 @@ export type Database = {
           citation_ref?: string | null
           created_at?: string
           document_version_id: string
+          embedding?: string | null
+          embedding_model?: string | null
           heading?: string | null
           id?: string
           ordinal: number
@@ -37,6 +41,8 @@ export type Database = {
           citation_ref?: string | null
           created_at?: string
           document_version_id?: string
+          embedding?: string | null
+          embedding_model?: string | null
           heading?: string | null
           id?: string
           ordinal?: number
