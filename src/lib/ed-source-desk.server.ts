@@ -387,9 +387,12 @@ async function handbookSearch(q: string) {
       award_year: string | null; source_class: string; source_status: string; publication_date: string | null; last_modified_date: string | null;
       retrieved_at: string; content_hash: string; document_version_key: string;
     }[];
+    const sectionText = new Map<string, string>();
+    for (const r of [...rows].sort((x, y) => x.ordinal - y.ordinal)) sectionText.set(r.heading, `${sectionText.get(r.heading) ?? ""} ${r.text}`);
     const ranked = rows
       .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
-      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, r.text) }))
+      // A section split into several chunks is judged as one section (same verified heading).
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text) }))
       // Similarity floor 0.74; a passage whose verified heading names ≥2 of the question's primary
       // terms may qualify from HANDBOOK_HEADING_SIM_MIN. Topical fit (FIT_MIN) applies to both.
       .filter((r) => (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) && r.fit.score >= FIT_MIN)
