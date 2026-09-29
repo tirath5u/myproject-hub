@@ -220,7 +220,7 @@ async function reggovDoc(id: string, log?: AttemptLog) {
 // text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
 // so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
 const STOP = new Set((
-  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways matter matters might"
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways matter matters might they them"
 ).split(" "));
 const GENERIC = new Set((
   "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
@@ -313,6 +313,7 @@ async function frSearch(q: string, perPage = 3, log?: AttemptLog) {
 
 // ---- Imported handbook passages (Phase 2 pilot, read-only, exact vector search) ----
 const HANDBOOK_SIM_MIN = 0.74;
+const HANDBOOK_HEADING_SIM_MIN = 0.70;
 // Concept matches used ONLY for current-year handbook passages, added for specific reviewed cases.
 // Deliberately absent: summer/winter -> intersession (a summer or winter session is not automatically one).
 const HANDBOOK_CONCEPTS: Record<string, RegExp> = {
@@ -326,8 +327,12 @@ const PHRASE_TERMS: [RegExp, RegExp, string][] = [[/\baward years?\b/i, /\baward
 // Heading-aware fit for verified 2026-27 section headings: a term that appears in the heading
 // counts double, so a passage whose verified title names the concept is recognised even when
 // the body uses different wording. The global threshold (FIT_MIN) is unchanged.
+// Terms after "including …" are secondary; ranking by heading uses the question's primary subject.
+const primaryPart = (q: string) => q.split(/\bincluding\b|\bas well as\b/i)[0];
 function handbookFit(q: string, heading: string, text: string) {
   const terms = distinctiveTerms(q);
+  const primary = new Set(distinctiveTerms(primaryPart(q)));
+  const headingTerms: string[] = [];
   const phrases = PHRASE_TERMS.filter(([qre]) => qre.test(q));
   const hay = `${heading} ${text}`;
   let got = 0, total = 0;
@@ -338,10 +343,10 @@ function handbookFit(q: string, heading: string, text: string) {
     const hit = inHead || stemHit(t, hay) || !!HANDBOOK_CONCEPTS[t]?.test(text);
     const w = inHead ? 2 : 1;
     total += w; if (hit) got += w; else missing.push(t);
-    if (inHead) headingHits++;
+    if (inHead && primary.has(t)) { headingHits++; headingTerms.push(t); }
   }
   for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
-  return { score: total ? got / total : 1, missing, headingHits };
+  return { score: total ? got / total : 1, missing, headingHits, headingTerms };
 }
 
 const WHY_INTENT = /\bwhy\b/i;
@@ -362,24 +367,40 @@ async function handbookSearch(q: string) {
     const emb = ((await res.json()) as { data: { embedding: number[] }[] }).data[0].embedding;
     if (emb.length !== 3072) throw new Error(`unexpected dimension ${emb.length}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.rpc("match_chunks" as never, { query_embedding: JSON.stringify(emb), match_count: 10 } as never);
+    const qe = JSON.stringify(emb);
+    const [all, cur] = await Promise.all([
+      supabaseAdmin.rpc("match_chunks" as never, { query_embedding: qe, match_count: 10 } as never),
+      supabaseAdmin.rpc("match_current_chunks" as never, { query_embedding: qe, award: CURRENT_AWARD_YEAR, match_count: 60 } as never),
+    ]);
+    const error = all.error ?? cur.error;
     if (error) throw new Error(error.message);
+    const priorYearExcluded = ((all.data ?? []) as { award_year: string | null }[]).filter((r) => r.award_year !== CURRENT_AWARD_YEAR).length;
+    const data = cur.data;
     const rows = (data ?? []) as {
       heading: string; text: string; citation_ref: string; ordinal: number; similarity: number; official_url: string; title: string;
       award_year: string | null; source_class: string; source_status: string; publication_date: string | null; last_modified_date: string | null;
       retrieved_at: string; content_hash: string; document_version_key: string;
     }[];
-    const priorYearExcluded = rows.filter((r) => r.award_year !== CURRENT_AWARD_YEAR).length;
-    const passages = rows
+    const ranked = rows
       .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
       .map((r) => ({ ...r, fit: handbookFit(q, r.heading, r.text) }))
-      .filter((r) => r.similarity >= HANDBOOK_SIM_MIN && r.fit.score >= FIT_MIN)
+      // Similarity floor 0.74; a passage whose verified heading names ≥2 of the question's primary
+      // terms may qualify from HANDBOOK_HEADING_SIM_MIN. Topical fit (FIT_MIN) applies to both.
+      .filter((r) => (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) && r.fit.score >= FIT_MIN)
       // Rank: sections whose verified heading names more of the question's terms first; on a tie,
       // rule sections before worked examples; then by similarity.
       .sort((a, b) => b.fit.headingHits - a.fit.headingHits
         || Number(/\bExample \d+/.test(a.heading)) - Number(/\bExample \d+/.test(b.heading))
-        || b.similarity - a.similarity)
-      .slice(0, 3)
+        || b.similarity - a.similarity);
+    // Pick up to 3, preferring passages whose heading covers primary terms not yet covered.
+    const picked: typeof ranked = [];
+    const covered = new Set<string>();
+    while (picked.length < 3 && picked.length < ranked.length) {
+      const rest = ranked.filter((r) => !picked.includes(r));
+      const best = rest.find((r) => r.fit.headingTerms.some((t) => !covered.has(t))) ?? rest[0];
+      picked.push(best); best.fit.headingTerms.forEach((t) => covered.add(t));
+    }
+    const passages = picked
       .map((r) => {
         const locator = r.citation_ref.match(/https?:\/\/\S+/)?.[0] ?? r.official_url;
         return {
