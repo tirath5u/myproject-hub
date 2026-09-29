@@ -213,7 +213,7 @@ function AskRegsPage() {
             >
               <div>
                 <div className="text-sm font-semibold">{c.question}</div>
-                <div className="font-mono text-xs opacity-60 mt-1">{c.expected_citation_ids.join(", ") || "no citation expected"}</div>
+                <div className="font-mono text-xs opacity-60 mt-1">{c.scoring_rule ? "Time-based rule: recent ED FAFSA notice (last 12 months)" : c.expected_citation_ids.join(", ") || "no citation expected"}</div>
               </div>
               <Badge variant="outline" className={c.expect_refuse ? "border-accent-complement text-accent-complement" : "border-accent text-accent"}>
                 {c.expect_refuse ? "Should refuse" : "Answerable"}
