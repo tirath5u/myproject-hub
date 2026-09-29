@@ -42,9 +42,10 @@ type Result = {
   handbook_passages?: Passage[];
   handbook_error?: string | null;
   handbook_coverage?: string;
-  coverage?: { status: "full" | "partial"; missing_terms: string[]; notes: string[] } | null;
+  coverage?: { status: "retrieved-text" | "partial"; missing_terms: string[]; notes: string[] } | null;
   conditional?: string | null;
   source_unavailable?: boolean;
+  related_passages?: boolean;
   related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
@@ -212,7 +213,7 @@ function AskRegsPage() {
             >
               <div>
                 <div className="text-sm font-semibold">{c.question}</div>
-                <div className="font-mono text-xs opacity-60 mt-1">{c.expected_citation_ids.join(", ") || "no citation expected"}</div>
+                <div className="font-mono text-xs opacity-60 mt-1">{c.scoring_rule ? "Time-based rule: recent ED FAFSA notice (last 12 months)" : c.expected_citation_ids.join(", ") || "no citation expected"}</div>
               </div>
               <Badge variant="outline" className={c.expect_refuse ? "border-accent-complement text-accent-complement" : "border-accent text-accent"}>
                 {c.expect_refuse ? "Should refuse" : "Answerable"}
@@ -279,6 +280,12 @@ function ResultCard({ r }: { r: Result }) {
             </ul>
           </div>
         )}
+        {r.related_passages && !!r.handbook_passages?.length && (
+          <div className="text-xs">
+            <div className="opacity-70 mb-1">Related handbook passages, not a complete answer:</div>
+            <HandbookPassages list={r.handbook_passages} bare />
+          </div>
+        )}
         <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
       </div>
     );
@@ -307,6 +314,9 @@ function ResultCard({ r }: { r: Result }) {
       <div className="p-6">
         <PriorYearWarning year={r.award_year} />
         {r.conditional && <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.conditional}</div>}
+        {r.mode === "handbook-passage" && (
+          <p className="text-xs opacity-70 my-2">Retrieved source text, not a complete answer. Read the full section at the official source.</p>
+        )}
         {r.coverage?.status === "partial" && (
           <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-3">
             <strong className="text-accent-complement">Partial answer:</strong> {r.coverage.notes.join(" ")}
@@ -339,11 +349,11 @@ function ResultCard({ r }: { r: Result }) {
   );
 }
 
-function HandbookPassages({ list }: { list: Passage[] }) {
+function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
   if (!list.length) return null;
   return (
-    <div className="mt-6 border-t pt-4">
-      <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Related FSA Handbook passages (exact text)</div>
+    <div className={bare ? "mt-2" : "mt-6 border-t pt-4"}>
+      {!bare && <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Related FSA Handbook passages (exact text)</div>}
       <div className="space-y-4">
         {list.map((p) => (
           <div key={p.citation_id} className="border-l-2 border-accent/40 pl-3">

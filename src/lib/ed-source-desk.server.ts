@@ -364,6 +364,7 @@ function handbookFit(q: string, heading: string, text: string) {
   return { score: total ? got / total : 1, missing, headingHits, headingTerms, headingPrecision };
 }
 
+const ACADEMIC_YEAR_DEFINITION = /\bacademic year\b[^?]*\b(defin|mean)|\bdefin\w*\b[^?]*\bacademic year\b/i;
 const WHY_INTENT = /\bwhy\b/i;
 const WHY_ANSWERED = /\bbecause\b|\breasons?\b|\bpurpose\b|\bin order to\b|\bso that\b|\bto allow\b|\bflexib/i;
 const PRESCRIPTIVE = /\bhow (should|must|is|are)\b[^?]*\b(assign|treat|combin)/i;
@@ -419,7 +420,26 @@ async function handbookSearch(q: string) {
       const best = rest.find((r) => r.fit.headingTerms.some((t) => !covered.has(t))) ?? rest[0];
       picked.push(best); best.fit.headingTerms.forEach((t) => covered.add(t));
     }
-    const passages = picked
+    // "How is an academic year defined" → both definitional minimums ("… in an Academic Year":
+    // weeks of instructional time and credit/clock hours) are shown together, first.
+    if (ACADEMIC_YEAR_DEFINITION.test(q)) {
+      const defs = rows.filter((r) => / in an Academic Year$/i.test(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN)
+        .sort((a, b) => a.ordinal - b.ordinal)
+        .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text) }))
+        .filter((r, i, arr) => arr.findIndex((x) => x.heading === r.heading) === i);
+      if (defs.length >= 2) {
+        const rest = picked.filter((r) => !defs.some((d) => d.heading === r.heading));
+        picked.splice(0, picked.length, ...defs, ...rest);
+        picked.length = Math.min(picked.length, 3);
+      }
+    }
+    // A section split into several pieces is shown from its first (defining) piece.
+    for (let i = 0; i < picked.length; i++) {
+      const first = rows.filter((r) => r.heading === picked[i].heading).sort((a, b) => a.ordinal - b.ordinal)[0];
+      if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit };
+    }
+    const seen = new Set<string>();
+    const passages = picked.filter((r) => !seen.has(r.heading) && !!seen.add(r.heading))
       .map((r) => {
         const locator = r.citation_ref.match(/https?:\/\/\S+/)?.[0] ?? r.official_url;
         return {
@@ -476,7 +496,11 @@ export async function lookup(input: LookupInput) {
       } else result = { ...primary, fit: Math.round(fit.score * 100) / 100 };
     }
     const handbook = hb.passages;
-    if (result.mode === "no-confident-cite" && handbook.length) {
+    // Worked examples alone are related passages, not an answer to a rule question.
+    const examplesOnly = handbook.length > 0 && handbook.every((p) => /\bExample \d+/.test(p.heading));
+    if (result.mode === "no-confident-cite" && examplesOnly) {
+      result = { ...result, related_passages: true, message: "No confident citation. Related handbook worked examples were found, but they are not a complete answer." };
+    } else if (result.mode === "no-confident-cite" && handbook.length) {
       const top = handbook[0];
       result = {
         ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false,
@@ -484,7 +508,7 @@ export async function lookup(input: LookupInput) {
         text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
       };
     }
-    let coverage: { status: "full" | "partial"; missing_terms: string[]; notes: string[] } | null = null;
+    let coverage: { status: "retrieved-text" | "partial"; missing_terms: string[]; notes: string[] } | null = null;
     let conditional: string | null = null;
     if (result.mode === "handbook-passage") {
       const shown = handbook.map((p) => `${p.heading} ${p.passage}`).join(" ");
@@ -492,7 +516,7 @@ export async function lookup(input: LookupInput) {
       const notes: string[] = [];
       if (missing.length) notes.push(`The passages shown don't cover: ${missing.map((t) => `"${t}"`).join(", ")}.`);
       if (WHY_INTENT.test(q) && !WHY_ANSWERED.test(shown)) notes.push("The passages describe the rule and its effects but don't explain why a school would choose it.");
-      coverage = { status: notes.length ? "partial" : "full", missing_terms: missing, notes };
+      coverage = { status: notes.length ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
         conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
     }
