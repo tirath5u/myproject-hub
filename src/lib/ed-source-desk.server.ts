@@ -420,7 +420,8 @@ async function handbookSearch(q: string) {
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
       });
-    return { passages, prior_year_excluded: priorYearExcluded };
+    const candidates = rows.slice(0, 12).map((r) => { const f = handbookFit(q, r.heading, r.text); return { ordinal: r.ordinal, heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(f.score * 100) / 100, heading_hits: f.headingHits, heading_precision: Math.round(f.headingPrecision * 100) / 100 }; });
+    return { passages, prior_year_excluded: priorYearExcluded, candidates };
   } catch (e) {
     console.error("handbook search failed", e);
     return { passages: [], prior_year_excluded: 0, error: "Handbook search is temporarily unavailable." };
@@ -483,7 +484,7 @@ export async function lookup(input: LookupInput) {
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
         conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
     }
-    return { ...result, coverage, conditional, upstream_attempts: log, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded,
+    return { ...result, coverage, conditional, upstream_attempts: log, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
       handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
