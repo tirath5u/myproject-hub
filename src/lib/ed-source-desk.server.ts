@@ -346,7 +346,11 @@ function handbookFit(q: string, heading: string, text: string) {
     if (inHead && primary.has(t)) { headingHits++; headingTerms.push(t); }
   }
   for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
-  return { score: total ? got / total : 1, missing, headingHits, headingTerms };
+  // Heading precision: share of the heading's own distinctive words that the question names,
+  // so "Nonstandard Terms" outranks a long heading that only mentions terms in passing.
+  const hw = distinctiveTerms(heading.replace(/^Volume \d+, Chapter \d+, Example \d+:\s*/i, ""));
+  const headingPrecision = hw.length ? hw.filter((w) => terms.some((t) => stemHit(t, w))).length / hw.length : 0;
+  return { score: total ? got / total : 1, missing, headingHits, headingTerms, headingPrecision };
 }
 
 const WHY_INTENT = /\bwhy\b/i;
@@ -389,8 +393,9 @@ async function handbookSearch(q: string) {
       .filter((r) => (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) && r.fit.score >= FIT_MIN)
       // Rank: sections whose verified heading names more of the question's terms first; on a tie,
       // rule sections before worked examples; then by similarity.
-      .sort((a, b) => b.fit.headingHits - a.fit.headingHits
+      .sort((a, b) => Number(b.fit.headingHits >= 2) - Number(a.fit.headingHits >= 2)
         || Number(/\bExample \d+/.test(a.heading)) - Number(/\bExample \d+/.test(b.heading))
+        || b.fit.headingPrecision - a.fit.headingPrecision
         || b.similarity - a.similarity);
     // Pick up to 3, preferring passages whose heading covers primary terms not yet covered.
     const picked: typeof ranked = [];
