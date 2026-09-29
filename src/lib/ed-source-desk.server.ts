@@ -552,6 +552,8 @@ async function handbookSearch(q: string) {
       const first = rows.filter((r) => r.heading === picked[i].heading).sort((a, b) => a.ordinal - b.ordinal)[0];
       if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit, via: picked[i].via };
     }
+    // Specific things the question names (e.g. "BBAY 3") — an example must contain them to count as the answer.
+    const specifics = kwTerms.filter((t) => /^BBAY \d$|^SAY$|^award year$/.test(t.label));
     const seen = new Set<string>();
     const passages = picked.filter((r) => !seen.has(r.heading) && !!seen.add(r.heading))
       .map((r) => {
@@ -563,6 +565,7 @@ async function handbookSearch(q: string) {
           award_year: r.award_year, source_status: r.source_status, publication_date: r.publication_date,
           last_modified_date: r.last_modified_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
           similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits, found_by: r.via,
+          contains_named: r.fit.missing.length === 0 && specifics.every((t) => t.test(`${r.heading} ${sectionText.get(r.heading) ?? r.text}`)),
           look_next: lookNext(sectionText.get(r.heading) ?? r.text, r.award_year),
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
