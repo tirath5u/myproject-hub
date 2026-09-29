@@ -396,7 +396,7 @@ const EXAMPLE_INTENT = /\bexamples?\b|\bworked\b|\billustrat|\bscenario\b|\bsamp
 function keywordTerms(q: string) {
   const out: { label: string; test: (h: string) => boolean }[] = distinctiveTerms(q).map((t) => ({ label: t, test: (h: string) => stemHit(t, h) }));
   for (const [qre, hre, label] of PHRASE_TERMS) if (qre.test(q)) out.push({ label, test: (h) => hre.test(h) });
-  if (/scheduled academic year|\bSAY\b/.test(q)) out.push({ label: "SAY", test: (h) => /scheduled academic year|\bSAY\b/i.test(h) });
+  if (/scheduled academic year/i.test(q) || /\bSAY\b/.test(q)) out.push({ label: "SAY", test: (h) => /scheduled academic year|\bSAY\b/i.test(h) });
   for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1]))) {
     const re = new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i");
     out.push({ label: `BBAY ${m}`, test: (h) => re.test(h) });
@@ -423,12 +423,23 @@ const DEFINABLE = /\baward year\b|\bpayment period\b|\bacademic year\b|\bfull-ti
 async function definitionsFor(q: string, missing: string[], log?: AttemptLog) {
   const wanted = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
   if (!wanted.length) return [];
-  const sec = await ecfr("34", "668.2", log);
-  const full = (sec.full_text as string) ?? "";
-  return wanted.map((term) => {
-    const m = full.match(new RegExp(`(?:^|\\n)\\s*(${term.replace(/-/g, "[- ]")})\\s*:[^\\n]*(?:\\n(?!\\s*[A-Z][A-Za-z ,()-]{2,60}:)[^\\n]+)*`, "i"));
-    return m ? { term, citation_id: "ecfr:34-668.2", title: sec.title, text: m[0].trim().slice(0, 1500), source_url: sec.source_url, as_of_date: sec.as_of_date, authority_rank: 1 } : null;
-  }).filter(Boolean);
+  const extract = (full: string, term: string) =>
+    full.match(new RegExp(`(?:^|\\n)\\s*${term.replace(/-/g, "[- ]")}\\s*:[^\\n]*`, "i"))?.[0].trim().slice(0, 1500) ?? null;
+  const gen = await ecfr("34", "668.2", log);
+  const genText = (gen.full_text as string) ?? "";
+  const out = [];
+  for (const term of wanted) {
+    const direct = extract(genText, term);
+    if (direct) { out.push({ term, citation_id: "ecfr:34-668.2", title: gen.title, text: direct, source_url: gen.source_url, as_of_date: gen.as_of_date, authority_rank: 1 }); continue; }
+    // 668.2(a) lists terms whose definitions live in 34 CFR part 600 (600.2); follow that pointer.
+    const listed = new RegExp(`\\(\\d+\\)\\s*${term}\\.`, "i").test(genText.split(/\n\(b\)/)[0]);
+    if (!listed) continue;
+    const s600 = await ecfr("34", "600.2", log);
+    const def = extract((s600.full_text as string) ?? "", term);
+    if (def) out.push({ term, citation_id: "ecfr:34-600.2", title: s600.title, text: def, source_url: s600.source_url, as_of_date: s600.as_of_date, authority_rank: 1,
+      via: "Listed in 34 CFR 668.2(a) as a term defined in 34 CFR part 600." });
+  }
+  return out;
 }
 export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
@@ -610,7 +621,7 @@ export async function lookup(input: LookupInput) {
         const still = missing.filter((t) => !found.includes(t));
         notes.splice(0, notes.length, ...notes.filter((n) => !n.startsWith("The passages shown")));
         if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
-        notes.push(`Definition of ${found.map((t) => `"${t}"`).join(", ")} added from 34 CFR 668.2.`);
+        notes.push(`Definition of ${found.map((t) => `"${t}"`).join(", ")} added from ${[...new Set(defs.map((d) => d!.citation_id.replace("ecfr:34-", "34 CFR ")))].join(", ")} (looked up via 34 CFR 668.2).`);
       }
       coverage = { status: notes.some((n) => !n.startsWith("Definition of")) ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))

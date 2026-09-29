@@ -343,11 +343,11 @@ function ResultCard({ r }: { r: Result }) {
         )}
         {!!r.definitions?.length && (
           <div className="mt-6 border-t pt-4 space-y-3">
-            <div className="text-xs uppercase tracking-wide opacity-60">Definitions (34 CFR 668.2)</div>
+            <div className="text-xs uppercase tracking-wide opacity-60">Definitions (from 34 CFR 668.2)</div>
             {r.definitions.map((d) => (
               <div key={d.term} className="border-l-2 border-accent/40 pl-3">
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed opacity-85">{d.text}</pre>
-                <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open 34 CFR 668.2 on eCFR ↗</a>
+                <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open {d.citation_id.replace("ecfr:34-", "34 CFR ")} on eCFR ↗</a>
               </div>
             ))}
           </div>
