@@ -535,6 +535,18 @@ async function handbookSearch(q: string) {
         picked.length = Math.min(picked.length, 3);
       }
     }
+    // Found by both searches (in the meaning top 8 AND the word-search top 8): shown as a related
+    // passage — never as an answer (the answer decision in lookup() enforces that).
+    const meaningTop = new Set(rows.slice(0, 8).map((r) => r.heading));
+    const wordsTop = new Set(keyword.map((k) => k.heading));
+    const inBoth = (h: string) => meaningTop.has(h) && wordsTop.has(h);
+    for (const p of picked) if (inBoth(p.heading)) p.via = [...new Set([...p.via, "meaning", "words"])];
+    const extras = rows
+      .filter((r) => inBoth(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => p.heading === r.heading))
+      .filter((r, i, arr) => arr.findIndex((x) => x.heading === r.heading) === i)
+      .slice(0, 2)
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: ["meaning", "words"] }));
+    picked.push(...extras);
     // A section split into several pieces is shown from its first (defining) piece.
     for (let i = 0; i < picked.length; i++) {
       const first = rows.filter((r) => r.heading === picked[i].heading).sort((a, b) => a.ordinal - b.ordinal)[0];
