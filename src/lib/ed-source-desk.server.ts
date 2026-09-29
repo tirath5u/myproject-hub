@@ -178,6 +178,7 @@ async function ecfr(title: string, section: string, log?: AttemptLog) {
     hierarchy: { title, part: pt, section },
     source_url: `https://www.ecfr.gov/current/title-${title}/section-${section}`,
     ...(await cap(stripXml(xml))),
+    full_text: stripXml(xml), // used only for the word check; never returned to the browser
     fetched_at: now(),
     http_status: res.status,
     as_of_date: date,
@@ -226,20 +227,25 @@ async function reggovDoc(id: string, log?: AttemptLog) {
 // text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
 // so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
 const STOP = new Set((
-  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways matter matters might they them"
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways matter matters might they them has have had having check checks checked checking start starts started starting begin begins beginning versus vs role roles similar like etc using whose where while before after during"
 ).split(" "));
 const GENERIC = new Set((
   "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
 ).split(" "));
 
+// "full time" / "full-time" (and half/less-than-full) are the same idea.
+export const normalizeText = (s: string) => s.replace(/\b(full|half|part|less[- ]than[- ]full)[\s-]+time\b/gi, (_m, a: string) => `${a.replace(/\s+/g, "-")}-time`);
+// Abbreviations written in capitals count as terms even when the lowercase word is common (SAY).
+const ABBREV_TERMS = ["ISIR", "SAI", "COA", "BBAY", "SAY", "LEU", "R2T4", "EFC", "MPN", "LOA", "NSLDS", "COD", "FAFSA", "SAP", "OBBBA"];
 export function distinctiveTerms(q: string) {
-  const cleaned = q.toLowerCase().replace(/§\s*/g, " ").replace(/\b\d+(\.\d+)*[a-z]?\b/g, " ");
+  const cleaned = normalizeText(q).toLowerCase().replace(/§\s*/g, " ").replace(/\br2t4\b/g, " r2t4x ").replace(/\b\d+(\.\d+)*[a-z]?\b/g, " ").replace(/\br2t4x\b/g, "r2t4");
   const terms = cleaned.match(/[a-z][a-z0-9-]{2,}/g) ?? [];
-  return [...new Set(terms.filter((t) => !STOP.has(t) && !GENERIC.has(t)))];
+  const abbrevs = ABBREV_TERMS.filter((a) => new RegExp(`\\b${a}\\b`).test(q)).map((a) => a.toLowerCase());
+  return [...new Set([...terms.filter((t) => !STOP.has(t) && !GENERIC.has(t)), ...abbrevs])];
 }
 
 const SYNONYMS: Record<string, string[]> = {
-  r2t4: ["return of title iv", "withdraw"], sap: ["satisfactory academic progress"], isir: ["institutional student information record"],
+  r2t4: ["return of title iv", "withdraw"], sap: ["satisfactory academic progress"], isir: ["institutional student information record", "isir"],
   sai: ["student aid index"], efc: ["expected family contribution"], coa: ["cost of attendance"], mpn: ["master promissory note"],
   loa: ["leave of absence"], nslds: ["national student loan data system"], cod: ["common origination and disbursement"],
   fafsa: ["free application for federal student aid"], leu: ["lifetime eligibility used"], bbay: ["borrower-based academic year"],
@@ -247,7 +253,11 @@ const SYNONYMS: Record<string, string[]> = {
 };
 
 function stemHit(term: string, hay: string) {
+  hay = normalizeText(hay);
   if (SYNONYMS[term]?.some((p) => hay.toLowerCase().includes(p))) return true;
+  // Abbreviations: match the capitalised form only (so "say" the verb never counts as SAY).
+  const ab = ABBREV_TERMS.find((a) => a.toLowerCase() === term);
+  if (ab) return new RegExp(`\\b${ab}\\b`).test(hay);
   const stem = term.length > 6 ? term.slice(0, Math.max(5, term.length - 3)) : term.replace(/s$/, "");
   return new RegExp(`\\b${stem.replace(/[-]/g, "[- ]?")}`, "i").test(hay);
 }
@@ -485,7 +495,7 @@ export async function lookup(input: LookupInput) {
     let result: AnyResult = primary;
     // Topical-fit gate: explicit numbers and keyword triggers can't validate unrelated questions.
     if (primary.ok && primary.mode !== "no-confident-cite" && primary.mode !== "fr-search") {
-      const fit = topicalFit(q, `${primary.title ?? ""} ${primary.text ?? ""}`);
+      const fit = topicalFit(q, `${primary.title ?? ""} ${(primary.full_text as string | undefined) ?? primary.text ?? ""}`);
       const explicit = /(?:§\s*)?\b\d{3}\.\d{1,4}[a-z]?\b|\bED-\d{4}-|\b(19|20)\d{2}-\d{4,5}\b/i.test(q);
       if (fit.score < (explicit ? FIT_MIN : FIT_MIN_KEYWORD)) {
         result = {
