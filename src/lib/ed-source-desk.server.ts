@@ -348,8 +348,10 @@ function handbookFit(q: string, heading: string, text: string) {
   for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
   // Heading precision: share of the heading's own distinctive words that the question names,
   // so "Nonstandard Terms" outranks a long heading that only mentions terms in passing.
-  const hw = distinctiveTerms(heading.replace(/^Volume \d+, Chapter \d+, Example \d+:\s*/i, ""));
-  const headingPrecision = hw.length ? hw.filter((w) => terms.some((t) => stemHit(t, w))).length / hw.length : 0;
+  // Main heading only (text before any ":" subtitle); examples use their own title.
+  const main = heading.replace(/^Volume \d+, Chapter \d+, Example \d+:\s*/i, "").split(":")[0];
+  const hw = distinctiveTerms(main);
+  const headingPrecision = hw.length ? hw.filter((w) => stemHit(w, q)).length / hw.length : 0;
   return { score: total ? got / total : 1, missing, headingHits, headingTerms, headingPrecision };
 }
 
