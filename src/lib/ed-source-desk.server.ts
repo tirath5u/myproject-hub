@@ -17,56 +17,80 @@ async function sha256(s: string) {
 }
 
 class UpstreamError extends Error {
-  constructor(public status: number, msg: string) {
+  constructor(public status: number, msg: string, public unavailable = false) {
     super(msg);
   }
 }
 
+// Per-request log of upstream attempts (first try, retries, final status) — returned for review.
+export type AttemptLog = { host: string; attempt: number; status: number | string; waited_ms: number; at: string }[];
+
 // Bounded upstream access: at most ECFR_MAX_CONCURRENT eCFR requests at once (per server
-// instance), and 429/503 responses are retried with backoff (honouring Retry-After, capped).
+// instance), a minimum gap between eCFR request starts, and 429/503 responses retried with
+// backoff (honouring Retry-After). If the source is still rate-limiting after the retry budget,
+// the lookup reports "source temporarily unavailable" instead of any other answer.
 const ECFR_MAX_CONCURRENT = 2;
-const MAX_RETRIES = 3;
+const ECFR_MIN_GAP_MS = 350;
+const MAX_RETRIES = 5;
+const RETRY_BUDGET_MS = 20_000;
 let ecfrActive = 0;
+let ecfrLastStart = 0;
 const ecfrQueue: (() => void)[] = [];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function ecfrSlot<T>(fn: () => Promise<T>): Promise<T> {
   if (ecfrActive >= ECFR_MAX_CONCURRENT) await new Promise<void>((r) => ecfrQueue.push(r));
   ecfrActive++;
   try {
+    const gap = ecfrLastStart + ECFR_MIN_GAP_MS - Date.now();
+    ecfrLastStart = Math.max(Date.now(), ecfrLastStart + ECFR_MIN_GAP_MS);
+    if (gap > 0) await sleep(gap);
     return await fn();
   } finally {
     ecfrActive--;
     ecfrQueue.shift()?.();
   }
 }
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function get(url: string, headers: Record<string, string> = {}) {
+async function get(url: string, headers: Record<string, string> = {}, log?: AttemptLog) {
   const host = new URL(url).host;
   const once = () => fetch(url, { headers: { "User-Agent": UA, ...headers } });
+  const started = Date.now();
+  let waited = 0;
   for (let attempt = 0; ; attempt++) {
-    const res = await (host === "www.ecfr.gov" ? ecfrSlot(once) : once());
+    let res: Response;
+    try {
+      res = await (host === "www.ecfr.gov" ? ecfrSlot(once) : once());
+    } catch (e) {
+      log?.push({ host, attempt, status: "network-error", waited_ms: waited, at: now() });
+      if (attempt < MAX_RETRIES && Date.now() - started < RETRY_BUDGET_MS) { waited = 1000 * 2 ** attempt; await sleep(waited); continue; }
+      throw new UpstreamError(503, `${host} could not be reached`, true);
+    }
+    log?.push({ host, attempt, status: res.status, waited_ms: waited, at: now() });
     if (res.ok) return res;
-    const retryable = res.status === 429 || res.status === 503;
-    if (retryable && attempt < MAX_RETRIES) {
-      const ra = Number(res.headers.get("retry-after"));
-      const wait = Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 800 * 2 ** attempt + Math.random() * 300, 5000);
+    const retryable = res.status === 429 || res.status === 503 || res.status === 502 || res.status === 504;
+    const ra = Number(res.headers.get("retry-after"));
+    const wait = Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1200 * 2 ** attempt + Math.random() * 400, 8000);
+    if (retryable && attempt < MAX_RETRIES && Date.now() - started + wait < RETRY_BUDGET_MS) {
       await res.body?.cancel();
+      waited = Math.round(wait);
       await sleep(wait);
       continue;
     }
     const body = (await res.text()).slice(0, 300);
-    throw new UpstreamError(res.status, `Upstream ${host} returned ${res.status}${retryable ? ` after ${attempt + 1} attempts` : ""}: ${body}`);
+    throw new UpstreamError(res.status, `Upstream ${host} returned ${res.status}${retryable ? ` after ${attempt + 1} attempts` : ""}: ${body}`, retryable);
   }
 }
 
 // eCFR's latest issue date changes at most daily; cache it to halve eCFR calls.
 let titlesCache: { at: number; data: { titles: { number: number; latest_issue_date: string }[] } } | null = null;
-async function ecfrTitles() {
+async function ecfrTitles(log?: AttemptLog) {
   if (titlesCache && Date.now() - titlesCache.at < 60 * 60 * 1000) return titlesCache.data;
-  const data = (await (await get("https://www.ecfr.gov/api/versioner/v1/titles.json")).json()) as { titles: { number: number; latest_issue_date: string }[] };
+  const data = (await (await get("https://www.ecfr.gov/api/versioner/v1/titles.json", {}, log)).json()) as { titles: { number: number; latest_issue_date: string }[] };
   titlesCache = { at: Date.now(), data };
   return data;
 }
+// Section text for a given issue date never changes; cache it (and share in-flight fetches).
+const sectionCache = new Map<string, Promise<{ xml: string; status: number }>>();
 
 const REFUSE_RULES: { reason: string; re: RegExp }[] = [
   {
@@ -121,15 +145,23 @@ async function cap(text: string) {
   return { text: t, truncated, content_hash: await sha256(text) };
 }
 
-async function ecfr(title: string, section: string) {
-  const titles = await ecfrTitles();
+async function ecfr(title: string, section: string, log?: AttemptLog) {
+  const titles = await ecfrTitles(log);
   const date = titles.titles.find((t) => String(t.number) === title)?.latest_issue_date;
   if (!date) throw new UpstreamError(404, `Title ${title} not found in eCFR`);
-  const res = await get(
-    `https://www.ecfr.gov/api/versioner/v1/full/${date}/title-${title}.xml?section=${encodeURIComponent(section)}`,
-    { Accept: "application/xml" },
-  );
-  const xml = await res.text();
+  const key = `${date}|${title}|${section}`;
+  let p = sectionCache.get(key);
+  const cached = !!p;
+  if (!p) {
+    p = get(`https://www.ecfr.gov/api/versioner/v1/full/${date}/title-${title}.xml?section=${encodeURIComponent(section)}`, { Accept: "application/xml" }, log)
+      .then(async (r) => ({ xml: await r.text(), status: r.status }));
+    sectionCache.set(key, p);
+    p.catch(() => sectionCache.delete(key));
+    if (sectionCache.size > 200) sectionCache.delete(sectionCache.keys().next().value!);
+  }
+  if (cached) log?.push({ host: "www.ecfr.gov", attempt: 0, status: "cache", waited_ms: 0, at: now() });
+  const { xml, status } = await p;
+  const res = { status };
   const head = xml.match(/<HEAD>([\s\S]*?)<\/HEAD>/i)?.[1];
   const [pt] = section.split(".");
   return {
