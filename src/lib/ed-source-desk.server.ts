@@ -379,6 +379,44 @@ const WHY_INTENT = /\bwhy\b/i;
 const WHY_ANSWERED = /\bbecause\b|\breasons?\b|\bpurpose\b|\bin order to\b|\bso that\b|\bto allow\b|\bflexib/i;
 const PRESCRIPTIVE = /\bhow (should|must|is|are)\b[^?]*\b(assign|treat|combin)/i;
 const CONDITIONAL_TEXT = /\bif you choose\b|\bcould also choose\b|\bin certain limited cases\b|\bmay combine\b|\beither the\b/i;
+const EXAMPLE_INTENT = /\bexamples?\b|\bworked\b|\billustrat|\bscenario\b|\bsample calculation/i;
+// Plain word search terms: distinctive words (stems/synonyms) plus phrase ideas like "award year" and BBAY 1/2/3.
+function keywordTerms(q: string) {
+  const out: { label: string; test: (h: string) => boolean }[] = distinctiveTerms(q).map((t) => ({ label: t, test: (h: string) => stemHit(t, h) }));
+  for (const [qre, hre, label] of PHRASE_TERMS) if (qre.test(q)) out.push({ label, test: (h) => hre.test(h) });
+  for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1]))) {
+    const re = new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i");
+    out.push({ label: `BBAY ${m}`, test: (h) => re.test(h) });
+  }
+  return out;
+}
+// "Where to look next": handbook cross-references to another volume/chapter (not imported yet).
+function lookNext(text: string, awardYear: string | null) {
+  const yr = (awardYear ?? CURRENT_AWARD_YEAR).replace(/^(\d{4})-(\d{2})$/, (_m, a: string, b: string) => `${a}-20${b}`);
+  const seen = new Set<string>();
+  const out: { label: string; url: string }[] = [];
+  for (const m of text.matchAll(/\b(?:Volume|Vol\.)\s*(\d{1,2})(?:,?\s*(?:Chapter|Ch\.)\s*(\d{1,2}))?(?!,?\s*(?:Chapter\s*\d+,\s*)?Example)/g)) {
+    const [v, c] = [m[1], m[2]];
+    if (v === "3" && (c === "1" || !c)) continue; // this chapter itself
+    const label = `Volume ${v}${c ? `, Chapter ${c}` : ""}`;
+    if (seen.has(label)) continue;
+    seen.add(label);
+    out.push({ label, url: `https://fsapartners.ed.gov/knowledge-center/fsa-handbook/${yr}/vol${v}` });
+  }
+  return out.slice(0, 4);
+}
+// Missing definitions are looked up in 34 CFR 668.2 (General definitions).
+const DEFINABLE = /\baward year\b|\bpayment period\b|\bacademic year\b|\bfull-time student\b|\bclock hour\b|\bcredit hour\b/gi;
+async function definitionsFor(q: string, missing: string[], log?: AttemptLog) {
+  const wanted = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
+  if (!wanted.length) return [];
+  const sec = await ecfr("34", "668.2", log);
+  const full = (sec.full_text as string) ?? "";
+  return wanted.map((term) => {
+    const m = full.match(new RegExp(`(?:^|\\n)\\s*(${term.replace(/-/g, "[- ]")})\\s*:[^\\n]*(?:\\n(?!\\s*[A-Z][A-Za-z ,()-]{2,60}:)[^\\n]+)*`, "i"));
+    return m ? { term, citation_id: "ecfr:34-668.2", title: sec.title, text: m[0].trim().slice(0, 1500), source_url: sec.source_url, as_of_date: sec.as_of_date, authority_rank: 1 } : null;
+  }).filter(Boolean);
+}
 export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
@@ -396,7 +434,7 @@ async function handbookSearch(q: string) {
     const qe = JSON.stringify(emb);
     const [all, cur] = await Promise.all([
       supabaseAdmin.rpc("match_chunks" as never, { query_embedding: qe, match_count: 10 } as never),
-      supabaseAdmin.rpc("match_current_chunks" as never, { query_embedding: qe, award: CURRENT_AWARD_YEAR, match_count: 60 } as never),
+      supabaseAdmin.rpc("match_current_chunks" as never, { query_embedding: qe, award: CURRENT_AWARD_YEAR, match_count: 500 } as never),
     ]);
     const error = all.error ?? cur.error;
     if (error) throw new Error(error.message);
@@ -409,13 +447,31 @@ async function handbookSearch(q: string) {
     }[];
     const sectionText = new Map<string, string>();
     for (const r of [...rows].sort((x, y) => x.ordinal - y.ordinal)) sectionText.set(r.heading, `${sectionText.get(r.heading) ?? ""} ${r.text}`);
+    // Plain word search over every current-year section (full section text, rarer words weigh more).
+    const sections = [...sectionText.entries()];
+    const kwTerms = keywordTerms(q);
+    const df = new Map(kwTerms.map((t) => [t.label, sections.filter(([h, tx]) => t.test(`${h} ${tx}`)).length]));
+    const keyword = sections.map(([heading, tx]) => {
+      const hay = `${heading} ${tx}`;
+      const hits = kwTerms.filter((t) => t.test(hay));
+      const idf = (t: { label: string }) => Math.log(1 + sections.length / Math.max(1, df.get(t.label) ?? 1));
+      const total = kwTerms.reduce((a, t) => a + idf(t), 0) || 1;
+      return { heading, score: Math.round((hits.reduce((a, t) => a + idf(t), 0) / total) * 100) / 100, matched: hits.map((t) => t.label) };
+    }).filter((k) => k.score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
+    const keywordTop = new Set(keyword.filter((k) => k.score >= 0.5).slice(0, 4).map((k) => k.heading));
     const ranked = rows
       .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
       // A section split into several chunks is judged as one section (same verified heading).
-      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text) }))
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: [] as string[] }))
+      .map((r) => {
+        if (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) r.via.push("meaning");
+        // Word-search hits qualify with a stricter fit (0.8) and the existing 0.70 heading floor.
+        if (keywordTop.has(r.heading) && r.fit.score >= FIT_MIN_KEYWORD && r.similarity >= HANDBOOK_HEADING_SIM_MIN) r.via.push("words");
+        return r;
+      })
       // Similarity floor 0.74; a passage whose verified heading names ≥2 of the question's primary
       // terms may qualify from HANDBOOK_HEADING_SIM_MIN. Topical fit (FIT_MIN) applies to both.
-      .filter((r) => (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) && r.fit.score >= FIT_MIN)
+      .filter((r) => r.via.length > 0 && r.fit.score >= FIT_MIN)
       // Rank: sections whose verified heading names more of the question's terms first; on a tie,
       // rule sections before worked examples; then by similarity.
       .sort((a, b) => Number(b.fit.headingHits >= 2) - Number(a.fit.headingHits >= 2)
@@ -425,7 +481,10 @@ async function handbookSearch(q: string) {
     // Pick up to 3, preferring passages whose heading covers primary terms not yet covered.
     const picked: typeof ranked = [];
     const covered = new Set<string>();
-    while (picked.length < 3 && picked.length < ranked.length) {
+    const uniq = ranked.filter((r, i) => ranked.findIndex((x) => x.heading === r.heading) === i);
+    ranked.splice(0, ranked.length, ...uniq);
+    const maxPick = EXAMPLE_INTENT.test(q) ? 4 : 3;
+    while (picked.length < maxPick && picked.length < ranked.length) {
       const rest = ranked.filter((r) => !picked.includes(r));
       const best = rest.find((r) => r.fit.headingTerms.some((t) => !covered.has(t))) ?? rest[0];
       picked.push(best); best.fit.headingTerms.forEach((t) => covered.add(t));
@@ -446,7 +505,7 @@ async function handbookSearch(q: string) {
     // A section split into several pieces is shown from its first (defining) piece.
     for (let i = 0; i < picked.length; i++) {
       const first = rows.filter((r) => r.heading === picked[i].heading).sort((a, b) => a.ordinal - b.ordinal)[0];
-      if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit };
+      if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit, via: picked[i].via };
     }
     const seen = new Set<string>();
     const passages = picked.filter((r) => !seen.has(r.heading) && !!seen.add(r.heading))
@@ -458,12 +517,14 @@ async function handbookSearch(q: string) {
           heading: r.heading, passage: r.text, source_url: locator, official_url: r.official_url, document_title: r.title,
           award_year: r.award_year, source_status: r.source_status, publication_date: r.publication_date,
           last_modified_date: r.last_modified_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
-          similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits,
+          similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits, found_by: r.via,
+          look_next: lookNext(sectionText.get(r.heading) ?? r.text, r.award_year),
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
       });
     const candidates = rows.slice(0, 12).map((r) => { const f = handbookFit(q, r.heading, r.text); return { ordinal: r.ordinal, heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(f.score * 100) / 100, heading_hits: f.headingHits, heading_precision: Math.round(f.headingPrecision * 100) / 100 }; });
-    return { passages, prior_year_excluded: priorYearExcluded, candidates };
+    const meaning = rows.slice(0, 8).map((r) => ({ heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000 }));
+    return { passages, prior_year_excluded: priorYearExcluded, candidates, search_report: { meaning_top: meaning, words_top: keyword } };
   } catch (e) {
     console.error("handbook search failed", e);
     return { passages: [], prior_year_excluded: 0, error: "Handbook search is temporarily unavailable." };
@@ -484,7 +545,7 @@ async function routedLookup(routed: Extract<LookupInput, { mode: string }>, log?
 export async function lookup(input: LookupInput) {
   const log: AttemptLog = [];
   try {
-    if ("mode" in input) return await routedLookup(input, log);
+    if ("mode" in input) { const r = await routedLookup(input, log); delete (r as Record<string, unknown>).full_text; return r; }
     const q = input.q;
     const reason = detectRefuse(q);
     if (reason) {
@@ -507,9 +568,10 @@ export async function lookup(input: LookupInput) {
     }
     const handbook = hb.passages;
     // Worked examples alone are related passages, not an answer to a rule question.
-    const examplesOnly = handbook.length > 0 && handbook.every((p) => /\bExample \d+/.test(p.heading));
+    // …unless the question asks for an example, in which case examples ARE the answer.
+    const examplesOnly = handbook.length > 0 && handbook.every((p) => /\bExample \d+/.test(p.heading)) && !EXAMPLE_INTENT.test(q);
     if (result.mode === "no-confident-cite" && examplesOnly) {
-      result = { ...result, related_passages: true, message: "No confident citation. Related handbook worked examples were found, but they are not a complete answer." };
+      result = { ...result, no_confident_cite: false, related_passages: true, message: "Related handbook passages, not a complete answer." };
     } else if (result.mode === "no-confident-cite" && handbook.length) {
       const top = handbook[0];
       result = {
@@ -526,11 +588,21 @@ export async function lookup(input: LookupInput) {
       const notes: string[] = [];
       if (missing.length) notes.push(`The passages shown don't cover: ${missing.map((t) => `"${t}"`).join(", ")}.`);
       if (WHY_INTENT.test(q) && !WHY_ANSWERED.test(shown)) notes.push("The passages describe the rule and its effects but don't explain why a school would choose it.");
-      coverage = { status: notes.length ? "partial" : "retrieved-text", missing_terms: missing, notes };
+      const defs = await definitionsFor(q, missing, log).catch(() => []);
+      if (defs.length) {
+        result = { ...result, definitions: defs };
+        const found = defs.map((d) => d!.term);
+        const still = missing.filter((t) => !found.includes(t));
+        notes.splice(0, notes.length, ...notes.filter((n) => !n.startsWith("The passages shown")));
+        if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
+        notes.push(`Definition of ${found.map((t) => `"${t}"`).join(", ")} added from 34 CFR 668.2.`);
+      }
+      coverage = { status: notes.some((n) => !n.startsWith("Definition of")) ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
         conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
     }
-    return { ...result, coverage, conditional, upstream_attempts: log, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
+    delete (result as Record<string, unknown>).full_text;
+    return { ...result, coverage, conditional, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
       handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
