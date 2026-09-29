@@ -42,6 +42,9 @@ type Result = {
   handbook_passages?: Passage[];
   handbook_error?: string | null;
   handbook_coverage?: string;
+  coverage?: { status: "full" | "partial"; missing_terms: string[]; notes: string[] } | null;
+  conditional?: string | null;
+  source_unavailable?: boolean;
   related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
@@ -231,6 +234,9 @@ function AskRegsPage() {
 }
 
 function ResultCard({ r }: { r: Result }) {
+  if (r.source_unavailable) {
+    return <div className="border border-accent-complement/50 bg-accent-complement-soft p-5 text-sm"><strong>Source temporarily unavailable.</strong> The official site is busy right now, so no citation is shown. Please try again in a minute.</div>;
+  }
   if (!r.ok) {
     return <div className="border border-destructive/40 p-5 text-sm">Something went wrong: {r.error}</div>;
   }
@@ -300,6 +306,12 @@ function ResultCard({ r }: { r: Result }) {
       </div>
       <div className="p-6">
         <PriorYearWarning year={r.award_year} />
+        {r.conditional && <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.conditional}</div>}
+        {r.coverage?.status === "partial" && (
+          <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-3">
+            <strong className="text-accent-complement">Partial answer:</strong> {r.coverage.notes.join(" ")}
+          </div>
+        )}
         <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-96 overflow-auto opacity-85">{shown}</pre>
         {(r.truncated || text.length > DISPLAY_CAP) && <p className="text-xs opacity-60 mt-2">Excerpt shortened. Read the full text at the source.</p>}
         <Button asChild className="mt-5 bg-accent hover:bg-accent-hover text-accent-foreground">

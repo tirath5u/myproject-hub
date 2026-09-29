@@ -132,6 +132,27 @@ export type Database = {
           title: string
         }[]
       }
+      match_current_chunks: {
+        Args: { award: string; match_count?: number; query_embedding: string }
+        Returns: {
+          award_year: string
+          citation_ref: string
+          content_hash: string
+          document_version_key: string
+          heading: string
+          id: string
+          last_modified_date: string
+          official_url: string
+          ordinal: number
+          publication_date: string
+          retrieved_at: string
+          similarity: number
+          source_class: string
+          source_status: string
+          text: string
+          title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
