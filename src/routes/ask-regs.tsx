@@ -46,12 +46,14 @@ type Result = {
   conditional?: string | null;
   source_unavailable?: boolean;
   related_passages?: boolean;
+  definitions?: { term: string; citation_id: string; title: string; text: string; source_url: string }[];
   related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
 type Passage = {
   citation_id: string; label: string; heading: string; passage: string; source_url: string; official_url: string;
   award_year: string | null; source_status: string; last_modified_date: string | null; retrieved_at: string; similarity: number;
+  look_next?: { label: string; url: string }[];
 };
 
 const EXAMPLES = [
@@ -253,6 +255,15 @@ function ResultCard({ r }: { r: Result }) {
       </div>
     );
   }
+  if (r.no_match && r.related_passages && !!r.handbook_passages?.length) {
+    return (
+      <div className="border p-5 text-sm space-y-2">
+        <p className="font-semibold">Related handbook passages, not a complete answer.</p>
+        <HandbookPassages list={r.handbook_passages} bare />
+        <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
+      </div>
+    );
+  }
   if (r.no_match) {
     return (
       <div className="border p-5 text-sm space-y-2">
@@ -330,6 +341,18 @@ function ResultCard({ r }: { r: Result }) {
         {r.mode === "handbook-passage" && (
           <p className="text-xs opacity-60 mt-2">Exact passage from the imported handbook, shown word for word.</p>
         )}
+        {!!r.definitions?.length && (
+          <div className="mt-6 border-t pt-4 space-y-3">
+            <div className="text-xs uppercase tracking-wide opacity-60">Definitions (34 CFR 668.2)</div>
+            {r.definitions.map((d) => (
+              <div key={d.term} className="border-l-2 border-accent/40 pl-3">
+                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed opacity-85">{d.text}</pre>
+                <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open 34 CFR 668.2 on eCFR ↗</a>
+              </div>
+            ))}
+          </div>
+        )}
+        <LookNext list={(r.handbook_passages ?? []).filter((p) => p.citation_id === r.citation_id).flatMap((p) => p.look_next ?? [])} />
         <HandbookPassages list={(r.handbook_passages ?? []).filter((p) => p.citation_id !== r.citation_id)} />
         {r.results && r.results.length > 1 && (
           <div className="mt-6">
@@ -364,9 +387,25 @@ function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
             <PriorYearWarning year={p.award_year} />
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-48 overflow-auto opacity-85">{p.passage}</pre>
             <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open this passage on fsapartners.ed.gov ↗</a>
+            <LookNext list={p.look_next ?? []} />
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function LookNext({ list }: { list: { label: string; url: string }[] }) {
+  if (!list.length) return null;
+  return (
+    <div className="text-xs mt-2">
+      <span className="opacity-70">Where to look next (not imported yet): </span>
+      {list.map((l, i) => (
+        <span key={l.label}>
+          {i > 0 && " · "}
+          <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent underline">FSA Handbook {l.label} ↗</a>
+        </span>
+      ))}
     </div>
   );
 }
