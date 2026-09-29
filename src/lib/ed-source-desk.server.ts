@@ -615,23 +615,34 @@ export async function lookup(input: LookupInput) {
       } else result = { ...primary, fit: Math.round(fit.score * 100) / 100 };
     }
     const handbook = hb.passages;
-    // Worked examples alone are related passages, not an answer to a rule question.
-    // …unless the question asks for an example, in which case examples ARE the answer.
-    // A rule section found by plain word search alone (not confirmed by meaning search) doesn't make it an answer.
-    const examplesOnly = handbook.length > 0 && !EXAMPLE_INTENT.test(q)
-      && handbook.every((p) => /\bExample \d+/.test(p.heading) || (p.found_by.length === 1 && p.found_by[0] === "words"));
-    if (result.mode === "no-confident-cite" && examplesOnly) {
-      result = { ...result, no_confident_cite: false, related_passages: true, message: "Related handbook passages, not a complete answer." };
-    } else if (result.mode === "no-confident-cite" && handbook.length) {
-      const top = handbook[0];
+    // Which passages may be the answer:
+    // - anything word search helped find (words only, or both searches) is related, never the answer;
+    // - a worked example is the answer only when the question asks for an example AND the example
+    //   contains the specific thing the question names (e.g. "BBAY 3").
+    const isExample = (h: string) => /\bExample \d+/.test(h);
+    const eligible = (p: (typeof handbook)[number]) =>
+      !p.found_by.includes("words") && (!isExample(p.heading) || (EXAMPLE_INTENT.test(q) && p.contains_named));
+    const answers = handbook.filter(eligible);
+    if (result.mode === "no-confident-cite" && answers.length) {
+      const top = answers[0];
       result = {
-        ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false,
+        ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false, related_passages: false,
         citation_id: top.citation_id, title: `${top.document_title ?? "FSA Handbook"} — ${top.heading}`, source_url: top.source_url,
         text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
       };
+    } else if (result.mode === "no-confident-cite" && handbook.length) {
+      result = { ...result, no_confident_cite: false, related_passages: true };
     }
+    // Once a passage is cited (as answer or related), the "No confident citation" wording is cleared from the data.
+    if (handbook.length && (result.mode === "handbook-passage" || result.related_passages)) {
+      delete (result as Record<string, unknown>).rejected_candidate;
+      result.message = result.related_passages ? "Related handbook passages, not a complete answer." : null;
+    }
+    const passagesOut = handbook.map((p) => ({ ...p, role: result.mode === "handbook-passage" && p.citation_id === result.citation_id ? "answer" : "related" }));
     let coverage: { status: "retrieved-text" | "partial"; missing_terms: string[]; notes: string[] } | null = null;
     let conditional: string | null = null;
+    const defNote = (defs: { term: string; citation_id: string; checked: string[] }[]) =>
+      `Definition of ${defs.map((d) => `"${d.term}"`).join(", ")} added from ${[...new Set(defs.map((d) => d.citation_id.replace("ecfr:34-", "34 CFR ")))].join(", ")} (checked in order: ${definitionSources(q).map((s) => `34 CFR ${s}`).join(", ")}).`;
     if (result.mode === "handbook-passage") {
       const shown = handbook.map((p) => `${p.heading} ${p.passage}`).join(" ");
       const missing = handbook.length ? handbook.reduce<string[]>((acc, p) => acc.filter((t) => p.missing_terms.includes(t)), handbook[0].missing_terms) : [];
@@ -641,18 +652,26 @@ export async function lookup(input: LookupInput) {
       const defs = await definitionsFor(q, missing, log).catch(() => []);
       if (defs.length) {
         result = { ...result, definitions: defs };
-        const found = defs.map((d) => d!.term);
+        const found = defs.map((d) => d.term);
         const still = missing.filter((t) => !found.includes(t));
         notes.splice(0, notes.length, ...notes.filter((n) => !n.startsWith("The passages shown")));
         if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
-        notes.push(`Definition of ${found.map((t) => `"${t}"`).join(", ")} added from ${[...new Set(defs.map((d) => d!.citation_id.replace("ecfr:34-", "34 CFR ")))].join(", ")} (looked up via 34 CFR 668.2).`);
+        notes.push(defNote(defs));
       }
       coverage = { status: notes.some((n) => !n.startsWith("Definition of")) ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
         conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
+    } else if (result.mode === "no-confident-cite") {
+      // No complete answer, but a named program term can still be defined from its official definitions section.
+      const missing = ((result.rejected_candidate as { missing_terms?: string[] } | undefined)?.missing_terms) ?? [];
+      const defs = await definitionsFor(q, missing, log).catch(() => []);
+      if (defs.length) {
+        result = { ...result, definitions: defs };
+        coverage = { status: "partial", missing_terms: missing, notes: ["No complete answer. " + defNote(defs)] };
+      }
     }
     delete (result as Record<string, unknown>).full_text;
-    return { ...result, coverage, conditional, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
+    return { ...result, coverage, conditional, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: passagesOut, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
       handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
