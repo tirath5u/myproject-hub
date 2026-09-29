@@ -188,8 +188,8 @@ export function frAuthority(type?: string) {
   return { authority_rank: 7, authority_label: "Federal Register notice (lowest authority)" };
 }
 
-async function frDoc(n: string) {
-  const res = await get(`https://www.federalregister.gov/api/v1/documents/${encodeURIComponent(n)}.json`);
+async function frDoc(n: string, log?: AttemptLog) {
+  const res = await get(`https://www.federalregister.gov/api/v1/documents/${encodeURIComponent(n)}.json`, {}, log);
   const d = (await res.json()) as Record<string, string>;
   const body = [d.abstract, d.action && `Action: ${d.action}`, d.dates && `Dates: ${d.dates}`, d.publication_date && `Published: ${d.publication_date}`]
     .filter(Boolean).join("\n\n");
@@ -199,10 +199,10 @@ async function frDoc(n: string) {
   };
 }
 
-async function reggovDoc(id: string) {
+async function reggovDoc(id: string, log?: AttemptLog) {
   const key = process.env["DATA_GOV_API_KEY"];
   if (!key) throw new UpstreamError(503, "Regulations.gov lookups are not configured yet.");
-  const res = await get(`https://api.regulations.gov/v4/documents/${encodeURIComponent(id)}?api_key=${key}`);
+  const res = await get(`https://api.regulations.gov/v4/documents/${encodeURIComponent(id)}?api_key=${key}`, {}, log);
   const j = (await res.json()) as { data: { attributes: Record<string, string> } };
   const a = j.data.attributes;
   const body = [a.title, a.documentType && `Type: ${a.documentType}`, a.postedDate && `Posted: ${a.postedDate}`, a.docketId && `Docket: ${a.docketId}`, a.summary]
@@ -220,7 +220,7 @@ async function reggovDoc(id: string) {
 // text. Section numbers and broad trigger words (pell, loan, disbursement…) never count,
 // so an explicit "34 CFR 668.34" or a keyword hit cannot validate an unrelated question.
 const STOP = new Set((
-  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways"
+  "a an the of to in on for and or is are was be been what how does do did when who which why with under by from about this that these those it its i my me we our you your can could should would will may might must not no yes any all each every one two three four more than then there here if as at into also only just same such other both either between whether without within including anyway please give tell show explain walk through look find lookup recent correct right true wrong really actually exact exactly current currently today now new cover covers covered mean means say says statement determine determines determining affect affects difference differ happen happens step steps need needs rely item items documents inputs input factors doc docs thing things way ways matter matters might"
 ).split(" "));
 const GENERIC = new Set((
   "title iv federal ed education department cfr section regulation regulations rule rules regulatory notice register document proposed final school schools institution institutions student students program programs aid financial award awards year years applicable apply applies eligible eligibility requirement requirements general definition definitions defined define use used uses based case cases amount amounts part subpart paragraph official source handbook fsa staff member question rule"
@@ -267,14 +267,14 @@ const FR_INTENT = /federal register|\bfr\b|\bnotices?\b|proposed|\bnprm\b|rulema
 const PROPOSED_INTENT = /proposed|\bnprm\b|rulemaking/i;
 const RECENT_INTENT = /\brecent\b|\blatest\b|\bnewest\b/i;
 
-async function frSearch(q: string, perPage = 3) {
+async function frSearch(q: string, perPage = 3, log?: AttemptLog) {
   const u = new URL("https://www.federalregister.gov/api/v1/documents.json");
   u.searchParams.set("conditions[term]", distinctiveTerms(q).join(" ") || q); // search on key terms, not filler words
   u.searchParams.append("conditions[agencies][]", "education-department");
   u.searchParams.set("per_page", "10");
   const recent = RECENT_INTENT.test(q);
   u.searchParams.set("order", recent ? "newest" : "relevance");
-  const res = await get(u.toString());
+  const res = await get(u.toString(), {}, log);
   const j = (await res.json()) as { results?: { document_number: string; title: string; html_url: string; abstract?: string; publication_date: string; type?: string }[] };
   const scored = (j.results ?? []).map((r) => ({
     citation_id: `fr:${r.document_number}`, title: r.title, source_url: r.html_url,
@@ -313,6 +313,41 @@ async function frSearch(q: string, perPage = 3) {
 
 // ---- Imported handbook passages (Phase 2 pilot, read-only, exact vector search) ----
 const HANDBOOK_SIM_MIN = 0.74;
+// Concept matches used ONLY for current-year handbook passages, added for specific reviewed cases.
+// Deliberately absent: summer/winter -> intersession (a summer or winter session is not automatically one).
+const HANDBOOK_CONCEPTS: Record<string, RegExp> = {
+  assigned: /\bcombin(e|ed|ing)\b[^.]*\b(with|term)\b|treated? as a single/i,
+  assignment: /\bcombin(e|ed|ing)\b[^.]*\b(with|term)\b|treated? as a single/i,
+  consequences: /\bthis means\b|\bmust count toward\b|\bmust be included\b|\bwould use formula\b|\beffect on\b/i,
+};
+// Multi-word ideas that must be matched as a phrase (their words are otherwise "generic").
+const PHRASE_TERMS: [RegExp, RegExp, string][] = [[/\baward years?\b/i, /\baward years?\b/i, "award year"]];
+
+// Heading-aware fit for verified 2026-27 section headings: a term that appears in the heading
+// counts double, so a passage whose verified title names the concept is recognised even when
+// the body uses different wording. The global threshold (FIT_MIN) is unchanged.
+function handbookFit(q: string, heading: string, text: string) {
+  const terms = distinctiveTerms(q);
+  const phrases = PHRASE_TERMS.filter(([qre]) => qre.test(q));
+  const hay = `${heading} ${text}`;
+  let got = 0, total = 0;
+  const missing: string[] = [];
+  let headingHits = 0;
+  for (const t of terms) {
+    const inHead = stemHit(t, heading);
+    const hit = inHead || stemHit(t, hay) || !!HANDBOOK_CONCEPTS[t]?.test(text);
+    const w = inHead ? 2 : 1;
+    total += w; if (hit) got += w; else missing.push(t);
+    if (inHead) headingHits++;
+  }
+  for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
+  return { score: total ? got / total : 1, missing, headingHits };
+}
+
+const WHY_INTENT = /\bwhy\b/i;
+const WHY_ANSWERED = /\bbecause\b|\breasons?\b|\bpurpose\b|\bin order to\b|\bso that\b|\bto allow\b|\bflexib/i;
+const PRESCRIPTIVE = /\bhow (should|must|is|are)\b[^?]*\b(assign|treat|combin)/i;
+const CONDITIONAL_TEXT = /\bif you choose\b|\bcould also choose\b|\bin certain limited cases\b|\bmay combine\b|\beither the\b/i;
 export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
@@ -327,7 +362,7 @@ async function handbookSearch(q: string) {
     const emb = ((await res.json()) as { data: { embedding: number[] }[] }).data[0].embedding;
     if (emb.length !== 3072) throw new Error(`unexpected dimension ${emb.length}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.rpc("match_chunks" as never, { query_embedding: JSON.stringify(emb), match_count: 5 } as never);
+    const { data, error } = await supabaseAdmin.rpc("match_chunks" as never, { query_embedding: JSON.stringify(emb), match_count: 10 } as never);
     if (error) throw new Error(error.message);
     const rows = (data ?? []) as {
       heading: string; text: string; citation_ref: string; ordinal: number; similarity: number; official_url: string; title: string;
@@ -337,8 +372,13 @@ async function handbookSearch(q: string) {
     const priorYearExcluded = rows.filter((r) => r.award_year !== CURRENT_AWARD_YEAR).length;
     const passages = rows
       .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
-      .map((r) => ({ ...r, fit: topicalFit(q, `${r.heading} ${r.text}`) }))
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, r.text) }))
       .filter((r) => r.similarity >= HANDBOOK_SIM_MIN && r.fit.score >= FIT_MIN)
+      // Rank: sections whose verified heading names more of the question's terms first; on a tie,
+      // rule sections before worked examples; then by similarity.
+      .sort((a, b) => b.fit.headingHits - a.fit.headingHits
+        || Number(/\bExample \d+/.test(a.heading)) - Number(/\bExample \d+/.test(b.heading))
+        || b.similarity - a.similarity)
       .slice(0, 3)
       .map((r) => {
         const locator = r.citation_ref.match(/https?:\/\/\S+/)?.[0] ?? r.official_url;
@@ -348,7 +388,7 @@ async function handbookSearch(q: string) {
           heading: r.heading, passage: r.text, source_url: locator, official_url: r.official_url, document_title: r.title,
           award_year: r.award_year, source_status: r.source_status, publication_date: r.publication_date,
           last_modified_date: r.last_modified_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
-          similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100,
+          similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits,
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
       });
@@ -361,25 +401,26 @@ async function handbookSearch(q: string) {
 
 type AnyResult = Record<string, unknown> & { ok: boolean; mode?: string; title?: string; text?: string | null; citation_id?: string };
 
-async function routedLookup(routed: Extract<LookupInput, { mode: string }>): Promise<AnyResult> {
+async function routedLookup(routed: Extract<LookupInput, { mode: string }>, log?: AttemptLog): Promise<AnyResult> {
   switch (routed.mode) {
-    case "ecfr-section": return await ecfr(routed.title ?? "34", routed.section);
-    case "fr-doc": return await frDoc(routed.document_number);
-    case "reggov-doc": return await reggovDoc(routed.document_id);
-    case "fr-search": return await frSearch(routed.q, routed.per_page);
+    case "ecfr-section": return await ecfr(routed.title ?? "34", routed.section, log);
+    case "fr-doc": return await frDoc(routed.document_number, log);
+    case "reggov-doc": return await reggovDoc(routed.document_id, log);
+    case "fr-search": return await frSearch(routed.q, routed.per_page, log);
   }
 }
 
 export async function lookup(input: LookupInput) {
+  const log: AttemptLog = [];
   try {
-    if ("mode" in input) return await routedLookup(input);
+    if ("mode" in input) return await routedLookup(input, log);
     const q = input.q;
     const reason = detectRefuse(q);
     if (reason) {
       return { ok: true, mode: "refuse", refuse: true, refuse_reason: reason, citation_ids: [], text: null, query: q, fetched_at: now() };
     }
     const routed = route(q) as Extract<LookupInput, { mode: string }>;
-    const [primary, hb] = await Promise.all([routedLookup(routed), handbookSearch(q)]);
+    const [primary, hb] = await Promise.all([routedLookup(routed, log), handbookSearch(q)]);
     let result: AnyResult = primary;
     // Topical-fit gate: explicit numbers and keyword triggers can't validate unrelated questions.
     if (primary.ok && primary.mode !== "no-confident-cite" && primary.mode !== "fr-search") {
@@ -402,11 +443,27 @@ export async function lookup(input: LookupInput) {
         text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
       };
     }
-    return { ...result, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded,
+    let coverage: { status: "full" | "partial"; missing_terms: string[]; notes: string[] } | null = null;
+    let conditional: string | null = null;
+    if (result.mode === "handbook-passage") {
+      const shown = handbook.map((p) => `${p.heading} ${p.passage}`).join(" ");
+      const missing = handbook.length ? handbook.reduce<string[]>((acc, p) => acc.filter((t) => p.missing_terms.includes(t)), handbook[0].missing_terms) : [];
+      const notes: string[] = [];
+      if (missing.length) notes.push(`The passages shown don't cover: ${missing.map((t) => `"${t}"`).join(", ")}.`);
+      if (WHY_INTENT.test(q) && !WHY_ANSWERED.test(shown)) notes.push("The passages describe the rule and its effects but don't explain why a school would choose it.");
+      coverage = { status: notes.length ? "partial" : "full", missing_terms: missing, notes };
+      if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
+        conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
+    }
+    return { ...result, coverage, conditional, upstream_attempts: log, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded,
       handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
     console.error("ed-source-desk lookup failed", e);
-    return { ok: false, error: e instanceof Error ? e.message : "Lookup failed", http_status: status, fetched_at: now() };
+    if (e instanceof UpstreamError && e.unavailable) {
+      return { ok: false, mode: "source-unavailable", source_unavailable: true, error: "Source temporarily unavailable — the official site is busy. Please try again in a minute.",
+        http_status: 503, upstream_attempts: log, fetched_at: now() };
+    }
+    return { upstream_attempts: log, ok: false, error: e instanceof Error ? e.message : "Lookup failed", http_status: status, fetched_at: now() };
   }
 }
