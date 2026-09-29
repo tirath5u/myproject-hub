@@ -334,6 +334,9 @@ function handbookFit(q: string, heading: string, text: string) {
   const primary = new Set(distinctiveTerms(primaryPart(q)));
   const headingTerms: string[] = [];
   const phrases = PHRASE_TERMS.filter(([qre]) => qre.test(q));
+  // Numbered calendar variants (BBAY 1/2/3) are distinct concepts; each must be covered on its own.
+  for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1])))
+    phrases.push([/./, new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i"), `BBAY ${m}`]);
   const hay = `${heading} ${text}`;
   let got = 0, total = 0;
   const missing: string[] = [];
