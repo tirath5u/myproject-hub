@@ -450,6 +450,7 @@ async function definitionsFor(q: string, missing: string[], log?: AttemptLog) {
   }
   return out;
 }
+const RELATED_BOTH_FIT_MIN = 0.5;
 export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
@@ -544,8 +545,9 @@ async function handbookSearch(q: string) {
     const extras = rows
       .filter((r) => inBoth(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => p.heading === r.heading))
       .filter((r, i, arr) => arr.findIndex((x) => x.heading === r.heading) === i)
-      .slice(0, 2)
-      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: ["meaning", "words"] }));
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: ["meaning", "words"] }))
+      .filter((r) => r.fit.score >= RELATED_BOTH_FIT_MIN) // related-only tier; answer thresholds unchanged
+      .slice(0, 2);
     picked.push(...extras);
     // A section split into several pieces is shown from its first (defining) piece.
     for (let i = 0; i < picked.length; i++) {
