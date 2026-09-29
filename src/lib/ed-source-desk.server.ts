@@ -252,14 +252,26 @@ const SYNONYMS: Record<string, string[]> = {
   say: ["scheduled academic year"], obbba: ["one big beautiful bill"],
 };
 
+const baseOf = (t: string) => {
+  const b = t.replace(/(ations|ation|ions|ion|ings|ing|ments|ment|ed|es|s)$/, "");
+  return b.length >= 4 ? b : t.replace(/s$/, "");
+};
+// Regulatory wording for ideas the regulation expresses without the everyday word (reviewed cases only).
+const REG_CONCEPTS: Record<string, RegExp> = {
+  exempt: /\bnot considered to have withdrawn\b|\bexempt/i,
+};
 function stemHit(term: string, hay: string) {
   hay = normalizeText(hay);
   if (SYNONYMS[term]?.some((p) => hay.toLowerCase().includes(p))) return true;
   // Abbreviations: match the capitalised form only (so "say" the verb never counts as SAY).
   const ab = ABBREV_TERMS.find((a) => a.toLowerCase() === term);
   if (ab) return new RegExp(`\\b${ab}\\b`).test(hay);
-  const stem = term.length > 6 ? term.slice(0, Math.max(5, term.length - 3)) : term.replace(/s$/, "");
-  return new RegExp(`\\b${stem.replace(/[-]/g, "[- ]?")}`, "i").test(hay);
+  if (REG_CONCEPTS[baseOf(term)]?.test(hay)) return true;
+  const base = baseOf(term);
+  const esc = (x: string) => x.replace(/[-]/g, "[- ]?");
+  // Short words must match whole (cents ≠ centralized); longer words match by prefix (withdrawal ~ withdraw).
+  if (base.length <= 5) return new RegExp(`\\b${esc(base)}(s|es|ed|ing|ion|ions|al|ly|d)?\\b`, "i").test(hay);
+  return new RegExp(`\\b${esc(base.slice(0, Math.max(5, base.length - 2)))}`, "i").test(hay);
 }
 
 export function topicalFit(q: string, hay: string) {
@@ -384,6 +396,7 @@ const EXAMPLE_INTENT = /\bexamples?\b|\bworked\b|\billustrat|\bscenario\b|\bsamp
 function keywordTerms(q: string) {
   const out: { label: string; test: (h: string) => boolean }[] = distinctiveTerms(q).map((t) => ({ label: t, test: (h: string) => stemHit(t, h) }));
   for (const [qre, hre, label] of PHRASE_TERMS) if (qre.test(q)) out.push({ label, test: (h) => hre.test(h) });
+  if (/scheduled academic year|\bSAY\b/.test(q)) out.push({ label: "SAY", test: (h) => /scheduled academic year|\bSAY\b/i.test(h) });
   for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1]))) {
     const re = new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i");
     out.push({ label: `BBAY ${m}`, test: (h) => re.test(h) });
@@ -494,7 +507,7 @@ async function handbookSearch(q: string) {
     if (ACADEMIC_YEAR_DEFINITION.test(q)) {
       const defs = rows.filter((r) => / in an Academic Year$/i.test(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN)
         .sort((a, b) => a.ordinal - b.ordinal)
-        .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text) }))
+        .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: ["definition"] }))
         .filter((r, i, arr) => arr.findIndex((x) => x.heading === r.heading) === i);
       if (defs.length >= 2) {
         const rest = picked.filter((r) => !defs.some((d) => d.heading === r.heading));
@@ -569,7 +582,9 @@ export async function lookup(input: LookupInput) {
     const handbook = hb.passages;
     // Worked examples alone are related passages, not an answer to a rule question.
     // …unless the question asks for an example, in which case examples ARE the answer.
-    const examplesOnly = handbook.length > 0 && handbook.every((p) => /\bExample \d+/.test(p.heading)) && !EXAMPLE_INTENT.test(q);
+    // A rule section found by plain word search alone (not confirmed by meaning search) doesn't make it an answer.
+    const examplesOnly = handbook.length > 0 && !EXAMPLE_INTENT.test(q)
+      && handbook.every((p) => /\bExample \d+/.test(p.heading) || (p.found_by.length === 1 && p.found_by[0] === "words"));
     if (result.mode === "no-confident-cite" && examplesOnly) {
       result = { ...result, no_confident_cite: false, related_passages: true, message: "Related handbook passages, not a complete answer." };
     } else if (result.mode === "no-confident-cite" && handbook.length) {
