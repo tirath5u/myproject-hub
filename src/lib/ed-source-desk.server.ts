@@ -83,11 +83,17 @@ async function get(url: string, headers: Record<string, string> = {}, log?: Atte
 
 // eCFR's latest issue date changes at most daily; cache it to halve eCFR calls.
 let titlesCache: { at: number; data: { titles: { number: number; latest_issue_date: string }[] } } | null = null;
+let titlesInFlight: Promise<{ titles: { number: number; latest_issue_date: string }[] }> | null = null;
 async function ecfrTitles(log?: AttemptLog) {
   if (titlesCache && Date.now() - titlesCache.at < 60 * 60 * 1000) return titlesCache.data;
-  const data = (await (await get("https://www.ecfr.gov/api/versioner/v1/titles.json", {}, log)).json()) as { titles: { number: number; latest_issue_date: string }[] };
-  titlesCache = { at: Date.now(), data };
-  return data;
+  if (titlesInFlight) { log?.push({ host: "www.ecfr.gov", attempt: 0, status: "shared", waited_ms: 0, at: now() }); return titlesInFlight; }
+  titlesInFlight = get("https://www.ecfr.gov/api/versioner/v1/titles.json", {}, log)
+    .then(async (r) => (await r.json()) as { titles: { number: number; latest_issue_date: string }[] });
+  try {
+    const data = await titlesInFlight;
+    titlesCache = { at: Date.now(), data };
+    return data;
+  } finally { titlesInFlight = null; }
 }
 // Section text for a given issue date never changes; cache it (and share in-flight fetches).
 const sectionCache = new Map<string, Promise<{ xml: string; status: number }>>();
