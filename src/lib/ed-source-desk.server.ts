@@ -418,29 +418,39 @@ function lookNext(text: string, awardYear: string | null) {
   }
   return out.slice(0, 4);
 }
-// Missing definitions are looked up in 34 CFR 668.2 (General definitions).
+// Missing definitions: the question's program definitions section first (690.2 Pell, 685.102 Direct Loans),
+// then 34 CFR 668.2 (general) and 600.2 (institutional eligibility).
 const DEFINABLE = /\baward year\b|\bpayment period\b|\bacademic year\b|\bfull-time student\b|\bclock hour\b|\bcredit hour\b/gi;
+const PROGRAM_TERMS: [RegExp, string][] = [[/\bscheduled\b[^?]*\bpell\b/i, "scheduled federal pell grant"]];
+function definitionSources(q: string) {
+  const s: string[] = [];
+  if (/\bpell\b/i.test(q)) s.push("690.2");
+  if (/\bdirect (subsidized |unsubsidized |plus )?loans?\b/i.test(q)) s.push("685.102");
+  return [...s, "668.2", "600.2"];
+}
 async function definitionsFor(q: string, missing: string[], log?: AttemptLog) {
-  const wanted = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
+  const general = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
+  const program = PROGRAM_TERMS.filter(([re]) => re.test(q)).map(([, t]) => t);
+  const wanted = [...new Set([...program, ...general])];
   if (!wanted.length) return [];
   const extract = (full: string, term: string) =>
     full.match(new RegExp(`(?:^|\\n)\\s*${term.replace(/-/g, "[- ]")}\\s*:[^\\n]*`, "i"))?.[0].trim().slice(0, 1500) ?? null;
-  const gen = await ecfr("34", "668.2", log);
-  const genText = (gen.full_text as string) ?? "";
+  const sources = definitionSources(q);
+  const cache = new Map<string, AnyResult>();
   const out = [];
   for (const term of wanted) {
-    const direct = extract(genText, term);
-    if (direct) { out.push({ term, citation_id: "ecfr:34-668.2", title: gen.title, text: direct, source_url: gen.source_url, as_of_date: gen.as_of_date, authority_rank: 1 }); continue; }
-    // 668.2(a) lists terms whose definitions live in 34 CFR part 600 (600.2); follow that pointer.
-    const listed = new RegExp(`\\(\\d+\\)\\s*${term}\\.`, "i").test(genText.split(/\n\(b\)/)[0]);
-    if (!listed) continue;
-    const s600 = await ecfr("34", "600.2", log);
-    const def = extract((s600.full_text as string) ?? "", term);
-    if (def) out.push({ term, citation_id: "ecfr:34-600.2", title: s600.title, text: def, source_url: s600.source_url, as_of_date: s600.as_of_date, authority_rank: 1,
-      via: "Listed in 34 CFR 668.2(a) as a term defined in 34 CFR part 600." });
+    const checked: string[] = [];
+    for (const sec of sources) {
+      if (!cache.has(sec)) cache.set(sec, await ecfr("34", sec, log));
+      const s = cache.get(sec)!;
+      checked.push(`34 CFR ${sec}`);
+      const def = extract((s.full_text as string) ?? "", term);
+      if (def) { out.push({ term, citation_id: `ecfr:34-${sec}`, title: s.title, text: def, source_url: s.source_url, as_of_date: s.as_of_date, authority_rank: 1, checked }); break; }
+    }
   }
   return out;
 }
+const RELATED_BOTH_FIT_MIN = 0.5;
 export const CURRENT_AWARD_YEAR = "2026-27"; // public results show current-year guidance only; prior years stay in storage
 async function handbookSearch(q: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
@@ -526,11 +536,26 @@ async function handbookSearch(q: string) {
         picked.length = Math.min(picked.length, 3);
       }
     }
+    // Found by both searches (in the meaning top 8 AND the word-search top 8): shown as a related
+    // passage — never as an answer (the answer decision in lookup() enforces that).
+    const meaningTop = new Set(rows.slice(0, 8).map((r) => r.heading));
+    const wordsTop = new Set(keyword.map((k) => k.heading));
+    const inBoth = (h: string) => meaningTop.has(h) && wordsTop.has(h);
+    for (const p of picked) if (inBoth(p.heading)) p.via = [...new Set([...p.via, "meaning", "words"])];
+    const extras = rows
+      .filter((r) => inBoth(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => p.heading === r.heading))
+      .filter((r, i, arr) => arr.findIndex((x) => x.heading === r.heading) === i)
+      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, sectionText.get(r.heading) ?? r.text), via: ["meaning", "words"] }))
+      .filter((r) => r.fit.score >= RELATED_BOTH_FIT_MIN) // related-only tier; answer thresholds unchanged
+      .slice(0, 2);
+    picked.push(...extras);
     // A section split into several pieces is shown from its first (defining) piece.
     for (let i = 0; i < picked.length; i++) {
       const first = rows.filter((r) => r.heading === picked[i].heading).sort((a, b) => a.ordinal - b.ordinal)[0];
       if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit, via: picked[i].via };
     }
+    // Specific things the question names (e.g. "BBAY 3") — an example must contain them to count as the answer.
+    const specifics = kwTerms.filter((t) => /^BBAY \d$|^SAY$|^award year$/.test(t.label));
     const seen = new Set<string>();
     const passages = picked.filter((r) => !seen.has(r.heading) && !!seen.add(r.heading))
       .map((r) => {
@@ -542,6 +567,7 @@ async function handbookSearch(q: string) {
           award_year: r.award_year, source_status: r.source_status, publication_date: r.publication_date,
           last_modified_date: r.last_modified_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
           similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits, found_by: r.via,
+          contains_named: r.fit.missing.length === 0 && specifics.every((t) => t.test(`${r.heading} ${sectionText.get(r.heading) ?? r.text}`)),
           look_next: lookNext(sectionText.get(r.heading) ?? r.text, r.award_year),
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
@@ -591,23 +617,34 @@ export async function lookup(input: LookupInput) {
       } else result = { ...primary, fit: Math.round(fit.score * 100) / 100 };
     }
     const handbook = hb.passages;
-    // Worked examples alone are related passages, not an answer to a rule question.
-    // …unless the question asks for an example, in which case examples ARE the answer.
-    // A rule section found by plain word search alone (not confirmed by meaning search) doesn't make it an answer.
-    const examplesOnly = handbook.length > 0 && !EXAMPLE_INTENT.test(q)
-      && handbook.every((p) => /\bExample \d+/.test(p.heading) || (p.found_by.length === 1 && p.found_by[0] === "words"));
-    if (result.mode === "no-confident-cite" && examplesOnly) {
-      result = { ...result, no_confident_cite: false, related_passages: true, message: "Related handbook passages, not a complete answer." };
-    } else if (result.mode === "no-confident-cite" && handbook.length) {
-      const top = handbook[0];
+    // Which passages may be the answer:
+    // - anything word search helped find (words only, or both searches) is related, never the answer;
+    // - a worked example is the answer only when the question asks for an example AND the example
+    //   contains the specific thing the question names (e.g. "BBAY 3").
+    const isExample = (h: string) => /\bExample \d+/.test(h);
+    const eligible = (p: (typeof handbook)[number]) =>
+      !p.found_by.includes("words") && (!isExample(p.heading) || (EXAMPLE_INTENT.test(q) && p.contains_named));
+    const answers = handbook.filter(eligible);
+    if (result.mode === "no-confident-cite" && answers.length) {
+      const top = answers[0];
       result = {
-        ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false,
+        ...result, ok: true, mode: "handbook-passage", no_match: false, no_confident_cite: false, related_passages: false,
         citation_id: top.citation_id, title: `${top.document_title ?? "FSA Handbook"} — ${top.heading}`, source_url: top.source_url,
         text: top.passage, authority_rank: top.authority_rank, authority_label: top.authority_label, award_year: top.award_year,
       };
+    } else if (result.mode === "no-confident-cite" && handbook.length) {
+      result = { ...result, no_confident_cite: false, related_passages: true };
     }
+    // Once a passage is cited (as answer or related), the "No confident citation" wording is cleared from the data.
+    if (handbook.length && (result.mode === "handbook-passage" || result.related_passages)) {
+      delete (result as Record<string, unknown>).rejected_candidate;
+      result.message = result.related_passages ? "Related handbook passages, not a complete answer." : null;
+    }
+    const passagesOut = handbook.map((p) => ({ ...p, role: result.mode === "handbook-passage" && p.citation_id === result.citation_id ? "answer" : "related" }));
     let coverage: { status: "retrieved-text" | "partial"; missing_terms: string[]; notes: string[] } | null = null;
     let conditional: string | null = null;
+    const defNote = (defs: { term: string; citation_id: string; checked: string[] }[]) =>
+      `Definition of ${defs.map((d) => `"${d.term}"`).join(", ")} added from ${[...new Set(defs.map((d) => d.citation_id.replace("ecfr:34-", "34 CFR ")))].join(", ")} (checked in order: ${definitionSources(q).map((s) => `34 CFR ${s}`).join(", ")}).`;
     if (result.mode === "handbook-passage") {
       const shown = handbook.map((p) => `${p.heading} ${p.passage}`).join(" ");
       const missing = handbook.length ? handbook.reduce<string[]>((acc, p) => acc.filter((t) => p.missing_terms.includes(t)), handbook[0].missing_terms) : [];
@@ -617,18 +654,26 @@ export async function lookup(input: LookupInput) {
       const defs = await definitionsFor(q, missing, log).catch(() => []);
       if (defs.length) {
         result = { ...result, definitions: defs };
-        const found = defs.map((d) => d!.term);
+        const found = defs.map((d) => d.term);
         const still = missing.filter((t) => !found.includes(t));
         notes.splice(0, notes.length, ...notes.filter((n) => !n.startsWith("The passages shown")));
         if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
-        notes.push(`Definition of ${found.map((t) => `"${t}"`).join(", ")} added from ${[...new Set(defs.map((d) => d!.citation_id.replace("ecfr:34-", "34 CFR ")))].join(", ")} (looked up via 34 CFR 668.2).`);
+        notes.push(defNote(defs));
       }
       coverage = { status: notes.some((n) => !n.startsWith("Definition of")) ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
         conditional = "Conditional: the handbook describes options that depend on how the program's calendar is set up — not one assignment that applies to every program.";
+    } else if (result.mode === "no-confident-cite") {
+      // No complete answer, but a named program term can still be defined from its official definitions section.
+      const missing = ((result.rejected_candidate as { missing_terms?: string[] } | undefined)?.missing_terms) ?? [];
+      const defs = await definitionsFor(q, missing, log).catch(() => []);
+      if (defs.length) {
+        result = { ...result, definitions: defs };
+        coverage = { status: "partial", missing_terms: missing, notes: ["No complete answer. " + defNote(defs)] };
+      }
     }
     delete (result as Record<string, unknown>).full_text;
-    return { ...result, coverage, conditional, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: handbook, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
+    return { ...result, coverage, conditional, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: passagesOut, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],
       handbook_coverage: `${CURRENT_AWARD_YEAR} FSA Handbook Vol 3 Ch 1 only (2025-26 Vol 5 Ch 1 is stored but excluded)` };
   } catch (e) {
     const status = e instanceof UpstreamError ? e.status : 500;
