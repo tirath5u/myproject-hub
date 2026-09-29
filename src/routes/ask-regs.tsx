@@ -47,6 +47,7 @@ type Result = {
   source_unavailable?: boolean;
   related_passages?: boolean;
   definitions?: { term: string; citation_id: string; title: string; text: string; source_url: string }[];
+  message?: string | null;
   related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
 };
 
@@ -260,6 +261,7 @@ function ResultCard({ r }: { r: Result }) {
       <div className="border p-5 text-sm space-y-2">
         <p className="font-semibold">Related handbook passages, not a complete answer.</p>
         <HandbookPassages list={r.handbook_passages} bare />
+        <Definitions r={r} />
         <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
       </div>
     );
@@ -297,6 +299,7 @@ function ResultCard({ r }: { r: Result }) {
             <HandbookPassages list={r.handbook_passages} bare />
           </div>
         )}
+        <Definitions r={r} />
         <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
       </div>
     );
@@ -341,17 +344,7 @@ function ResultCard({ r }: { r: Result }) {
         {r.mode === "handbook-passage" && (
           <p className="text-xs opacity-60 mt-2">Exact passage from the imported handbook, shown word for word.</p>
         )}
-        {!!r.definitions?.length && (
-          <div className="mt-6 border-t pt-4 space-y-3">
-            <div className="text-xs uppercase tracking-wide opacity-60">Definitions (from 34 CFR 668.2)</div>
-            {r.definitions.map((d) => (
-              <div key={d.term} className="border-l-2 border-accent/40 pl-3">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed opacity-85">{d.text}</pre>
-                <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open {d.citation_id.replace("ecfr:34-", "34 CFR ")} on eCFR ↗</a>
-              </div>
-            ))}
-          </div>
-        )}
+        <Definitions r={r} />
         <LookNext list={(r.handbook_passages ?? []).filter((p) => p.citation_id === r.citation_id).flatMap((p) => p.look_next ?? [])} />
         <HandbookPassages list={(r.handbook_passages ?? []).filter((p) => p.citation_id !== r.citation_id)} />
         {r.results && r.results.length > 1 && (
@@ -376,7 +369,7 @@ function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
   if (!list.length) return null;
   return (
     <div className={bare ? "mt-2" : "mt-6 border-t pt-4"}>
-      {!bare && <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Related FSA Handbook passages (exact text)</div>}
+      {!bare && <div className="text-xs uppercase tracking-wide opacity-60 mb-2">Related handbook passages, not a complete answer (exact text)</div>}
       <div className="space-y-4">
         {list.map((p) => (
           <div key={p.citation_id} className="border-l-2 border-accent/40 pl-3">
@@ -405,6 +398,21 @@ function LookNext({ list }: { list: { label: string; url: string }[] }) {
           {i > 0 && " · "}
           <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent underline">FSA Handbook {l.label} ↗</a>
         </span>
+      ))}
+    </div>
+  );
+}
+
+function Definitions({ r }: { r: Result }) {
+  if (!r.definitions?.length) return null;
+  return (
+    <div className="mt-6 border-t pt-4 space-y-3">
+      <div className="text-xs uppercase tracking-wide opacity-60">Definitions (official regulation text)</div>
+      {r.definitions.map((d) => (
+        <div key={d.term} className="border-l-2 border-accent/40 pl-3">
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed opacity-85">{d.text}</pre>
+          <a href={d.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open {d.citation_id.replace("ecfr:34-", "34 CFR ")} on eCFR ↗</a>
+        </div>
       ))}
     </div>
   );
