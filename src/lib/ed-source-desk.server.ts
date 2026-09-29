@@ -418,26 +418,35 @@ function lookNext(text: string, awardYear: string | null) {
   }
   return out.slice(0, 4);
 }
-// Missing definitions are looked up in 34 CFR 668.2 (General definitions).
+// Missing definitions: the question's program definitions section first (690.2 Pell, 685.102 Direct Loans),
+// then 34 CFR 668.2 (general) and 600.2 (institutional eligibility).
 const DEFINABLE = /\baward year\b|\bpayment period\b|\bacademic year\b|\bfull-time student\b|\bclock hour\b|\bcredit hour\b/gi;
+const PROGRAM_TERMS: [RegExp, string][] = [[/\bscheduled\b[^?]*\bpell\b/i, "scheduled federal pell grant"]];
+function definitionSources(q: string) {
+  const s: string[] = [];
+  if (/\bpell\b/i.test(q)) s.push("690.2");
+  if (/\bdirect (subsidized |unsubsidized |plus )?loans?\b/i.test(q)) s.push("685.102");
+  return [...s, "668.2", "600.2"];
+}
 async function definitionsFor(q: string, missing: string[], log?: AttemptLog) {
-  const wanted = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
+  const general = [...new Set([...(normalizeText(q).match(DEFINABLE) ?? []).map((t) => t.toLowerCase())])].filter((t) => missing.includes(t));
+  const program = PROGRAM_TERMS.filter(([re]) => re.test(q)).map(([, t]) => t);
+  const wanted = [...new Set([...program, ...general])];
   if (!wanted.length) return [];
   const extract = (full: string, term: string) =>
     full.match(new RegExp(`(?:^|\\n)\\s*${term.replace(/-/g, "[- ]")}\\s*:[^\\n]*`, "i"))?.[0].trim().slice(0, 1500) ?? null;
-  const gen = await ecfr("34", "668.2", log);
-  const genText = (gen.full_text as string) ?? "";
+  const sources = definitionSources(q);
+  const cache = new Map<string, AnyResult>();
   const out = [];
   for (const term of wanted) {
-    const direct = extract(genText, term);
-    if (direct) { out.push({ term, citation_id: "ecfr:34-668.2", title: gen.title, text: direct, source_url: gen.source_url, as_of_date: gen.as_of_date, authority_rank: 1 }); continue; }
-    // 668.2(a) lists terms whose definitions live in 34 CFR part 600 (600.2); follow that pointer.
-    const listed = new RegExp(`\\(\\d+\\)\\s*${term}\\.`, "i").test(genText.split(/\n\(b\)/)[0]);
-    if (!listed) continue;
-    const s600 = await ecfr("34", "600.2", log);
-    const def = extract((s600.full_text as string) ?? "", term);
-    if (def) out.push({ term, citation_id: "ecfr:34-600.2", title: s600.title, text: def, source_url: s600.source_url, as_of_date: s600.as_of_date, authority_rank: 1,
-      via: "Listed in 34 CFR 668.2(a) as a term defined in 34 CFR part 600." });
+    const checked: string[] = [];
+    for (const sec of sources) {
+      if (!cache.has(sec)) cache.set(sec, await ecfr("34", sec, log));
+      const s = cache.get(sec)!;
+      checked.push(`34 CFR ${sec}`);
+      const def = extract((s.full_text as string) ?? "", term);
+      if (def) { out.push({ term, citation_id: `ecfr:34-${sec}`, title: s.title, text: def, source_url: s.source_url, as_of_date: s.as_of_date, authority_rank: 1, checked }); break; }
+    }
   }
   return out;
 }
