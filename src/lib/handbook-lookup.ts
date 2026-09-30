@@ -84,3 +84,8 @@ export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term:
   if (sectionHeadings.length < 4) return false;
   return sectionHeadings.filter((h) => hit(term, h)).length / sectionHeadings.length > 0.5;
 }
+
+/** An answer passage that word search helped find is shown as partial: it matched every term, but that is not proof it answers the whole question. */
+export const WORD_ASSISTED_NOTE =
+  "Word search helped find this passage, so it is shown as a partial answer: it contains every term in the question but may not answer all of it.";
+export const wordAssistedNote = (foundBy: string[]) => (foundBy.includes("words") ? WORD_ASSISTED_NOTE : null);

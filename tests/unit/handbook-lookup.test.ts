@@ -66,3 +66,11 @@ describe("coverage and preview hosts", () => {
     expect(isPreviewHost("preview--x.lovable.app.evil.com")).toBe(false);
   });
 });
+
+describe("word-assisted answers", () => {
+  test("are labelled partial; meaning-only answers are not", async () => {
+    const { wordAssistedNote } = await import("../../src/lib/handbook-lookup");
+    expect(wordAssistedNote(["meaning", "words"])).toMatch(/partial answer/);
+    expect(wordAssistedNote(["meaning"])).toBeNull();
+  });
+});

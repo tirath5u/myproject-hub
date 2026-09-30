@@ -1,6 +1,6 @@
 // Server-only lookup logic for Ask Regs (ED Source Desk). Ported from cite.py contract.
 import {
-  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, headingIsExample, isTopicTerm, lookNext, sectionKey, textHasFictionalNote,
+  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, headingIsExample, isTopicTerm, lookNext, sectionKey, textHasFictionalNote, wordAssistedNote,
 } from "@/lib/handbook-lookup";
 const MAX_TEXT = 30_000;
 const UA = "myproduct.life ED Source Desk (+https://myproduct.life/ask-regs)";
@@ -721,6 +721,8 @@ export async function lookup(input: LookupInput, opts: LookupOptions = {}) {
         if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
         notes.push(defNote(defs));
       }
+      const wordNote = wordAssistedNote(handbook.find((p) => p.citation_id === result.citation_id)?.found_by ?? []);
+      if (wordNote) notes.push(wordNote);
       if (amountQuestion) notes.push(OFFICIAL_AMOUNT_NOTICE);
       coverage = { status: notes.some((n) => !n.startsWith("Definition of")) ? "partial" : "retrieved-text", missing_terms: missing, notes };
       if (PRESCRIPTIVE.test(q) && CONDITIONAL_TEXT.test(shown))
