@@ -46,12 +46,23 @@ describe("checkExplanation", () => {
   test("rejects unknown sources, uncited lines, and amounts only in fictional examples", () => {
     const r = checkExplanation("- The maximum is $7,500 [S2]\n- Something else\n- See [S9]", sources);
     expect(r.ok).toBe(false);
-    expect(r.problems).toEqual(["cites unknown source S9", "1 line(s) without a source", "amount $7,500 is not in a non-fictional source"]);
+    expect(r.problems).toEqual(["cites unknown source S9", '1 line(s) without a source (first: "Something else")', "amount $7,500 is not in a non-fictional source"]);
   });
   test("accepts amounts that a real source states", () => {
     expect(checkExplanation("- It is $1,234 [S1]", sources).ok).toBe(true);
   });
   test("rejects a reply with no citations at all", () => {
     expect(checkExplanation("Not covered: everything.", sources).problems).toEqual(["no source cited"]);
+  });
+});
+
+describe("checkExplanation formatting tolerance", () => {
+  const sources = explainSources(lookup, false);
+  test("allows a short intro line and a bold or bulleted Not covered line", () => {
+    const r = checkExplanation("Here is how it works:\n- The award depends on the schedule [S1]\n- **Not covered:** payment periods.", sources);
+    expect(r.ok).toBe(true);
+  });
+  test("names the first uncited line", () => {
+    expect(checkExplanation("- A fact with no source\n- Cited [S1]", sources).problems).toEqual(['1 line(s) without a source (first: "A fact with no source")']);
   });
 });

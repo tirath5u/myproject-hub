@@ -62,13 +62,17 @@ export function checkExplanation(text: string, sources: ExplainSource[]) {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const cited = [...text.matchAll(/\[(S\d+)\]/g)].map((m) => m[1]);
   const unknown_citations = [...new Set(cited.filter((c) => !ids.has(c)))];
-  const uncited_lines = lines.filter((l) => !/^not covered:/i.test(l) && !/\[S\d+\]/.test(l)).length;
+  // Bullets and markdown are ignored for these rules; a short intro line ending in ":" states no fact.
+  const plain = (l: string) => l.replace(/^[\s>*_#•\-–—]+/, "").replace(/^[*_]+|[*_]+$/g, "").trim();
+  const exempt = (l: string) => /^not covered\b/i.test(plain(l)) || (plain(l).endsWith(":") && plain(l).length <= 80);
+  const uncited = lines.filter((l) => !exempt(l) && !/\[S\d+\]/.test(l));
+  const uncited_lines = uncited.length;
   const realText = sources.filter((s) => !s.fictional).map((s) => s.text).join("\n");
   const amounts_not_in_sources = [...new Set((text.match(AMOUNT) ?? []).map(norm))].filter((a) => !(realText.match(AMOUNT) ?? []).map(norm).includes(a));
   const problems = [
     ...(cited.length ? [] : ["no source cited"]),
     ...unknown_citations.map((c) => `cites unknown source ${c}`),
-    ...(uncited_lines ? [`${uncited_lines} line(s) without a source`] : []),
+    ...(uncited_lines ? [`${uncited_lines} line(s) without a source (first: "${plain(uncited[0]).slice(0, 80)}")`] : []),
     ...amounts_not_in_sources.map((a) => `amount ${a} is not in a non-fictional source`),
   ];
   return { ok: problems.length === 0, problems, cited_sources: [...new Set(cited)].filter((c) => ids.has(c)) };

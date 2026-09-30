@@ -2,7 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 // Owner-only AI explanation. Same bearer token as the admin import (404 when ED_SOURCE_DESK_ADMIN_TOKEN is unset).
-const Schema = z.object({ q: z.string().trim().min(2).max(500) });
+// `question` is accepted as an alias of `q`.
+const Schema = z.preprocess(
+  (b) => (b && typeof b === "object" && !("q" in b) && "question" in b ? { q: (b as { question: unknown }).question } : b),
+  z.object({ q: z.string().trim().min(2).max(500) }),
+);
 
 export const Route = createFileRoute("/api/ed-source-desk/explain")({
   server: {
