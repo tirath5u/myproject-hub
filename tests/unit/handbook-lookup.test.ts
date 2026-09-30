@@ -85,3 +85,10 @@ describe("includeStagedFor", () => {
     expect(includeStagedFor(undefined, "myproduct.life")).toBe(false);
   });
 });
+
+describe("official amount notice", () => {
+  test("keeps the phrase the NEG eval checks for", async () => {
+    const { OFFICIAL_AMOUNT_NOTICE } = await import("../../src/lib/handbook-lookup");
+    expect(OFFICIAL_AMOUNT_NOTICE).toMatch(/published separately/i);
+  });
+});
