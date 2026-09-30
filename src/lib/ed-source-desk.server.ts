@@ -743,6 +743,11 @@ export async function lookup(input: LookupInput, opts: LookupOptions = {}) {
         coverage = { status: "partial", missing_terms: missing, notes: ["No complete answer. " + defNote(defs)] };
       }
     }
+    // Amount questions with no answer: lead with the plain explanation, not the "no confident citation" wording.
+    if (amountQuestion && result.mode === "no-confident-cite") {
+      result.message = OFFICIAL_AMOUNT_NOTICE;
+      delete (result as Record<string, unknown>).rejected_candidate;
+    }
     delete (result as Record<string, unknown>).full_text;
     const hbx = hb as { coverage?: string; lookup_version?: string; staged_included?: boolean; embedding_tokens?: number | null };
     return { ...result, coverage, conditional, official_amount_notice: amountQuestion ? OFFICIAL_AMOUNT_NOTICE : null, upstream_attempts: log, handbook_search_report: (hb as { search_report?: unknown }).search_report ?? null, handbook_passages: passagesOut, handbook_error: hb.error ?? null, handbook_prior_year_excluded: hb.prior_year_excluded, handbook_candidates: (hb as { candidates?: unknown[] }).candidates ?? [],

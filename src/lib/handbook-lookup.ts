@@ -21,7 +21,7 @@ export const textHasFictionalNote = (text: string) => /\bfictional\b[^.]*\b(maxi
 export const FICTIONAL_WARNING =
   "Fictional amounts: handbook examples use made-up maximum and minimum Pell Grant amounts for illustration. Don't use them for packaging; the official amounts for the award year are published separately.";
 export const OFFICIAL_AMOUNT_NOTICE =
-  "Official maximum and minimum Pell Grant amounts are published separately by the Department of Education (for example, in the award year's Pell payment and disbursement schedules). They are not taken from handbook examples.";
+  "Ask Regs doesn't state the official maximum or minimum Pell Grant amount. The Department of Education publishes those amounts separately for each award year (for example, in its Pell payment and disbursement schedules). The handbook's worked examples use made-up amounts, so they are never shown as the answer.";
 
 /** Questions asking for the actual maximum or minimum Pell amount (not eligibility for it). */
 export function asksPellAmount(q: string) {
