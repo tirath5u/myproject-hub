@@ -670,6 +670,7 @@ export async function lookup(input: LookupInput) {
       if (defs.length) {
         result = {
           ...result,
+          mode: "definition-only",
           definitions: defs,
           no_confident_cite: false,
           message: "Relevant definition found, but this does not fully answer the question.",
