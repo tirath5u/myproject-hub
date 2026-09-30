@@ -28,14 +28,31 @@ export async function authenticateAdmin(request: Request): Promise<Response | nu
   return null;
 }
 
-/** The chapter page URL: fixed in the registry, or found from a link on another chapter's page (one extra fetch). */
-async function resolveUrl(source: HandbookSource): Promise<{ url: string } | { error: string }> {
+/**
+ * The chapter page URL: fixed in the registry, or found from a link on another page. Discovery pages are tried
+ * in order; "source:<id>" resolves that source first (depth-limited), so later chapters can follow earlier ones.
+ */
+async function resolveUrl(source: HandbookSource, depth = 0): Promise<{ url: string } | { error: string }> {
   if (source.url) return { url: source.url };
   if (!source.discover) return { error: "source has neither url nor discover" };
-  const res = await fetch(source.discover.from, { headers: { "User-Agent": UA, Accept: "text/html" } });
-  if (!res.ok) return { error: `discovery page returned HTTP ${res.status}` };
-  const url = findLink(await res.text(), source.discover.from, source.discover.path_pattern);
-  return url ? { url } : { error: "chapter link not found on the discovery page" };
+  if (depth > 4) return { error: "discovery chain too deep" };
+  const tried: string[] = [];
+  for (const from of [source.discover.from].flat()) {
+    let page = from;
+    if (from.startsWith("source:")) {
+      const { findHandbookSource } = await import("@/data/ed-source-desk/handbook-sources");
+      const dep = findHandbookSource(from.slice(7));
+      const r = dep ? await resolveUrl(dep, depth + 1) : { error: `unknown ${from}` };
+      if ("error" in r) { tried.push(`${from}: ${r.error}`); continue; }
+      page = r.url;
+    }
+    const res = await fetch(page, { headers: { "User-Agent": UA, Accept: "text/html" } });
+    if (!res.ok) { tried.push(`${page}: HTTP ${res.status}`); continue; }
+    const url = findLink(await res.text(), page, source.discover.path_pattern);
+    if (url) return { url };
+    tried.push(`${page}: link not found`);
+  }
+  return { error: `chapter link not found (${tried.join("; ")})` };
 }
 
 async function fetchAndParse(source: HandbookSource) {

@@ -188,3 +188,16 @@ describe("Stage 2B helpers", () => {
     expect(checkChapter(p, { min_sections: 20, min_chunks: 3 }).failures).toEqual(["sections: expected at least 20, got 5"]);
   });
 });
+
+describe("Volume 7 batch sources", () => {
+  test("each chapter's pattern matches only its own chapter, and source: references exist", () => {
+    for (const ch of [1, 4, 5, 6]) {
+      const src = HANDBOOK_SOURCES.find((s) => s.id === `fsa-hb-2026-27-vol7-ch${ch}`)!;
+      expect(src.require_confirmed_hash).toBe(true);
+      expect(src.discover!.path_pattern.test(`/knowledge-center/fsa-handbook/2026-2027/vol7/ch${ch}-some-title`)).toBe(true);
+      expect(src.discover!.path_pattern.test(`/knowledge-center/fsa-handbook/2026-2027/vol7/ch${ch + 1}-some-title`)).toBe(false);
+      for (const f of [src.discover!.from].flat().filter((x) => x.startsWith("source:")))
+        expect(HANDBOOK_SOURCES.some((s) => s.id === f.slice(7))).toBe(true);
+    }
+  });
+});

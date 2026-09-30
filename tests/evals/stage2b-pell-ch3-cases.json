@@ -1,7 +1,7 @@
 {
-  "suite": "stage2b-pell-ch3-candidates-v1",
-  "status": "candidate-unreviewed",
-  "description": "Stage 2B candidate checks for the 2026-27 FSA Handbook Volume 7, Chapter 3 import. Run on a preview while Chapter 3 is staged. Checks passage presence and labels, not answer correctness; Tirath reviews on screen before promote.",
+  "suite": "stage2b-pell-ch3-v1",
+  "status": "reviewed",
+  "description": "Stage 2B checks for the 2026-27 FSA Handbook Volume 7, Chapter 3 import. Run on a preview while Chapter 3 is staged. Checks passage presence and labels, not answer correctness;",
   "document": "vol7:ch3",
   "fictional_amounts": [
     "$7,500",
@@ -19,7 +19,7 @@
   "cases": [
     {
       "id": "U10-B",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "kind": "pell-passage",
       "expect": "present",
       "question": "How is a payment-period Pell amount affected when enrollment intensity differs from full time?",
@@ -27,10 +27,13 @@
     },
     {
       "id": "NEG-B",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "kind": "fictional-amount-guard",
       "document": "",
       "question": "What is the minimum Pell Grant amount for the 2026-27 award year?"
     }
-  ]
+  ],
+  "reviewed_by": "Tirath Chhatriwala",
+  "reviewed_at": "2026-09-30",
+  "review_note": "Checked on the preview before promote (Chapter 3 questions and owner-only explanations); promoted 2026-09-30. Live: 2 of 2, 18 of 18 checks."
 }
