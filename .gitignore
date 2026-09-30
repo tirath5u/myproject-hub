@@ -30,3 +30,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Eval run output (full source responses; share summaries only)
+tests/evals/runs/

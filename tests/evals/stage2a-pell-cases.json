@@ -1,0 +1,47 @@
+{
+  "suite": "stage2a-pell-candidates-v1",
+  "status": "candidate-unreviewed",
+  "description": "Stage 2A candidate checks for the 2026-27 FSA Handbook Volume 7, Chapter 2 import. Tirath reviews each expected passage before any case becomes a golden. Run on preview (staged rows are shown only there). Checks labels and passage roles, not answer correctness.",
+  "document": "vol7:ch2",
+  "fictional_amounts": ["$7,500", "$750"],
+  "stage1_expected_changes": [
+    {
+      "id": "U09",
+      "from": "definition-only (34 CFR 690.2)",
+      "to": "Volume 7, Chapter 2 passage (Introduction or Scheduled Award, Award Year, and Annual Award), 690.2 definition allowed",
+      "reason": "Intended Stage 2A change: the handbook chapter now answers U09. Record as an expected change, not a regression."
+    }
+  ],
+  "cases": [
+    {
+      "id": "U09", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "answer",
+      "question": "What inputs determine a student's scheduled full-time Pell Grant award?",
+      "accepted_headings": ["Introduction", "Scheduled Award, Award Year, and Annual Award"],
+      "allowed_definitions": ["ecfr:34-690.2"],
+      "expected_change": "Stage 1 expected definition-only; Stage 2A expects a Volume 7, Chapter 2 passage."
+    },
+    {
+      "id": "U08", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "answer",
+      "question": "Does a low Student Aid Index by itself establish eligibility for the maximum Pell Grant?",
+      "accepted_headings": ["Maximum Pell Grant Eligibility Criteria"]
+    },
+    {
+      "id": "U26", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "partial-or-related",
+      "question": "Under the applicable OBBBA rules, what happens to Pell eligibility when nonfederal scholarships equal cost of attendance and the student has a low SAI?"
+    },
+    {
+      "id": "U10", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "related-only",
+      "question": "How is a payment-period Pell amount affected when enrollment intensity differs from full time?",
+      "note": "Chapter 3 holds the payment-period calculation; Chapter 2 passages may only be related."
+    },
+    {
+      "id": "U21", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "partial-or-related",
+      "question": "How does a school select Pell Formula 1, 2, 3, or 4 for a program?",
+      "accepted_headings": ["Basic Pell Grant Formulas"]
+    },
+    {
+      "id": "NEG", "status": "candidate-unreviewed", "kind": "fictional-amount-guard",
+      "question": "What is the maximum Pell Grant amount for the 2026-27 award year?"
+    }
+  ]
+}

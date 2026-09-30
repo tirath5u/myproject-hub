@@ -49,13 +49,39 @@ type Result = {
   definitions?: { term: string; citation_id: string; title: string; text: string; source_url: string }[];
   message?: string | null;
   related_documents?: { citation_id: string; title: string; source_url: string; publication_date: string; authority_label?: string }[];
+  official_amount_notice?: string | null;
 };
 
 type Passage = {
   citation_id: string; label: string; heading: string; passage: string; source_url: string; official_url: string;
   award_year: string | null; source_status: string; last_modified_date: string | null; retrieved_at: string; similarity: number;
-  look_next?: { label: string; url: string }[];
+  page_published_date?: string | null; document_title?: string | null; is_example?: boolean; fictional_amounts?: boolean; warning?: string | null;
+  look_next?: { label: string; url: string; imported?: boolean }[];
 };
+
+// Shown outside the quoted passage — never part of the handbook text itself.
+function FictionalWarning({ p }: { p?: Passage }) {
+  if (!p?.warning) return null;
+  return (
+    <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-2">
+      <strong className="text-accent-complement">Fictional amounts:</strong> {p.warning.replace(/^Fictional amounts:\s*/, "")}
+    </div>
+  );
+}
+
+function OfficialAmountNotice({ r }: { r: Result }) {
+  if (!r.official_amount_notice) return null;
+  return <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.official_amount_notice}</div>;
+}
+
+function PassageMeta({ p }: { p: Passage }) {
+  return (
+    <div className="text-xs opacity-60 mb-1">
+      FSA Handbook {p.award_year} · {p.source_status === "staged" ? "staged (preview only, not yet approved)" : p.source_status} · last modified {p.last_modified_date ?? "unknown"}
+      {p.page_published_date && ` · FSA page first published ${p.page_published_date}`} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
+    </div>
+  );
+}
 
 const EXAMPLES = [
   "Satisfactory academic progress",
@@ -260,6 +286,7 @@ function ResultCard({ r }: { r: Result }) {
     return (
       <div className="border p-5 text-sm space-y-2">
         <p className="font-semibold">Related handbook passages, not a complete answer.</p>
+        <OfficialAmountNotice r={r} />
         <HandbookPassages list={r.handbook_passages} bare />
         <Definitions r={r} />
         <p className="text-xs opacity-60">Handbook coverage: {r.handbook_coverage ?? "none for 2026-27 yet"}.</p>
@@ -276,6 +303,7 @@ function ResultCard({ r }: { r: Result }) {
             ? "No confident citation — nothing matched your question closely enough to cite. Try including a section number like 34 CFR 668.34, or rephrase."
             : "No matching Education Department documents found. Try a section number like 668.34."}
         </p>
+        <OfficialAmountNotice r={r} />
         {r.rejected_candidate?.citation_id && (
           <p className="text-xs opacity-70">
             Checked and set aside: <span className="font-mono">{r.rejected_candidate.citation_id}</span> ({r.rejected_candidate.title}) — it doesn't mention{" "}
@@ -329,6 +357,9 @@ function ResultCard({ r }: { r: Result }) {
       </div>
       <div className="p-6">
         <PriorYearWarning year={r.award_year} />
+        <OfficialAmountNotice r={r} />
+        {r.mode === "handbook-passage" && <FictionalWarning p={r.handbook_passages?.find((p) => p.citation_id === r.citation_id)} />}
+        {r.mode === "handbook-passage" && (() => { const p = r.handbook_passages?.find((x) => x.citation_id === r.citation_id); return p ? <PassageMeta p={p} /> : null; })()}
         {r.conditional && <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.conditional}</div>}
         {r.mode === "handbook-passage" && (
           <p className="text-xs opacity-70 my-2">Retrieved source text, not a complete answer. Read the full section at the official source.</p>
@@ -376,10 +407,9 @@ function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
         {list.map((p) => (
           <div key={p.citation_id} className="border-l-2 border-accent/40 pl-3">
             <div className="text-sm font-semibold">{p.heading}</div>
-            <div className="text-xs opacity-60 mb-1">
-              FSA Handbook {p.award_year} · {p.source_status} · last modified {p.last_modified_date ?? "unknown"} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
-            </div>
+            <PassageMeta p={p} />
             <PriorYearWarning year={p.award_year} />
+            <FictionalWarning p={p} />
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-48 overflow-auto opacity-85">{p.passage}</pre>
             <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open this passage on fsapartners.ed.gov ↗</a>
             <LookNext list={p.look_next ?? []} />
@@ -390,18 +420,26 @@ function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
   );
 }
 
-function LookNext({ list }: { list: { label: string; url: string }[] }) {
+function LookNext({ list }: { list: { label: string; url: string; imported?: boolean }[] }) {
   if (!list.length) return null;
+  const groups = [
+    { title: "Also in this library (ask about it here): ", items: list.filter((l) => l.imported) },
+    { title: "Where to look next (not imported yet): ", items: list.filter((l) => !l.imported) },
+  ].filter((g) => g.items.length);
   return (
-    <div className="text-xs mt-2">
-      <span className="opacity-70">Where to look next (not imported yet): </span>
-      {list.map((l, i) => (
-        <span key={l.label}>
-          {i > 0 && " · "}
-          <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent underline">FSA Handbook {l.label} ↗</a>
-        </span>
+    <>
+      {groups.map((g) => (
+        <div key={g.title} className="text-xs mt-2">
+          <span className="opacity-70">{g.title}</span>
+          {g.items.map((l, i) => (
+            <span key={l.label}>
+              {i > 0 && " · "}
+              <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent underline">FSA Handbook {l.label} ↗</a>
+            </span>
+          ))}
+        </div>
       ))}
-    </div>
+    </>
   );
 }
 
