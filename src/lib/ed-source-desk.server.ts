@@ -668,7 +668,13 @@ export async function lookup(input: LookupInput) {
       const missing = ((result.rejected_candidate as { missing_terms?: string[] } | undefined)?.missing_terms) ?? [];
       const defs = await definitionsFor(q, missing, log).catch(() => []);
       if (defs.length) {
-        result = { ...result, definitions: defs };
+        result = {
+          ...result,
+          definitions: defs,
+          no_confident_cite: false,
+          message: "Relevant definition found, but this does not fully answer the question.",
+        };
+        delete (result as Record<string, unknown>).rejected_candidate;
         coverage = { status: "partial", missing_terms: missing, notes: ["No complete answer. " + defNote(defs)] };
       }
     }
