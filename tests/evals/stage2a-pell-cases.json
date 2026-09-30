@@ -30,9 +30,9 @@
       "question": "Under the applicable OBBBA rules, what happens to Pell eligibility when nonfederal scholarships equal cost of attendance and the student has a low SAI?"
     },
     {
-      "id": "U10", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "related-only",
+      "id": "U10", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "partial-or-related",
       "question": "How is a payment-period Pell amount affected when enrollment intensity differs from full time?",
-      "note": "Chapter 3 holds the payment-period calculation; Chapter 2 passages may only be related."
+      "note": "Chapter 3 holds the payment-period calculation, so Chapter 2 is never a complete answer. Changed 2026-09-30 from related-only (handoff) to partial-or-related: 'Pell Grant Payments by Payment Period' may be shown as a partial answer."
     },
     {
       "id": "U21", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "partial-or-related",
