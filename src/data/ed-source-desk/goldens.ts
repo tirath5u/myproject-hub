@@ -27,6 +27,6 @@ export const GOLDENS: { version: string; complete: boolean; cases: GoldenCase[];
     pass_count: 12,
     total: 12,
     ran_at: "2026-09-28T16:17:13+05:30",
-    superseded_reason: "Lookup rules changed after this run; a fresh published run is needed.",
+    superseded_reason: "It is superseded by the archived 18-case live citation-routing check (Sep 30, 2026). Neither run shows that every answer is correct — they check which source a question is routed to.",
   },
 };
