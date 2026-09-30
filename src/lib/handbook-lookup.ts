@@ -75,3 +75,12 @@ export function coverageText(awardYear: string, docs: { chapter: ChapterId | nul
 
 /** Lovable preview hosts (id-preview--….lovable.app, preview--….lovable.app, ….lovableproject.com) and local dev. Published hosts are never preview. */
 export const isPreviewHost = (hostname: string) => /(^|[.-])preview--[^.]*\.lovable\.app$|\.lovableproject\.com$|^localhost$|^127\.0\.0\.1$/i.test(hostname);
+
+/**
+ * A chapter's topic word appears in more than half of its section headings (e.g. "Pell" in Vol 7 Ch 2).
+ * Such a word says nothing about which section answers a question. Needs at least 4 headings to judge.
+ */
+export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term: string, heading: string) => boolean) {
+  if (sectionHeadings.length < 4) return false;
+  return sectionHeadings.filter((h) => hit(term, h)).length / sectionHeadings.length > 0.5;
+}
