@@ -80,9 +80,50 @@ export const isPreviewHost = (hostname: string) => /(^|[.-])preview--[^.]*\.lova
  * A chapter's topic word appears in more than half of its section headings (e.g. "Pell" in Vol 7 Ch 2).
  * Such a word says nothing about which section answers a question. Needs at least 4 headings to judge.
  */
-export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term: string, heading: string) => boolean) {
-  if (sectionHeadings.length < 4) return false;
+export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term: string, heading: string) => boolean, minItems = 4) {
+  if (sectionHeadings.length < minItems) return false;
   return sectionHeadings.filter((h) => hit(term, h)).length / sectionHeadings.length > 0.5;
+}
+
+/** A chapter's title words from its official URL (".../vol7/ch1-student-eligibility-pell-grants" → "student eligibility pell grants"). */
+export const chapterTitleWords = (officialUrl: string | null | undefined) =>
+  (officialUrl?.split(/[?#]/)[0].split("/").filter(Boolean).pop() ?? "").replace(/^ch\d+-/i, "").replace(/-/g, " ");
+
+/**
+ * Numbered variants the question names, each a distinct concept that must be covered on its own:
+ * "BBAY 1, BBAY 2, or BBAY 3", "Pell Formula 1, 2, 3, or 4", "Formula 5A".
+ */
+export function numberedVariants(q: string) {
+  const out: { label: string; re: RegExp }[] = [];
+  const seen = new Set<string>();
+  for (const m of q.matchAll(/\b(Formula|BBAY)\s*(\d+[AB]?)((?:\s*(?:,\s*(?:or\s+|and\s+)?|or\s+|and\s+|&\s*)\d+[AB]?\b)*)/gi)) {
+    const kind = m[1].toUpperCase() === "BBAY" ? "BBAY" : "Formula";
+    for (const n of [m[2], ...(m[3].match(/\d+[AB]?/gi) ?? [])]) {
+      const label = `${kind} ${n.toUpperCase()}`;
+      if (seen.has(label)) continue;
+      seen.add(label);
+      out.push({ label, re: kind === "BBAY" ? new RegExp(`\\bBBAY ?${n}\\b|Borrower-Based Academic Year ${n}\\b`, "i") : new RegExp(`\\bFormula ?${n}\\b`, "i") });
+    }
+  }
+  return out;
+}
+
+/** Aid programs a question or a chapter can be about. */
+const PROGRAMS: [string, RegExp][] = [
+  ["pell", /\bpell\b/i],
+  ["direct-loan", /\bdirect (?:subsidized |unsubsidized |plus )?loans?\b|\bplus loans?\b|\bdirect loan program\b/i],
+  ["teach", /\bteach grants?\b/i],
+  ["fseog", /\bfseog\b|\bsupplemental educational opportunity grants?\b/i],
+  ["work-study", /\bwork[- ]study\b|\bfws\b/i],
+];
+export const programsIn = (text: string) => new Set(PROGRAMS.filter(([, re]) => re.test(text)).map(([p]) => p));
+/**
+ * A passage is off-program when the question names one or more aid programs and the passage's volume is about a
+ * different one (e.g. a Direct Loan question and a Pell chapter). Passages from volumes with no program stay in.
+ */
+export function offProgram(questionPrograms: Set<string>, volumePrograms: Set<string>) {
+  if (!questionPrograms.size || !volumePrograms.size) return false;
+  return ![...questionPrograms].some((p) => volumePrograms.has(p));
 }
 
 /** An answer passage that word search helped find is shown as partial: it matched every term, but that is not proof it answers the whole question. */

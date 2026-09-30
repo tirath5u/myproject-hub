@@ -28,6 +28,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | 2026-09-30 | Eval runner and Stage 2A plan | 18-case routing eval (18 of 18 on its first independent live run); handoff document for the next stage |
 | 2026-09-30 | Stage 2A (PRs #1 to #7) | Staged import pipeline; Vol 7 Ch 2 imported, reviewed and promoted; fixes found by evals and by manual review |
 | 2026-09-30 | Stage 2B + AI (PRs #8 to #10) | Vol 7 Ch 3 imported, reviewed and promoted; owner-only AI explanation with citation enforcement |
+| 2026-09-30 | Volume 7 batch (PRs #11, #12) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
 
 ## 3. Evidence by skill area
 
@@ -82,6 +83,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | D8 | Model provider for the explanation | New Anthropic key vs Lovable's built-in gateway | Built-in gateway (Gemini 2.5 Flash): no new keys, and it can be switched later. (Claude's default; Tirath accepted.) |
 | D9 | How strict the AI check should be | Loosen it vs keep it strict and fix the cause | Kept the strict rule and allowed only lead-in lines followed by cited points (PR #10), after two explanations were rejected. |
 | D10 | Next priority | Improve the AI explanation vs more chapters | More chapters and housekeeping first; the evidence log now. |
+| D11 | Batch import broke 5 answers on preview (U08, U09, U21, U25, U30) | Promote anyway, drop the new chapters, or fix the search | Held the release and fixed the causes generally: volume-level topic words, numbered variants (Formula 1-4) must each be covered, and off-program volumes excluded (PR #12). (Lovable recommended not promoting; Tirath agreed; Claude wrote the fix.) |
 
 ## 5. Measured results (2026-09-30)
 
@@ -89,7 +91,8 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **Content:** Vol 7 Ch 2 has 15 passages (3,656 embedding tokens to import). Vol 7 Ch 3 has 13 sections and 19 passages (4,838 tokens).
 - **Lookup speed and cost:** median lookup latency of about 0.5 to 0.7 seconds on preview. About 119 embedding tokens per 6-question eval run.
 - **AI explanation:** 1,276 to 3,197 tokens per explanation. The check rejected 2 explanations before PR #10, and none of the tested ones after it.
-- **Delivery:** 10 pull requests merged in one day, each with unit tests and CI passing.
+- **Delivery:** 11 pull requests merged in one day, each with unit tests and CI passing.
+- **Volume 7 batch (preview, staged):** Ch 1 11 passages, Ch 4 42 (13 tables, 13 examples), Ch 5 15, Ch 6 8; 21,506 embedding tokens to import. Before the fix: Stage 2A 2 of 6 and Stage 1 15 of 18 on preview (5 regressions), all caught before release.
 
 ## 6. Resume bullets you can use truthfully
 
