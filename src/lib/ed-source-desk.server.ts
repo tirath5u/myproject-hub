@@ -1,6 +1,6 @@
 // Server-only lookup logic for Ask Regs (ED Source Desk). Ported from cite.py contract.
 import {
-  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, headingIsExample, isTopicTerm, lookNext, sectionKey, textHasFictionalNote, wordAssistedNote,
+  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, chapterTitleWords, headingIsExample, isTopicTerm, lookNext, numberedVariants, offProgram, programsIn, sectionKey, textHasFictionalNote, wordAssistedNote,
 } from "@/lib/handbook-lookup";
 const MAX_TEXT = 30_000;
 const UA = "myproduct.life ED Source Desk (+https://myproduct.life/ask-regs)";
@@ -367,9 +367,8 @@ export function handbookFit(q: string, heading: string, text: string, isTopic: (
   const primary = new Set(distinctiveTerms(primaryPart(q)));
   const headingTerms: string[] = [];
   const phrases = PHRASE_TERMS.filter(([qre]) => qre.test(q));
-  // Numbered calendar variants (BBAY 1/2/3) are distinct concepts; each must be covered on its own.
-  for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1])))
-    phrases.push([/./, new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i"), `BBAY ${m}`]);
+  // Numbered variants (BBAY 1/2/3, Formula 1-4) are distinct concepts; each must be covered on its own.
+  for (const v of numberedVariants(q)) phrases.push([/./, v.re, v.label]);
   const hay = `${heading} ${text}`;
   let got = 0, total = 0;
   const missing: string[] = [];
@@ -402,10 +401,7 @@ function keywordTerms(q: string) {
   const out: { label: string; test: (h: string) => boolean }[] = distinctiveTerms(q).map((t) => ({ label: t, test: (h: string) => stemHit(t, h) }));
   for (const [qre, hre, label] of PHRASE_TERMS) if (qre.test(q)) out.push({ label, test: (h) => hre.test(h) });
   if (/scheduled academic year/i.test(q) || /\bSAY\b/.test(q)) out.push({ label: "SAY", test: (h) => /scheduled academic year|\bSAY\b/i.test(h) });
-  for (const m of new Set([...q.matchAll(/\bBBAY\s*([1-3])\b/gi)].map((x) => x[1]))) {
-    const re = new RegExp(`\\bBBAY ?${m}\\b|Borrower-Based Academic Year ${m}\\b`, "i");
-    out.push({ label: `BBAY ${m}`, test: (h) => re.test(h) });
-  }
+  for (const v of numberedVariants(q)) out.push({ label: v.label, test: (h) => v.re.test(h) });
   return out;
 }
 // Missing definitions: the question's program definitions section first (690.2 Pell, 685.102 Direct Loans),
@@ -490,7 +486,23 @@ async function handbookSearch(q: string, includeStaged = false) {
     ]);
     if (all.error) throw new Error(all.error.message);
     const priorYearExcluded = ((all.data ?? []) as { award_year: string | null }[]).filter((r) => r.award_year !== CURRENT_AWARD_YEAR).length;
-    const rows: HandbookRow[] = cur.rows;
+    const allRows: HandbookRow[] = cur.rows;
+    // Each volume's chapter titles (from official URLs), for volume-level topic words and programs.
+    const volKey = (r: HandbookRow) => { const c = chapterOf(r); return c ? `${r.award_year}:vol${c.volume}` : `doc:${r.document_version_key}`; };
+    const volTitles = new Map<string, Map<string, string>>();
+    for (const r of allRows) volTitles.set(volKey(r), (volTitles.get(volKey(r)) ?? new Map()).set(r.document_version_key, chapterTitleWords(r.official_url)));
+    const docVol = new Map(allRows.map((r) => [r.document_version_key, volKey(r)]));
+    const volumePrograms = new Map<string, Set<string>>();
+    for (const [v, titles] of volTitles) {
+      const list = [...titles.values()];
+      const each = list.map(programsIn);
+      // With 3+ chapters, a volume is "about" the programs most of its chapter titles name; otherwise any title's.
+      const progs = list.length >= 3 ? [...new Set(each.flatMap((x) => [...x]))].filter((p) => each.filter((x) => x.has(p)).length / list.length > 0.5) : each.flatMap((x) => [...x]);
+      volumePrograms.set(v, new Set(progs));
+    }
+    // A question naming an aid program never gets passages from a volume about a different program.
+    const qPrograms = programsIn(q);
+    const rows = allRows.filter((r) => !offProgram(qPrograms, volumePrograms.get(volKey(r)) ?? new Set()));
     const key = sectionKey;
     // Full text of each section (document version + heading), in reading order.
     const sectionText = new Map<string, string>();
@@ -504,13 +516,17 @@ async function handbookSearch(q: string, includeStaged = false) {
     const topicCache = new Map<string, boolean>();
     const isTopic = (doc: string) => (term: string) => {
       const ck = `${doc}\u0000${term}`;
-      if (!topicCache.has(ck)) topicCache.set(ck, isTopicTerm(term, [...(docHeadings.get(doc) ?? [])], stemHit));
+      if (!topicCache.has(ck)) {
+        // Topic word of the chapter (most of its section headings) or of its volume (most of its chapter titles, 3+ chapters).
+        const vol = docVol.get(doc) ?? "";
+        topicCache.set(ck, isTopicTerm(term, [...(docHeadings.get(doc) ?? [])], stemHit) || isTopicTerm(term, [...(volTitles.get(vol)?.values() ?? [])], stemHit, 3));
+      }
       return topicCache.get(ck)!;
     };
     const fitOf = (r: HandbookRow, text = fullText(r)) => handbookFit(q, r.heading, text, isTopic(r.document_version_key));
     // Chapters in the searched library: cross-references to these are passages here, not "not imported yet".
     const imported = new Map<string, string>();
-    for (const r of rows) { const c = chapterOf(r); if (c) imported.set(`${c.volume}:${c.chapter}`, r.official_url); }
+    for (const r of allRows) { const c = chapterOf(r); if (c) imported.set(`${c.volume}:${c.chapter}`, r.official_url); }
     // Plain word search over every current-year section (full section text, rarer words weigh more).
     const sections = [...sectionText.entries()];
     const kwTerms = keywordTerms(q);
@@ -573,8 +589,10 @@ async function handbookSearch(q: string, includeStaged = false) {
     const wordsTop = new Set(keyword.map((k) => k.key));
     const inBoth = (k: string) => meaningTop.has(k) && wordsTop.has(k);
     for (const p of picked) if (inBoth(key(p))) p.via = [...new Set([...p.via, "meaning", "words"])];
+    // The related-only shortlist ranks meaning among on-topic passages (fit >= 0.5), so off-topic chapters can't crowd it.
+    const topicalMeaningTop = new Set([...new Set(rows.filter((r) => fitOf(r).score >= RELATED_BOTH_FIT_MIN).map(key))].slice(0, 8));
     const extras = rows
-      .filter((r) => inBoth(key(r)) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => key(p) === key(r)))
+      .filter((r) => topicalMeaningTop.has(key(r)) && wordsTop.has(key(r)) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => key(p) === key(r)))
       .filter((r, i, arr) => arr.findIndex((x) => key(x) === key(r)) === i)
       .map((r) => ({ ...r, fit: fitOf(r), via: ["meaning", "words"] }))
       .filter((r) => r.fit.score >= RELATED_BOTH_FIT_MIN) // related-only tier; answer thresholds unchanged
@@ -586,7 +604,7 @@ async function handbookSearch(q: string, includeStaged = false) {
       if (first && first.ordinal < picked[i].ordinal) picked[i] = { ...first, fit: picked[i].fit, via: picked[i].via };
     }
     // Specific things the question names (e.g. "BBAY 3") — an example must contain them to count as the answer.
-    const specifics = kwTerms.filter((t) => /^BBAY \d$|^SAY$|^award year$/.test(t.label));
+    const specifics = kwTerms.filter((t) => /^BBAY \d+$|^Formula \d+[AB]?$|^SAY$|^award year$/.test(t.label));
     const seen = new Set<string>();
     const passages = picked.filter((r) => !seen.has(key(r)) && !!seen.add(key(r)))
       .map((r) => {
@@ -609,7 +627,7 @@ async function handbookSearch(q: string, includeStaged = false) {
       });
     const candidates = rows.slice(0, 12).map((r) => { const f = fitOf(r, r.text); return { ordinal: r.ordinal, heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(f.score * 100) / 100, heading_hits: f.headingHits, heading_precision: Math.round(f.headingPrecision * 100) / 100 }; });
     const meaning = rows.slice(0, 8).map((r) => ({ heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000 }));
-    const docs = [...new Map(rows.map((r) => [r.document_version_key, { chapter: chapterOf(r), staged: r.source_status === "staged" }])).values()];
+    const docs = [...new Map(allRows.map((r) => [r.document_version_key, { chapter: chapterOf(r), staged: r.source_status === "staged" }])).values()];
     return {
       passages, prior_year_excluded: priorYearExcluded, candidates, search_report: { meaning_top: meaning, words_top: keyword.map(({ key: _k, ...k }) => k) },
       coverage: coverageText(CURRENT_AWARD_YEAR, docs), lookup_version: cur.lookup_version, staged_included: includeStaged && cur.lookup_version === "v2",
