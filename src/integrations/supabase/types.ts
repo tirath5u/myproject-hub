@@ -21,8 +21,10 @@ export type Database = {
           document_version_id: string
           embedding: string | null
           embedding_model: string | null
+          fictional_amounts: boolean
           heading: string | null
           id: string
+          is_example: boolean
           ordinal: number
           text: string
         }
@@ -32,8 +34,10 @@ export type Database = {
           document_version_id: string
           embedding?: string | null
           embedding_model?: string | null
+          fictional_amounts?: boolean
           heading?: string | null
           id?: string
+          is_example?: boolean
           ordinal: number
           text: string
         }
@@ -43,8 +47,10 @@ export type Database = {
           document_version_id?: string
           embedding?: string | null
           embedding_model?: string | null
+          fictional_amounts?: boolean
           heading?: string | null
           id?: string
+          is_example?: boolean
           ordinal?: number
           text?: string
         }
@@ -68,6 +74,7 @@ export type Database = {
           id: string
           last_modified_date: string | null
           official_url: string
+          page_published_date: string | null
           publication_date: string | null
           retrieved_at: string
           source_class: string
@@ -83,6 +90,7 @@ export type Database = {
           id?: string
           last_modified_date?: string | null
           official_url: string
+          page_published_date?: string | null
           publication_date?: string | null
           retrieved_at?: string
           source_class: string
@@ -98,6 +106,7 @@ export type Database = {
           id?: string
           last_modified_date?: string | null
           official_url?: string
+          page_published_date?: string | null
           publication_date?: string | null
           retrieved_at?: string
           source_class?: string
@@ -144,6 +153,35 @@ export type Database = {
           last_modified_date: string
           official_url: string
           ordinal: number
+          publication_date: string
+          retrieved_at: string
+          similarity: number
+          source_class: string
+          source_status: string
+          text: string
+          title: string
+        }[]
+      }
+      match_current_chunks_v2: {
+        Args: {
+          award: string
+          include_staged?: boolean
+          match_count?: number
+          query_embedding: string
+        }
+        Returns: {
+          award_year: string
+          citation_ref: string
+          content_hash: string
+          document_version_key: string
+          fictional_amounts: boolean
+          heading: string
+          id: string
+          is_example: boolean
+          last_modified_date: string
+          official_url: string
+          ordinal: number
+          page_published_date: string
           publication_date: string
           retrieved_at: string
           similarity: number
