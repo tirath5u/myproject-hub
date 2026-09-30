@@ -5,6 +5,7 @@ import { chapterContentHash, checkChapter, documentVersionKey, parseChapter, sha
 
 const source = HANDBOOK_SOURCES.find((s) => s.id === (process.argv[2] ?? HANDBOOK_SOURCES[0].id));
 if (!source) throw new Error(`unknown source; known: ${HANDBOOK_SOURCES.map((s) => s.id).join(", ")}`);
+if (!source.url) throw new Error("this source is found from another chapter's link; use the admin dry-run instead");
 const res = await fetch(source.url, { headers: { "User-Agent": "myproduct.life ED Source Desk (+https://myproduct.life/ask-regs)", Accept: "text/html" } });
 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const html = await res.text();

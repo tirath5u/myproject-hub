@@ -168,3 +168,23 @@ describe("registry", () => {
     expect(s.award_year).toBe("2026-27");
   });
 });
+
+describe("Stage 2B helpers", () => {
+  test("findLink finds the next chapter from a chapter page's links", async () => {
+    const { findLink } = await import("../../src/lib/handbook-parse");
+    const page = `<nav><a href="/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants">Ch 2</a>
+      <a href="/knowledge-center/fsa-handbook/2026-2027/vol7/ch3-some-title#top">Next</a></nav>`;
+    const base = "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants";
+    const src = HANDBOOK_SOURCES.find((s) => s.id === "fsa-hb-2026-27-vol7-ch3")!;
+    expect(findLink(page, base, src.discover!.path_pattern)).toBe("https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch3-some-title");
+    expect(findLink("<a href='/other'>x</a>", base, src.discover!.path_pattern)).toBeNull();
+  });
+
+  test("minimal checks: structure only, and the Ch 3 source requires a confirmed hash", () => {
+    const src = HANDBOOK_SOURCES.find((s) => s.id === "fsa-hb-2026-27-vol7-ch3")!;
+    expect(src.require_confirmed_hash).toBe(true);
+    expect(src.url).toBeNull();
+    expect(checkChapter(p, src.expected)).toEqual({ pass: true, failures: [] });
+    expect(checkChapter(p, { min_sections: 20, min_chunks: 3 }).failures).toEqual(["sections: expected at least 20, got 5"]);
+  });
+});

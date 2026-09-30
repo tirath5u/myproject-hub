@@ -5,7 +5,7 @@
 // promote: staged → in_force for one named document version, after Tirath approves publishing.
 import type { HandbookSource } from "@/data/ed-source-desk/handbook-sources";
 import {
-  chapterContentHash, chapterKeyPrefix, checkChapter, citationRef, documentVersionKey, parseChapter, sha256Hex,
+  chapterContentHash, chapterKeyPrefix, checkChapter, citationRef, documentVersionKey, findLink, parseChapter, sha256Hex,
 } from "@/lib/handbook-parse";
 
 const UA = "myproduct.life ED Source Desk (+https://myproduct.life/ask-regs)";
@@ -28,8 +28,21 @@ export async function authenticateAdmin(request: Request): Promise<Response | nu
   return null;
 }
 
+/** The chapter page URL: fixed in the registry, or found from a link on another chapter's page (one extra fetch). */
+async function resolveUrl(source: HandbookSource): Promise<{ url: string } | { error: string }> {
+  if (source.url) return { url: source.url };
+  if (!source.discover) return { error: "source has neither url nor discover" };
+  const res = await fetch(source.discover.from, { headers: { "User-Agent": UA, Accept: "text/html" } });
+  if (!res.ok) return { error: `discovery page returned HTTP ${res.status}` };
+  const url = findLink(await res.text(), source.discover.from, source.discover.path_pattern);
+  return url ? { url } : { error: "chapter link not found on the discovery page" };
+}
+
 async function fetchAndParse(source: HandbookSource) {
-  const res = await fetch(source.url, { headers: { "User-Agent": UA, Accept: "text/html" } });
+  const resolved = await resolveUrl(source);
+  if ("error" in resolved) return { error: resolved.error, http_status: 0 } as const;
+  const url = resolved.url;
+  const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "text/html" } });
   if (!res.ok) return { error: `fetch returned HTTP ${res.status}`, http_status: res.status } as const;
   const html = await res.text();
   const parsed = parseChapter(html);
@@ -37,13 +50,13 @@ async function fetchAndParse(source: HandbookSource) {
   const content_hash = await chapterContentHash(parsed);
   const chunks = await Promise.all(parsed.chunks.map(async (c) => ({ ...c, text_hash: await sha256Hex(c.text) })));
   const key = parsed.last_modified ? documentVersionKey(source.award_year, source.volume, source.chapter, parsed.last_modified, content_hash) : null;
-  return { html_bytes: html.length, raw_sha256: await sha256Hex(html), http_status: res.status, parsed, checks, content_hash, chunks, key } as const;
+  return { url, html_bytes: html.length, raw_sha256: await sha256Hex(html), http_status: res.status, parsed, checks, content_hash, chunks, key } as const;
 }
 
 /** Counts and hashes only: safe to return and to paste into a report. */
 function manifest(source: HandbookSource, f: Exclude<Awaited<ReturnType<typeof fetchAndParse>>, { error: string }>) {
   return {
-    source_id: source.id, source_url: source.url, award_year: source.award_year, volume: source.volume, chapter: source.chapter,
+    source_id: source.id, source_url: f.url, award_year: source.award_year, volume: source.volume, chapter: source.chapter,
     http_status: f.http_status, html_bytes: f.html_bytes, raw_sha256: f.raw_sha256,
     last_modified: f.parsed.last_modified, page_published: f.parsed.page_published,
     document_version_key: f.key, content_hash: f.content_hash,
@@ -79,7 +92,7 @@ async function embed(texts: string[]) {
 
 type DocRow = { id: string; document_version_key: string; source_status: string };
 
-export async function runHandbookImport(source: HandbookSource, action: ImportAction, documentKey?: string): Promise<Result> {
+export async function runHandbookImport(source: HandbookSource, action: ImportAction, documentKey?: string, confirmContentHash?: string): Promise<Result> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as { from: (t: string) => any }; // new columns are not in the generated types yet
   const prefix = chapterKeyPrefix(source.award_year, source.volume, source.chapter);
@@ -102,6 +115,9 @@ export async function runHandbookImport(source: HandbookSource, action: ImportAc
   const m = manifest(source, f);
   if (!f.checks.pass || !f.key) return { ok: false, status: 422, action, refused: "expected checks failed; nothing was written", manifest: m };
   if (action === "dry-run") return { ok: true, status: 200, action, writes: 0, embeddings: 0, manifest: m };
+  // Chapters without a reviewed manifest import only the exact content a dry-run reported.
+  if (source.require_confirmed_hash && confirmContentHash !== f.content_hash)
+    return { ok: false, status: 409, action, refused: "confirm_content_hash must equal the dry-run's content_hash; nothing was written", manifest: m };
 
   // import
   const { data: existing, error: exErr } = await db.from("documents").select("id, document_version_key, source_status").like("document_version_key", `${prefix}%`);
@@ -126,7 +142,7 @@ export async function runHandbookImport(source: HandbookSource, action: ImportAc
   todo.forEach((c, i) => reuse.set(c.text_hash, JSON.stringify(vectors[i])));
 
   const docRow = {
-    document_version_key: f.key, official_url: source.url, title: f.parsed.page_title ?? source.title, source_class: "fsa_handbook",
+    document_version_key: f.key, official_url: f.url, title: f.parsed.page_title ?? source.title, source_class: "fsa_handbook",
     source_status: "staged", publication_date: null, last_modified_date: f.parsed.last_modified, page_published_date: f.parsed.page_published,
     retrieved_at: new Date().toISOString(), content_hash: f.content_hash, award_year: source.award_year,
   };
@@ -137,7 +153,7 @@ export async function runHandbookImport(source: HandbookSource, action: ImportAc
   if (del.error) return { ok: false, status: 500, error: del.error.message };
   const rows = f.chunks.map((c) => ({
     document_version_id: docId, ordinal: c.ordinal, heading: c.heading, text: c.text,
-    citation_ref: citationRef(`${source.label}: ${c.heading}`, source.url, c.heading),
+    citation_ref: citationRef(`${source.label}: ${c.heading}`, f.url, c.heading),
     embedding: reuse.get(c.text_hash), embedding_model: EMBED_MODEL, is_example: c.is_example, fictional_amounts: c.fictional_amounts,
   }));
   const ins = await db.from("chunks").insert(rows);

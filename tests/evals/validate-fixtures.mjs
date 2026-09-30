@@ -40,7 +40,7 @@ for (const f of files) {
   if (!['candidate-unreviewed', 'reviewed', undefined].includes(suite.status)) errors.push(`${f}: status must be candidate-unreviewed or reviewed`);
   if (suite.status === 'reviewed' && !(suite.reviewed_by && suite.reviewed_at)) errors.push(`${f}: a reviewed suite needs reviewed_by and reviewed_at`);
   if (suite.status === 'reviewed' && suite.cases.some((c) => c.status && c.status !== 'reviewed')) errors.push(`${f}: a reviewed suite has unreviewed cases`);
-  for (const x of suite.stage1_expected_changes ?? []) if (!x.id || !x.reason) errors.push(`${f}: each stage1_expected_changes entry needs id and reason`);
+  for (const x of [...(suite.stage1_expected_changes ?? []), ...(suite.expected_changes ?? [])]) if (!x.id || !x.reason) errors.push(`${f}: each expected-change entry needs id and reason`);
   process.stdout.write(`ok ${f}: ${suite.cases.length} cases\n`);
 }
 if (errors.length) { process.stderr.write(`${errors.join('\n')}\n`); process.exit(1); }

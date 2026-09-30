@@ -13,7 +13,7 @@ const pauseMs = Number(option('--pause-ms', '750'));
 // A suite whose `stage1_expected_changes` lists intended behavior changes (e.g. Stage 2A for U09).
 const expectedChangesPath = option('--expected-changes', null);
 const expectedChanges = new Map(expectedChangesPath
-  ? (JSON.parse(fs.readFileSync(path.resolve(expectedChangesPath), 'utf8')).stage1_expected_changes ?? []).map((x) => [x.id, x])
+  ? ((f) => f.expected_changes ?? f.stage1_expected_changes ?? [])(JSON.parse(fs.readFileSync(path.resolve(expectedChangesPath), 'utf8'))).map((x) => [x.id, x])
   : []);
 if (!Number.isFinite(pauseMs) || pauseMs < 0) throw new Error('Invalid --pause-ms');
 const suite = JSON.parse(fs.readFileSync(suitePath, 'utf8'));
@@ -133,9 +133,10 @@ async function evaluate(test, response) {
     }
     case 'pell-passage': {
       const answer = passages.find((x) => x.role === 'answer');
-      const matching = passages.filter((x) => fromDocument(x, suite.document) && headingOk(x, test.accepted_headings));
+      const doc = test.document ?? suite.document;
+      const matching = passages.filter((x) => fromDocument(x, doc) && headingOk(x, test.accepted_headings));
       check('no refusal', !response?.refuse);
-      check(`has a ${suite.document ?? 'handbook'} passage${test.accepted_headings ? ` headed ${test.accepted_headings.join(' or ')}` : ''}`, matching.length > 0);
+      check(`has a ${doc || 'handbook'} passage${test.accepted_headings ? ` headed ${test.accepted_headings.join(' or ')}` : ''}`, matching.length > 0);
       for (const d of response?.definitions ?? []) check(`definition ${d.citation_id} is allowed`, (test.allowed_definitions ?? []).includes(d.citation_id));
       if (test.expect === 'answer') {
         check('mode is handbook-passage', response?.mode === 'handbook-passage');

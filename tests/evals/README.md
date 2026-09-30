@@ -27,6 +27,7 @@ Each run writes `<run>.json` (summary + every assertion), `<run>.csv` (one row p
 | `stage1-routing-cases.json` | Reviewed, Stage 1 release evidence | 18 public routing and refusal checks. First independent live run 2026-09-30: 18 of 18. Not an answer-accuracy score. |
 
 | `stage2a-pell-cases.json` | Reviewed by Tirath 2026-09-30 | Volume 7, Chapter 2 passage roles (U09, U08, U26, U10, U21) and the fictional-amount guard (NEG), checked by hand on the preview. U09 intentionally changes from Stage 1's definition-only expectation; U10 accepts a partial answer. Last preview run: 6 of 6 (58 of 58 checks). Run on a preview or, after promote, on the live site. |
+| `stage2b-pell-ch3-cases.json` | **candidate-unreviewed** | Volume 7, Chapter 3 presence (U10-B) and a minimum-amount guard (NEG-B). Its `expected_changes` lets the Stage 2A suite record U10 becoming a complete answer as expected, via `--expected-changes`. |
 
 ## Rules
 

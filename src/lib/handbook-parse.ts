@@ -279,9 +279,23 @@ export type ExpectedChecks = {
   fictional_note: boolean;
   step_labels: string[];
 };
-export function checkChapter(p: ParsedChapter, e: ExpectedChecks) {
+/**
+ * For a chapter with no reviewed manifest yet: structural sanity only. The importer then also requires the
+ * caller to confirm the dry-run's content hash, and the owner reviews the staged chapter before promote.
+ */
+export type MinimalChecks = { min_sections: number; min_chunks: number };
+export const isMinimalChecks = (e: ExpectedChecks | MinimalChecks): e is MinimalChecks => "min_sections" in e;
+
+export function checkChapter(p: ParsedChapter, e: ExpectedChecks | MinimalChecks) {
   const failures: string[] = [];
   const s = p.stats;
+  if (isMinimalChecks(e)) {
+    if (s.sections < e.min_sections) failures.push(`sections: expected at least ${e.min_sections}, got ${s.sections}`);
+    if (p.chunks.length < e.min_chunks) failures.push(`chunks: expected at least ${e.min_chunks}, got ${p.chunks.length}`);
+    if (!p.last_modified) failures.push("Last Modified date not found");
+    if (p.chunks.some((c) => !c.text.trim())) failures.push("empty chunk");
+    return { pass: failures.length === 0, failures };
+  }
   if (s.sections !== e.sections) failures.push(`sections: expected ${e.sections}, got ${s.sections}`);
   if (s.tables !== e.tables) failures.push(`tables: expected ${e.tables}, got ${s.tables}`);
   for (const [h, rows] of Object.entries(e.table_rows_by_section)) {
@@ -296,6 +310,17 @@ export function checkChapter(p: ParsedChapter, e: ExpectedChecks) {
   if (!p.last_modified) failures.push("Last Modified date not found");
   if (p.chunks.some((c) => !c.text.trim())) failures.push("empty chunk");
   return { pass: failures.length === 0, failures };
+}
+
+/** Absolute URL of the first link whose path matches `pattern` (e.g. the "Next" chapter link), or null. */
+export function findLink(html: string, baseUrl: string, pattern: RegExp) {
+  for (const a of findAll(parseHtml(html), (n) => n.tag === "a" && !!n.attrs["href"])) {
+    const href = a.attrs["href"];
+    let abs: URL;
+    try { abs = new URL(href, baseUrl); } catch { continue; }
+    if (pattern.test(abs.pathname)) { abs.hash = ""; abs.search = ""; return abs.toString(); }
+  }
+  return null;
 }
 
 // ---- Keys, locators, hashes ---------------------------------------------------
