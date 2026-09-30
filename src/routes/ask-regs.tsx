@@ -70,7 +70,7 @@ function FictionalWarning({ p }: { p?: Passage }) {
 }
 
 function OfficialAmountNotice({ r }: { r: Result }) {
-  if (!r.official_amount_notice) return null;
+  if (!r.official_amount_notice || r.message === r.official_amount_notice) return null;
   return <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.official_amount_notice}</div>;
 }
 
@@ -369,7 +369,7 @@ function ResultCard({ r }: { r: Result }) {
             <strong className="text-accent-complement">Partial answer:</strong> {r.coverage.notes.join(" ")}
           </div>
         )}
-        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-96 overflow-auto opacity-85">{shown}</pre>
+        <PassageText text={shown} className="max-h-96" />
         {(r.truncated || text.length > DISPLAY_CAP) && <p className="text-xs opacity-60 mt-2">Excerpt shortened. Read the full text at the source.</p>}
         <Button asChild className="mt-5 bg-accent hover:bg-accent-hover text-accent-foreground">
           <a href={r.source_url} target="_blank" rel="noopener noreferrer">Open official source ↗</a>
@@ -398,6 +398,38 @@ function ResultCard({ r }: { r: Result }) {
   );
 }
 
+// Handbook tables are stored as rows of "cell | cell" lines; show them as a table, word for word.
+// Everything else keeps its line breaks exactly as stored.
+function PassageText({ text, className = "" }: { text: string; className?: string }) {
+  const blocks: { table: boolean; lines: string[] }[] = [];
+  for (const line of text.split("\n")) {
+    const table = line.includes(" | ");
+    const last = blocks[blocks.length - 1];
+    if (last && last.table === table) last.lines.push(line);
+    else blocks.push({ table, lines: [line] });
+  }
+  return (
+    <div className={`text-sm leading-relaxed overflow-auto opacity-85 ${className}`}>
+      {blocks.map((b, i) =>
+        b.table && b.lines.length > 1 ? (
+          <table key={i} className="my-2 border-collapse text-xs w-full">
+            <thead>
+              <tr>{b.lines[0].split(" | ").map((c, j) => <th key={j} className="border px-2 py-1 text-left font-semibold">{c}</th>)}</tr>
+            </thead>
+            <tbody>
+              {b.lines.slice(1).map((l, r) => (
+                <tr key={r}>{l.split(" | ").map((c, j) => <td key={j} className="border px-2 py-1 align-top">{c}</td>)}</tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <pre key={i} className="whitespace-pre-wrap font-sans">{b.lines.join("\n")}</pre>
+        ),
+      )}
+    </div>
+  );
+}
+
 function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
   if (!list.length) return null;
   return (
@@ -410,7 +442,7 @@ function HandbookPassages({ list, bare }: { list: Passage[]; bare?: boolean }) {
             <PassageMeta p={p} />
             <PriorYearWarning year={p.award_year} />
             <FictionalWarning p={p} />
-            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed max-h-48 overflow-auto opacity-85">{p.passage}</pre>
+            <PassageText text={p.passage} className="max-h-48" />
             <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent underline">Open this passage on fsapartners.ed.gov ↗</a>
             <LookNext list={p.look_next ?? []} />
           </div>
