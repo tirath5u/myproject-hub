@@ -1,0 +1,29 @@
+name: CI
+
+# Pull-request checks only. No network calls to government sources, the database, or the AI gateway:
+# unit tests use a synthetic HTML sample, and eval fixtures are validated offline.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bunx tsc --noEmit
+      - name: Unit tests
+        run: bun test tests/unit
+      - name: Validate eval fixtures
+        run: bun tests/evals/validate-fixtures.mjs

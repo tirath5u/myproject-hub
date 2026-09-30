@@ -13,6 +13,7 @@ import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 
 const AskRegsRoute = AskRegsRouteImport.update({
   id: '/ask-regs',
@@ -34,18 +35,26 @@ const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
   path: '/api/ed-source-desk/goldens',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEdSourceDeskAdminImportRoute =
+  ApiEdSourceDeskAdminImportRouteImport.update({
+    id: '/api/ed-source-desk/admin/import',
+    path: '/api/ed-source-desk/admin/import',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,6 +62,7 @@ export interface FileRoutesById {
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -61,18 +71,21 @@ export interface FileRouteTypes {
     | '/ask-regs'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
+    | '/api/ed-source-desk/admin/import'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ask-regs'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
+    | '/api/ed-source-desk/admin/import'
   id:
     | '__root__'
     | '/'
     | '/ask-regs'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
+    | '/api/ed-source-desk/admin/import'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,6 +93,7 @@ export interface RootRouteChildren {
   AskRegsRoute: typeof AskRegsRoute
   ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
   ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
+  ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -112,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ed-source-desk/admin/import': {
+      id: '/api/ed-source-desk/admin/import'
+      path: '/api/ed-source-desk/admin/import'
+      fullPath: '/api/ed-source-desk/admin/import'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -120,6 +141,7 @@ const rootRouteChildren: RootRouteChildren = {
   AskRegsRoute: AskRegsRoute,
   ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
   ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
+  ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

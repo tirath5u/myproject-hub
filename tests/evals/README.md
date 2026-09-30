@@ -8,7 +8,13 @@ A dependency-free Node.js runner that posts questions to an Ask Regs lookup endp
 npm run eval:live                                   # published site, Stage 1 suite
 node tests/evals/run-live-evals.mjs --endpoint <url>/api/ed-source-desk/lookup
 node tests/evals/run-live-evals.mjs --cases tests/evals/<suite>.json --pause-ms 1500
+# Stage 2A on preview (staged rows are shown only on preview hosts):
+node tests/evals/run-live-evals.mjs --endpoint <preview>/api/ed-source-desk/lookup --cases tests/evals/stage2a-pell-cases.json
+node tests/evals/run-live-evals.mjs --endpoint <preview>/api/ed-source-desk/lookup --expected-changes tests/evals/stage2a-pell-cases.json
+bun tests/evals/validate-fixtures.mjs               # offline fixture check (CI)
 ```
+
+Each run writes `<run>.json` (summary + every assertion), `<run>.csv` (one row per case: pass, latency, embedding tokens or "unavailable") and `<run>.assertions.csv` (one row per assertion). `--expected-changes` reads a suite's `stage1_expected_changes` and reports those cases as `EXPECTED-CHANGE` instead of regressions.
 
 - Cases run one at a time with a pause (default 750 ms) so eCFR, the Federal Register, and Regulations.gov are never burst.
 - The runner never runs automatically in CI. Pull-request checks validate fixtures and pure logic only.
@@ -20,7 +26,7 @@ node tests/evals/run-live-evals.mjs --cases tests/evals/<suite>.json --pause-ms 
 |---|---|---|
 | `stage1-routing-cases.json` | Reviewed, Stage 1 release evidence | 18 public routing and refusal checks. First independent live run 2026-09-30: 18 of 18. Not an answer-accuracy score. |
 
-Stage 2A adds a Pell suite. Until each expected passage is reviewed by Tirath, its cases are **candidates**, not goldens.
+| `stage2a-pell-cases.json` | **candidate-unreviewed** | Volume 7, Chapter 2 passage roles (U09, U08, U26, U10, U21) and the fictional-amount guard (NEG). U09 intentionally changes from Stage 1's definition-only expectation. Not goldens until Tirath reviews each expected passage. |
 
 ## Rules
 

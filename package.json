@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "eval:live": "node tests/evals/run-live-evals.mjs"
+    "eval:live": "node tests/evals/run-live-evals.mjs",
+    "test:unit": "bun test tests/unit",
+    "eval:fixtures": "bun tests/evals/validate-fixtures.mjs",
+    "handbook:live-check": "bun scripts/handbook-live-check.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
