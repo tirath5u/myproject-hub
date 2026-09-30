@@ -3,7 +3,7 @@
 // checkExplanation(). One retry with the problems listed; otherwise nothing is shown.
 import { lookup } from "@/lib/ed-source-desk.server";
 import { checkExplanation, explainMessages, explainSources } from "@/lib/explain";
-import { asksPellAmount } from "@/lib/handbook-lookup";
+import { OFFICIAL_AMOUNT_NOTICE, asksPellAmount } from "@/lib/handbook-lookup";
 
 const DEFAULT_MODEL = "google/gemini-2.5-flash";
 
@@ -28,6 +28,9 @@ export async function runExplain(q: string, includeStaged: boolean) {
   if (!r.ok) return { ok: false, status: 502, error: "The lookup failed, so there is nothing to explain.", lookup_mode: r.mode ?? null };
   if (r.refuse) return { ok: true, status: 200, explanation: null, reason: "This question is one Ask Regs refuses, so it is not explained.", lookup_mode: r.mode };
   const amountQuestion = asksPellAmount(q);
+  // Amount questions with no cited answer: the official-amount notice says it all; don't spend a model call.
+  if (amountQuestion && r.mode === "no-confident-cite")
+    return { ok: true, status: 200, explanation: null, reason: OFFICIAL_AMOUNT_NOTICE, lookup_mode: r.mode };
   const sources = explainSources(r, amountQuestion);
   if (!sources.length) return { ok: true, status: 200, explanation: null, reason: "Nothing was cited, so there is nothing to explain.", lookup_mode: r.mode };
   const model = process.env["ED_SOURCE_DESK_EXPLAIN_MODEL"] || DEFAULT_MODEL;

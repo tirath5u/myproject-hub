@@ -142,6 +142,8 @@ async function evaluate(test, response) {
         check('mode is handbook-passage', response?.mode === 'handbook-passage');
         check('the answer passage is an accepted passage', !!answer && matching.includes(answer));
         check('the answer is not a worked example', !!answer && answer.is_example !== true);
+      } else if (test.expect === 'present') {
+        // Only requires the matching passage to appear (checked above), in any role.
       } else if (test.expect === 'answer-or-related') {
         check('answer, if any, is an accepted passage', !answer || matching.includes(answer));
       } else if (test.expect === 'partial-or-related') {
