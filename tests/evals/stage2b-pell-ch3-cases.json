@@ -1,0 +1,27 @@
+{
+  "suite": "stage2b-pell-ch3-candidates-v1",
+  "status": "candidate-unreviewed",
+  "description": "Stage 2B candidate checks for the 2026-27 FSA Handbook Volume 7, Chapter 3 import. Run on a preview while Chapter 3 is staged. Checks passage presence and labels, not answer correctness; Tirath reviews on screen before promote.",
+  "document": "vol7:ch3",
+  "fictional_amounts": ["$7,500", "$750"],
+  "expected_changes": [
+    {
+      "id": "U10",
+      "suite": "stage2a-pell-v1",
+      "from": "partial-or-related (Chapter 2 only)",
+      "to": "may be a complete answer from Volume 7, Chapter 3",
+      "reason": "Intended Stage 2B change: Chapter 3 holds the payment-period calculation. Record as an expected change when running the Stage 2A suite with this file."
+    }
+  ],
+  "cases": [
+    {
+      "id": "U10-B", "status": "candidate-unreviewed", "kind": "pell-passage", "expect": "answer-or-related",
+      "question": "How is a payment-period Pell amount affected when enrollment intensity differs from full time?",
+      "note": "Chapter 3 holds the payment-period calculation, so a Chapter 3 passage should appear."
+    },
+    {
+      "id": "NEG-B", "status": "candidate-unreviewed", "kind": "fictional-amount-guard", "document": "",
+      "question": "What is the minimum Pell Grant amount for the 2026-27 award year?"
+    }
+  ]
+}

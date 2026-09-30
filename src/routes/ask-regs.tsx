@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -114,10 +114,12 @@ function AskRegsPage() {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const [asked, setAsked] = useState("");
 
   async function ask(query: string) {
     if (query.trim().length < 2) return;
     setQ(query);
+    setAsked(query);
     setLoading(true);
     setResult(null);
     try {
@@ -135,6 +137,7 @@ function AskRegsPage() {
   }
 
   const g = GOLDENS;
+  const owner = useOwnerToken();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -195,7 +198,9 @@ function AskRegsPage() {
         <div className="mt-8" aria-live="polite">
           {loading && <div className="border p-6 bg-muted animate-pulse text-sm opacity-70">Fetching from official sources…</div>}
           {result && <ResultCard r={result} />}
+          {result && !loading && owner.token && result.ok && !result.refuse && <OwnerExplain key={`${asked}|${result.citation_id ?? ""}`} q={asked} token={owner.token} onUnauthorized={owner.clear} />}
         </div>
+        <OwnerSignIn owner={owner} />
       </section>
 
       <section className="px-5 sm:px-8 py-8 max-w-[900px] mx-auto">
@@ -425,6 +430,83 @@ function PassageText({ text, className = "" }: { text: string; className?: strin
         ) : (
           <pre key={i} className="whitespace-pre-wrap font-sans">{b.lines.join("\n")}</pre>
         ),
+      )}
+    </div>
+  );
+}
+
+// ---- Owner-only AI explanation --------------------------------------------------
+// The token is the owner's admin token; it is checked on the server. It is kept only in this browser.
+const OWNER_KEY = "ask-regs-owner-token";
+function useOwnerToken() {
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    try { setToken(localStorage.getItem(OWNER_KEY)); } catch { /* storage unavailable */ }
+  }, []);
+  const save = (t: string) => { setToken(t); try { localStorage.setItem(OWNER_KEY, t); } catch { /* ignore */ } };
+  const clear = () => { setToken(null); try { localStorage.removeItem(OWNER_KEY); } catch { /* ignore */ } };
+  return { token, save, clear };
+}
+
+function OwnerSignIn({ owner }: { owner: ReturnType<typeof useOwnerToken> }) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  if (owner.token)
+    return (
+      <p className="text-xs opacity-60 mt-4">
+        Owner mode on: an "Explain in plain English" button appears under answers.{" "}
+        <button type="button" className="underline" onClick={owner.clear}>Sign out</button>
+      </p>
+    );
+  if (!open) return <button type="button" className="text-xs opacity-40 mt-4 underline" onClick={() => setOpen(true)}>Owner</button>;
+  return (
+    <form className="mt-4 flex gap-2 max-w-md" onSubmit={(e) => { e.preventDefault(); if (value.trim()) owner.save(value.trim()); }}>
+      <Input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Owner token" aria-label="Owner token" className="h-9 text-xs" />
+      <Button type="submit" className="h-9 text-xs">Sign in</Button>
+    </form>
+  );
+}
+
+type Explained = {
+  ok: boolean; error?: string; explanation?: string | null; reason?: string | null; model?: string; tokens?: number | string;
+  sources?: { id: string; citation_id: string; label: string; kind: string; fictional: boolean }[];
+};
+function OwnerExplain({ q, token, onUnauthorized }: { q: string; token: string; onUnauthorized: () => void }) {
+  const [state, setState] = useState<"idle" | "loading" | "done">("idle");
+  const [data, setData] = useState<Explained | null>(null);
+  async function run() {
+    setState("loading");
+    try {
+      const res = await fetch("/api/ed-source-desk/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ q }),
+      });
+      if (res.status === 401 || res.status === 404) { onUnauthorized(); setData({ ok: false, error: "Owner token not accepted. Sign in again." }); }
+      else setData((await res.json()) as Explained);
+    } catch {
+      setData({ ok: false, error: "Couldn't reach the explanation service." });
+    }
+    setState("done");
+  }
+  if (state === "idle")
+    return <Button type="button" variant="outline" className="mt-4 border-accent text-accent" onClick={() => void run()}>Explain in plain English (owner only)</Button>;
+  if (state === "loading") return <div className="mt-4 border p-4 text-sm bg-muted animate-pulse">Writing an explanation from the cited sources…</div>;
+  return (
+    <div className="mt-4 border-2 border-dashed border-accent/50 p-5 text-sm space-y-3">
+      <div className="text-xs uppercase tracking-wide font-bold text-accent">AI explanation · owner-only draft</div>
+      {data?.explanation ? (
+        <>
+          <div className="whitespace-pre-wrap leading-relaxed">{data.explanation}</div>
+          <div className="text-xs opacity-70 space-y-1">
+            {data.sources?.map((s) => (
+              <div key={s.id}><span className="font-mono">[{s.id}]</span> {s.label} <span className="opacity-60">({s.kind}{s.fictional ? ", fictional example amounts" : ""})</span></div>
+            ))}
+          </div>
+          <p className="text-xs opacity-60">Written by {data.model} from the quoted sources above only, and checked that every point cites one. Verify each point against the quoted text before relying on it.{typeof data.tokens === "number" ? ` ${data.tokens} tokens.` : ""}</p>
+        </>
+      ) : (
+        <p>{data?.error ?? data?.reason ?? "No explanation."}</p>
       )}
     </div>
   );
