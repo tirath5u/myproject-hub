@@ -74,3 +74,14 @@ describe("word-assisted answers", () => {
     expect(wordAssistedNote(["meaning"])).toBeNull();
   });
 });
+
+describe("includeStagedFor", () => {
+  test("development builds include staged rows on any address; production only on known preview hosts", async () => {
+    const { includeStagedFor } = await import("../../src/lib/handbook-lookup");
+    expect(includeStagedFor("development", "some-new-preview-address.example.dev")).toBe(true);
+    expect(includeStagedFor("production", "myproduct.life")).toBe(false);
+    expect(includeStagedFor("production", "myproject.lovable.app")).toBe(false);
+    expect(includeStagedFor("production", "id-preview--0f1e2d3c.lovable.app")).toBe(true);
+    expect(includeStagedFor(undefined, "myproduct.life")).toBe(false);
+  });
+});

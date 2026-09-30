@@ -19,9 +19,13 @@ export const Route = createFileRoute("/api/ed-source-desk/lookup")({
           return Response.json({ ok: false, error: "Please enter a question between 2 and 500 characters." }, { status: 400 });
         }
         const { lookup } = await import("@/lib/ed-source-desk.server");
-        const { isPreviewHost } = await import("@/lib/handbook-lookup");
-        // Staged (unreviewed) handbook rows only on Lovable preview hosts and local dev, never the published site.
-        const result = (await lookup(parsed.data, { includeStaged: isPreviewHost(new URL(request.url).hostname) })) as { ok: boolean; http_status?: number };
+        const { includeStagedFor } = await import("@/lib/handbook-lookup");
+        // Staged (unreviewed) handbook rows only in preview builds (development mode) or on known preview hosts, never the published site.
+        const host = new URL(request.url).hostname;
+        const includeStaged = includeStagedFor(import.meta.env.MODE, host);
+        const result = (await lookup(parsed.data, { includeStaged })) as { ok: boolean; http_status?: number };
+        // Which build and address answered, so a reviewer can tell a preview from the published site.
+        Object.assign(result, { served_by: { build_mode: import.meta.env.MODE, host, staged_included: includeStaged } });
         const hs = result.http_status ?? 500;
         const status = result.ok ? 200 : hs === 503 ? 503 : hs >= 400 && hs !== 500 ? 502 : 500;
         return Response.json(result, { status });
