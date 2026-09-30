@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "source_url": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants",
+    "title": "Volume 7, Chapter 2 \u2014 Calculating Pell Grants",
+    "award_year": "2026-27",
+    "volume": 7,
+    "chapter": 2,
+    "last_modified": "2026-08-21",
+    "published_on_page": "2023-08-25 (page node date as shown by FSA; not the 2026-27 release date)",
+    "fetched_at": "2026-09-30T13:15:46.004150Z",
+    "content_sha256": "ddf5c8c16fc1b4a6d8e626bc97e34f47f7bdc7eeb060c5dc59b378c1f9d8b619",
+    "cleaned_chars": 16841,
+    "raw_chars": 25184,
+    "firecrawl_credits_used_for_preview": 1,
+    "imported": false
+  },
+  "sections": [
+    {
+      "n": 1,
+      "heading": "Introduction (Calculating Pell Grants)",
+      "chars": 496,
+      "est_tokens": 124,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [],
+      "cross_refs": [
+        "_Volume 3_, Chapter 1",
+        "_Volume 3_, Chapter 2"
+      ],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Introduction"
+    },
+    {
+      "n": 2,
+      "heading": "Scheduled Award, Award Year, and Annual Award",
+      "chars": 875,
+      "est_tokens": 219,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [],
+      "cross_refs": [],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Scheduled%20Award%2C%20Award%20Year%2C%20and%20Annual%20Award"
+    },
+    {
+      "n": 3,
+      "heading": "Published Maximum and Minimum Pell Grant Award Amounts",
+      "chars": 789,
+      "est_tokens": 197,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 3,
+      "cfr_hea": [],
+      "cross_refs": [],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Published%20Maximum%20and%20Minimum%20Pell%20Grant%20Award%20Amounts"
+    },
+    {
+      "n": 4,
+      "heading": "Pell Grant Eligibility Criteria",
+      "chars": 1196,
+      "est_tokens": 299,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [],
+      "cross_refs": [
+        "Chapter 8 of this volume"
+      ],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Pell%20Grant%20Eligibility%20Criteria"
+    },
+    {
+      "n": 5,
+      "heading": "Maximum Pell Grant Eligibility Criteria",
+      "chars": 3298,
+      "est_tokens": 824,
+      "tables": 2,
+      "table_rows": 8,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [
+        "HEA Sec. 401(b)(1)(A)"
+      ],
+      "cross_refs": [],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Maximum%20Pell%20Grant%20Eligibility%20Criteria"
+    },
+    {
+      "n": 6,
+      "heading": "Minimum Pell Grant Eligibility Criteria",
+      "chars": 1822,
+      "est_tokens": 456,
+      "tables": 2,
+      "table_rows": 7,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [
+        "HEA Sec. 401(b)(1)(C)"
+      ],
+      "cross_refs": [],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Minimum%20Pell%20Grant%20Eligibility%20Criteria"
+    },
+    {
+      "n": 7,
+      "heading": "Calculated Pell Grant (Eligibility Based on SAI and COA)",
+      "chars": 4316,
+      "est_tokens": 1079,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [
+        "1",
+        "2",
+        "3"
+      ],
+      "steps": 4,
+      "dollar_amounts": 34,
+      "cfr_hea": [],
+      "cross_refs": [],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Calculated%20Pell%20Grant"
+    },
+    {
+      "n": 8,
+      "heading": "Determining the Award Year for Crossover Pell Awards",
+      "chars": 710,
+      "est_tokens": 178,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [
+        "34 CFR 690.64"
+      ],
+      "cross_refs": [
+        "Chapter 1 of _Volume 3_",
+        "Chapter 5 of this volume"
+      ],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Determining%20the%20Award%20Year%20for%20Crossover%20Pell%20Awards"
+    },
+    {
+      "n": 9,
+      "heading": "Basic Pell Grant Formulas",
+      "chars": 1840,
+      "est_tokens": 460,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [
+        "34 CFR 690.63"
+      ],
+      "cross_refs": [
+        "_Volume 3_, Chapter 1"
+      ],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Basic%20Pell%20Grant%20Formulas"
+    },
+    {
+      "n": 10,
+      "heading": "Pell Grant Payments by Payment Period",
+      "chars": 1262,
+      "est_tokens": 316,
+      "tables": 0,
+      "table_rows": 0,
+      "examples": [],
+      "steps": 0,
+      "dollar_amounts": 0,
+      "cfr_hea": [],
+      "cross_refs": [
+        "_Volume 1_, Chapter 1",
+        "_Volume 3_, Chapter 1"
+      ],
+      "locator": "https://fsapartners.ed.gov/knowledge-center/fsa-handbook/2026-2027/vol7/ch2-calculating-pell-grants#:~:text=Pell%20Grant%20Payments%20by%20Payment%20Period"
+    }
+  ],
+  "margin_notes": [
+    [
+      "Maximum Pell Grant Eligibility",
+      "HEA Sec. 401(b)(1)(A)"
+    ],
+    [
+      "Minimum Pell Grant Eligibility",
+      "HEA Sec. 401(b)(1)(C)"
+    ],
+    [
+      "Crossover payment periods",
+      "[34 CFR 690.64](https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-690/subpart-F/section-690.64)"
+    ],
+    [
+      "Basic Pell Grant formulas",
+      "[34 CFR 690.63](https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-690/subpart-F/section-690.63)"
+    ]
+  ]
+}

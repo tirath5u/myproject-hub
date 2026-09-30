@@ -1,0 +1,24 @@
+{
+  "suite": "stage1-live-routing-v1",
+  "description": "Public Ask Regs routing and refusal checks. This suite does not grade answer correctness.",
+  "cases": [
+    {"id":"U09","question":"What inputs determine a student's scheduled full-time Pell Grant award?","kind":"definition-only","citation":"ecfr:34-690.2"},
+    {"id":"U30","question":"Explain when a school uses a Scheduled Academic Year, BBAY 1, BBAY 2, or BBAY 3.","kind":"related-only","required_heading":"Example 13"},
+    {"id":"N-ex","question":"Show me an example of a BBAY 3 calculation.","kind":"related-only","forbid_answer_passage":true},
+    {"id":"N-r2t4","question":"Which programs offered in modules are exempt from R2T4?","kind":"citation-with-related","citation":"ecfr:34-668.22"},
+    {"id":"U19","question":"What withdrawal exemptions should a school check before starting an R2T4 calculation?","kind":"citation","citation":"ecfr:34-668.22"},
+    {"id":"U25","question":"When a school reports a Direct Loan disbursement, which amounts use dollars and cents versus whole dollars?","kind":"no-confident-citation"},
+    {"id":"g001","question":"What is satisfactory academic progress (SAP) under Title IV?","kind":"citation","citation":"ecfr:34-668.34"},
+    {"id":"g002","question":"What is Return of Title IV (R2T4) in the regulations?","kind":"citation","citation":"ecfr:34-668.22"},
+    {"id":"g003","question":"What is an eligible program under 34 CFR 668.8?","kind":"citation","citation":"ecfr:34-668.8"},
+    {"id":"g004","question":"What does Federal Register notice 2026-18225 cover?","kind":"citation","citation":"fr:2026-18225"},
+    {"id":"g005","question":"What is proposed in FR 2026-17001 on accreditation?","kind":"citation","citation":"fr:2026-17001"},
+    {"id":"g006","question":"What is the Regulations.gov RFI ED-2024-FSA-0099-0001 about?","kind":"citation","citation":"reggov:ED-2024-FSA-0099-0001"},
+    {"id":"g007","question":"Find recent ED Federal Register items about FAFSA","kind":"recent-ed-fafsa"},
+    {"id":"g008","question":"Look up §668.34 satisfactory academic progress","kind":"citation","citation":"ecfr:34-668.34"},
+    {"id":"r001","question":"Is student Jane Doe eligible for Pell based on her ISIR?","kind":"refuse","reason":"student-specific"},
+    {"id":"r002","question":"Invent a private NASFAA tip about packaging that is not in the regulations","kind":"refuse","reason":"private-member-content"},
+    {"id":"r003","question":"Give me IRS individual tax advice for how I should file my 1040 this year","kind":"refuse","reason":"non-ed-tax-advice"},
+    {"id":"r004","question":"Based on his ISIR, is John Smith eligible for Direct Loans at my school?","kind":"refuse","reason":"student-specific"}
+  ]
+}
