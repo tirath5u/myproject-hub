@@ -1,6 +1,6 @@
 // Server-only lookup logic for Ask Regs (ED Source Desk). Ported from cite.py contract.
 import {
-  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, headingIsExample, lookNext, sectionKey, textHasFictionalNote,
+  FICTIONAL_WARNING, OFFICIAL_AMOUNT_NOTICE, asksPellAmount, chapterOf, coverageText, headingIsExample, isTopicTerm, lookNext, sectionKey, textHasFictionalNote,
 } from "@/lib/handbook-lookup";
 const MAX_TEXT = 30_000;
 const UA = "myproduct.life ED Source Desk (+https://myproduct.life/ask-regs)";
@@ -263,7 +263,7 @@ const baseOf = (t: string) => {
 const REG_CONCEPTS: Record<string, RegExp> = {
   exempt: /\bnot considered to have withdrawn\b|\bexempt/i,
 };
-function stemHit(term: string, hay: string) {
+export function stemHit(term: string, hay: string) {
   hay = normalizeText(hay);
   if (SYNONYMS[term]?.some((p) => hay.toLowerCase().includes(p))) return true;
   // Abbreviations: match the capitalised form only (so "say" the verb never counts as SAY).
@@ -360,7 +360,9 @@ const PHRASE_TERMS: [RegExp, RegExp, string][] = [[/\baward years?\b/i, /\baward
 // the body uses different wording. The global threshold (FIT_MIN) is unchanged.
 // Terms after "including …" are secondary; ranking by heading uses the question's primary subject.
 const primaryPart = (q: string) => q.split(/\bincluding\b|\bas well as\b/i)[0];
-function handbookFit(q: string, heading: string, text: string) {
+// Topic words (a word in most of a chapter's headings, e.g. "Pell" in Vol 7 Ch 2) name the whole chapter,
+// so they never count as heading hits or heading precision. The fit score itself is unchanged.
+export function handbookFit(q: string, heading: string, text: string, isTopic: (term: string) => boolean = () => false) {
   const terms = distinctiveTerms(q);
   const primary = new Set(distinctiveTerms(primaryPart(q)));
   const headingTerms: string[] = [];
@@ -377,14 +379,14 @@ function handbookFit(q: string, heading: string, text: string) {
     const hit = inHead || stemHit(t, hay) || !!HANDBOOK_CONCEPTS[t]?.test(text);
     const w = inHead ? 2 : 1;
     total += w; if (hit) got += w; else missing.push(t);
-    if (inHead && primary.has(t)) { headingHits++; headingTerms.push(t); }
+    if (inHead && primary.has(t) && !isTopic(t)) { headingHits++; headingTerms.push(t); }
   }
   for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
   // Heading precision: share of the heading's own distinctive words that the question names,
   // so "Nonstandard Terms" outranks a long heading that only mentions terms in passing.
   // Main heading only (text before any ":" subtitle); examples use their own title.
   const main = heading.replace(/^Volume \d+, Chapter \d+, Example \d+:\s*/i, "").split(":")[0];
-  const hw = distinctiveTerms(main);
+  const hw = distinctiveTerms(main).filter((w) => !isTopic(w));
   const headingPrecision = hw.length ? hw.filter((w) => stemHit(w, q)).length / hw.length : 0;
   return { score: total ? got / total : 1, missing, headingHits, headingTerms, headingPrecision };
 }
@@ -496,6 +498,16 @@ async function handbookSearch(q: string, includeStaged = false) {
       sectionText.set(key(r), `${sectionText.get(key(r)) ?? ""} ${r.text}`);
     const fullText = (r: HandbookRow) => sectionText.get(key(r)) ?? r.text;
     const headingOf = new Map(rows.map((r) => [key(r), r.heading]));
+    // Each document's section headings (examples excluded), for topic-word detection.
+    const docHeadings = new Map<string, Set<string>>();
+    for (const r of rows) if (!r.is_example) docHeadings.set(r.document_version_key, (docHeadings.get(r.document_version_key) ?? new Set()).add(r.heading));
+    const topicCache = new Map<string, boolean>();
+    const isTopic = (doc: string) => (term: string) => {
+      const ck = `${doc}\u0000${term}`;
+      if (!topicCache.has(ck)) topicCache.set(ck, isTopicTerm(term, [...(docHeadings.get(doc) ?? [])], stemHit));
+      return topicCache.get(ck)!;
+    };
+    const fitOf = (r: HandbookRow, text = fullText(r)) => handbookFit(q, r.heading, text, isTopic(r.document_version_key));
     // Chapters in the searched library: cross-references to these are passages here, not "not imported yet".
     const imported = new Map<string, string>();
     for (const r of rows) { const c = chapterOf(r); if (c) imported.set(`${c.volume}:${c.chapter}`, r.official_url); }
@@ -515,7 +527,7 @@ async function handbookSearch(q: string, includeStaged = false) {
     const ranked = rows
       .filter((r) => r.award_year === CURRENT_AWARD_YEAR)
       // A section split into several chunks is judged as one section (same document and verified heading).
-      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, fullText(r)), via: [] as string[] }))
+      .map((r) => ({ ...r, fit: fitOf(r), via: [] as string[] }))
       .map((r) => {
         if (r.similarity >= HANDBOOK_SIM_MIN || (r.fit.headingHits >= 2 && r.similarity >= HANDBOOK_HEADING_SIM_MIN)) r.via.push("meaning");
         // Word-search hits qualify with a stricter fit (0.8) and the existing 0.70 heading floor.
@@ -547,7 +559,7 @@ async function handbookSearch(q: string, includeStaged = false) {
     if (ACADEMIC_YEAR_DEFINITION.test(q)) {
       const defs = rows.filter((r) => / in an Academic Year$/i.test(r.heading) && r.similarity >= HANDBOOK_HEADING_SIM_MIN)
         .sort((a, b) => a.ordinal - b.ordinal)
-        .map((r) => ({ ...r, fit: handbookFit(q, r.heading, fullText(r)), via: ["definition"] }))
+        .map((r) => ({ ...r, fit: fitOf(r), via: ["definition"] }))
         .filter((r, i, arr) => arr.findIndex((x) => key(x) === key(r)) === i);
       if (defs.length >= 2) {
         const rest = picked.filter((r) => !defs.some((d) => key(d) === key(r)));
@@ -556,7 +568,7 @@ async function handbookSearch(q: string, includeStaged = false) {
       }
     }
     // Found by both searches (in the meaning top 8 AND the word-search top 8): shown as a related
-    // passage — never as an answer (the answer decision in lookup() enforces that).
+    // passage; answerEligible() decides whether word search only confirmed a meaning match.
     const meaningTop = new Set(rows.slice(0, 8).map(key));
     const wordsTop = new Set(keyword.map((k) => k.key));
     const inBoth = (k: string) => meaningTop.has(k) && wordsTop.has(k);
@@ -564,7 +576,7 @@ async function handbookSearch(q: string, includeStaged = false) {
     const extras = rows
       .filter((r) => inBoth(key(r)) && r.similarity >= HANDBOOK_HEADING_SIM_MIN && !picked.some((p) => key(p) === key(r)))
       .filter((r, i, arr) => arr.findIndex((x) => key(x) === key(r)) === i)
-      .map((r) => ({ ...r, fit: handbookFit(q, r.heading, fullText(r)), via: ["meaning", "words"] }))
+      .map((r) => ({ ...r, fit: fitOf(r), via: ["meaning", "words"] }))
       .filter((r) => r.fit.score >= RELATED_BOTH_FIT_MIN) // related-only tier; answer thresholds unchanged
       .slice(0, 2);
     picked.push(...extras);
@@ -588,12 +600,14 @@ async function handbookSearch(q: string, includeStaged = false) {
           last_modified_date: r.last_modified_date, page_published_date: r.page_published_date, retrieved_at: r.retrieved_at, content_hash: r.content_hash,
           is_example: r.is_example || headingIsExample(r.heading), fictional_amounts: fictional, warning: fictional ? FICTIONAL_WARNING : null,
           similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(r.fit.score * 100) / 100, missing_terms: r.fit.missing, heading_hits: r.fit.headingHits, found_by: r.via,
+          // Would qualify on meaning alone (0.74 floor, not the 0.70 heading route), whatever word search found.
+          meaning_qualified: r.similarity >= HANDBOOK_SIM_MIN,
           contains_named: r.fit.missing.length === 0 && specifics.every((t) => t.test(`${r.heading} ${fullText(r)}`)),
           look_next: lookNext(fullText(r), r.award_year ?? CURRENT_AWARD_YEAR, chapterOf(r), imported),
           authority_rank: 4, authority_label: `FSA Handbook ${r.award_year ?? ""} (sub-regulatory guidance)`.replace("  ", " "),
         };
       });
-    const candidates = rows.slice(0, 12).map((r) => { const f = handbookFit(q, r.heading, r.text); return { ordinal: r.ordinal, heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(f.score * 100) / 100, heading_hits: f.headingHits, heading_precision: Math.round(f.headingPrecision * 100) / 100 }; });
+    const candidates = rows.slice(0, 12).map((r) => { const f = fitOf(r, r.text); return { ordinal: r.ordinal, heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000, fit: Math.round(f.score * 100) / 100, heading_hits: f.headingHits, heading_precision: Math.round(f.headingPrecision * 100) / 100 }; });
     const meaning = rows.slice(0, 8).map((r) => ({ heading: r.heading, similarity: Math.round(r.similarity * 1000) / 1000 }));
     const docs = [...new Map(rows.map((r) => [r.document_version_key, { chapter: chapterOf(r), staged: r.source_status === "staged" }])).values()];
     return {
@@ -605,6 +619,24 @@ async function handbookSearch(q: string, includeStaged = false) {
     console.error("handbook search failed", e);
     return { passages: [], prior_year_excluded: 0, error: "Handbook search is temporarily unavailable." };
   }
+}
+
+export type AnswerCandidate = {
+  found_by: string[]; meaning_qualified: boolean; missing_terms: string[]; heading_hits: number;
+  is_example: boolean; contains_named: boolean; fictional_amounts: boolean;
+};
+// Which handbook passages may be the answer (the rest are related):
+// - a passage word search helped find is related — unless it is a rule section that qualifies on meaning
+//   alone (similarity >= 0.74), covers every question term, and its heading names a non-topic question term;
+//   then word search only confirmed it and did not upgrade it;
+// - a worked example is the answer only when the question asks for an example and it contains the named item;
+// - for a question asking the actual maximum/minimum Pell amount, fictional-amount passages and examples never answer.
+export function answerEligible(q: string, p: AnswerCandidate) {
+  const confirmedByWords = !p.is_example && p.meaning_qualified && p.missing_terms.length === 0 && p.heading_hits >= 1;
+  if (p.found_by.includes("words") && !confirmedByWords) return false;
+  if (p.is_example && !(EXAMPLE_INTENT.test(q) && p.contains_named)) return false;
+  if (asksPellAmount(q) && (p.fictional_amounts || p.is_example)) return false;
+  return true;
 }
 
 type AnyResult = Record<string, unknown> & { ok: boolean; mode?: string; title?: string; text?: string | null; citation_id?: string };
@@ -652,9 +684,7 @@ export async function lookup(input: LookupInput, opts: LookupOptions = {}) {
     // - for a question asking for the actual maximum/minimum Pell amount, a passage with fictional amounts
     //   is never the answer, and an example is only ever related.
     const amountQuestion = asksPellAmount(q);
-    const eligible = (p: (typeof handbook)[number]) =>
-      !p.found_by.includes("words") && (!p.is_example || (EXAMPLE_INTENT.test(q) && p.contains_named))
-      && !(amountQuestion && (p.fictional_amounts || p.is_example));
+    const eligible = (p: (typeof handbook)[number]) => answerEligible(q, p);
     const answers = handbook.filter(eligible);
     if (result.mode === "no-confident-cite" && answers.length) {
       const top = answers[0];
