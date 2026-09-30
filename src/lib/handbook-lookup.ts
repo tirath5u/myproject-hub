@@ -89,3 +89,10 @@ export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term:
 export const WORD_ASSISTED_NOTE =
   "Word search helped find this passage, so it is shown as a partial answer: it contains every term in the question but may not answer all of it.";
 export const wordAssistedNote = (foundBy: string[]) => (foundBy.includes("words") ? WORD_ASSISTED_NOTE : null);
+
+/**
+ * Staged (unreviewed) passages are shown on previews only. Lovable builds previews in "development" mode
+ * (dev server or `vite build --mode development`) and the published site in "production" mode, so the build
+ * mode is the primary signal; the preview-host check covers previews whose address we recognise.
+ */
+export const includeStagedFor = (buildMode: string | undefined, hostname: string) => buildMode === "development" || isPreviewHost(hostname);
