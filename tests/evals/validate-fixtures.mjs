@@ -37,7 +37,9 @@ for (const f of files) {
     if (c.accepted_headings && !(Array.isArray(c.accepted_headings) && c.accepted_headings.every((h) => typeof h === 'string' && h))) errors.push(`${where}: accepted_headings must be strings`);
     if (suite.status === 'candidate-unreviewed' && c.status !== 'candidate-unreviewed') errors.push(`${where}: candidate suites mark every case candidate-unreviewed`);
   }
-  if (f.startsWith('stage2a-') && suite.status !== 'candidate-unreviewed') errors.push(`${f}: Stage 2A cases stay candidate-unreviewed until Tirath reviews them`);
+  if (!['candidate-unreviewed', 'reviewed', undefined].includes(suite.status)) errors.push(`${f}: status must be candidate-unreviewed or reviewed`);
+  if (suite.status === 'reviewed' && !(suite.reviewed_by && suite.reviewed_at)) errors.push(`${f}: a reviewed suite needs reviewed_by and reviewed_at`);
+  if (suite.status === 'reviewed' && suite.cases.some((c) => c.status && c.status !== 'reviewed')) errors.push(`${f}: a reviewed suite has unreviewed cases`);
   for (const x of suite.stage1_expected_changes ?? []) if (!x.id || !x.reason) errors.push(`${f}: each stage1_expected_changes entry needs id and reason`);
   process.stdout.write(`ok ${f}: ${suite.cases.length} cases\n`);
 }
