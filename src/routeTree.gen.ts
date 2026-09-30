@@ -13,8 +13,8 @@ import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
-import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
+import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 
 const AskRegsRoute = AskRegsRouteImport.update({
   id: '/ask-regs',
@@ -36,77 +36,77 @@ const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
   path: '/api/ed-source-desk/goldens',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
+  id: '/api/ed-source-desk/explain',
+  path: '/api/ed-source-desk/explain',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEdSourceDeskAdminImportRoute =
   ApiEdSourceDeskAdminImportRouteImport.update({
     id: '/api/ed-source-desk/admin/import',
     path: '/api/ed-source-desk/admin/import',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
-  id: '/api/ed-source-desk/explain',
-  path: '/api/ed-source-desk/explain',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
+  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/ask-regs'
+    | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/explain'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ask-regs'
+    | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/explain'
   id:
     | '__root__'
     | '/'
     | '/ask-regs'
+    | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/explain'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AskRegsRoute: typeof AskRegsRoute
+  ApiEdSourceDeskExplainRoute: typeof ApiEdSourceDeskExplainRoute
   ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
   ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
   ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
-  ApiEdSourceDeskExplainRoute: typeof ApiEdSourceDeskExplainRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -139,18 +139,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/admin/import': {
-      id: '/api/ed-source-desk/admin/import'
-      path: '/api/ed-source-desk/admin/import'
-      fullPath: '/api/ed-source-desk/admin/import'
-      preLoaderRoute: typeof ApiEdSourceDeskAdminImportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/ed-source-desk/explain': {
       id: '/api/ed-source-desk/explain'
       path: '/api/ed-source-desk/explain'
       fullPath: '/api/ed-source-desk/explain'
       preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/admin/import': {
+      id: '/api/ed-source-desk/admin/import'
+      path: '/api/ed-source-desk/admin/import'
+      fullPath: '/api/ed-source-desk/admin/import'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminImportRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -159,10 +159,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AskRegsRoute: AskRegsRoute,
+  ApiEdSourceDeskExplainRoute: ApiEdSourceDeskExplainRoute,
   ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
   ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
   ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
-  ApiEdSourceDeskExplainRoute: ApiEdSourceDeskExplainRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
