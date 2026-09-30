@@ -270,7 +270,9 @@ function ResultCard({ r }: { r: Result }) {
     return (
       <div className="border p-5 text-sm space-y-2">
         <p>
-          {r.no_confident_cite
+          {r.message
+            ? r.message
+            : r.no_confident_cite
             ? "No confident citation — nothing matched your question closely enough to cite. Try including a section number like 34 CFR 668.34, or rephrase."
             : "No matching Education Department documents found. Try a section number like 668.34."}
         </p>
