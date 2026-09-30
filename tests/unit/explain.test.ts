@@ -66,3 +66,18 @@ describe("checkExplanation formatting tolerance", () => {
     expect(checkExplanation("- A fact with no source\n- Cited [S1]", sources).problems).toEqual(['1 line(s) without a source (first: "A fact with no source")']);
   });
 });
+
+describe("checkExplanation lead-in lines", () => {
+  const sources = explainSources(lookup, false);
+  test("a long lead-in ending in ':' is allowed when a cited point follows", () => {
+    const t = "For a less than half-time student, the Pell Grant Cost of Attendance (COA) includes only these items:\n- Tuition and fees [S1]\n- Books [S1]";
+    expect(checkExplanation(t, sources).ok).toBe(true);
+  });
+  test("but not when nothing cited follows, or when it is a plain uncited sentence", () => {
+    expect(checkExplanation("For a less than half-time student, the Pell Grant Cost of Attendance (COA) includes only these items:\nNot covered: all of it.", sources).ok).toBe(false);
+    expect(checkExplanation("For a less than half-time student the COA includes tuition and fees.\n- Books [S1]", sources).ok).toBe(false);
+  });
+  test("the prompt forbids introductions", () => {
+    expect(explainMessages("Q?", sources)[0].content).toContain("no introduction");
+  });
+});

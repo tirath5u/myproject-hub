@@ -39,7 +39,8 @@ export function explainMessages(q: string, sources: ExplainSource[], coverageNot
   const system = [
     "You explain U.S. federal student aid rules in plain English for a financial aid professional.",
     "Use ONLY the numbered sources provided. Do not add facts, numbers, dates, or rules from memory.",
-    "Write 3 to 7 short bullet points. End every bullet with the source ids it relies on, like [S1] or [S1][S3].",
+    "Write 3 to 7 short bullet points and nothing else: no title, no introduction, no summary sentence. Start directly with the first bullet.",
+    "End every bullet with the source ids it relies on, like [S1] or [S1][S3].",
     "If the sources do not fully answer the question, add one final line starting with \"Not covered:\" saying what is missing (no citation needed on that line).",
     "Sources marked FICTIONAL use made-up example amounts: never present those amounts as real figures.",
     "Never give advice about a specific student, and never state an official maximum or minimum award amount unless a non-fictional source states it.",
@@ -64,8 +65,11 @@ export function checkExplanation(text: string, sources: ExplainSource[]) {
   const unknown_citations = [...new Set(cited.filter((c) => !ids.has(c)))];
   // Bullets and markdown are ignored for these rules; a short intro line ending in ":" states no fact.
   const plain = (l: string) => l.replace(/^[\s>*_#•\-–—]+/, "").replace(/^[*_]+|[*_]+$/g, "").trim();
-  const exempt = (l: string) => /^not covered\b/i.test(plain(l)) || (plain(l).endsWith(":") && plain(l).length <= 80);
-  const uncited = lines.filter((l) => !exempt(l) && !/\[S\d+\]/.test(l));
+  // A lead-in ending in ":" is allowed when the line right after it cites a source (the points carry the facts).
+  const isCited = (l: string | undefined) => !!l && /\[S\d+\]/.test(l);
+  const exempt = (l: string, i: number) =>
+    /^not covered\b/i.test(plain(l)) || (plain(l).endsWith(":") && (plain(l).length <= 80 || (plain(l).length <= 200 && isCited(lines[i + 1]))));
+  const uncited = lines.filter((l, i) => !exempt(l, i) && !isCited(l));
   const uncited_lines = uncited.length;
   const realText = sources.filter((s) => !s.fictional).map((s) => s.text).join("\n");
   const amounts_not_in_sources = [...new Set((text.match(AMOUNT) ?? []).map(norm))].filter((a) => !(realText.match(AMOUNT) ?? []).map(norm).includes(a));
