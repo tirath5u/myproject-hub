@@ -1,6 +1,6 @@
 # Ask Regs: AI evidence log
 
-Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-09-30.
+Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-01.
 
 This log records what was built, the decisions Tirath made, and the measured results, so resume and interview claims can be checked against real artifacts: pull requests, test files, and eval runs. Every number below comes from a recorded run or a commit.
 
@@ -28,7 +28,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | 2026-09-30 | Eval runner and Stage 2A plan | 18-case routing eval (18 of 18 on its first independent live run); handoff document for the next stage |
 | 2026-09-30 | Stage 2A (PRs #1 to #7) | Staged import pipeline; Vol 7 Ch 2 imported, reviewed and promoted; fixes found by evals and by manual review |
 | 2026-09-30 | Stage 2B + AI (PRs #8 to #10) | Vol 7 Ch 3 imported, reviewed and promoted; owner-only AI explanation with citation enforcement |
-| 2026-09-30 | Volume 7 batch (PRs #11, #12) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
+| 2026-09-30 to 10-01 | Volume 7 batch (PRs #11 to #13) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
 
 ## 3. Evidence by skill area
 
@@ -92,7 +92,9 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **Lookup speed and cost:** median lookup latency of about 0.5 to 0.7 seconds on preview. About 119 embedding tokens per 6-question eval run.
 - **AI explanation:** 1,276 to 3,197 tokens per explanation. The check rejected 2 explanations before PR #10, and none of the tested ones after it.
 - **Delivery:** 11 pull requests merged in one day, each with unit tests and CI passing.
-- **Volume 7 batch (preview, staged):** Ch 1 11 passages, Ch 4 42 (13 tables, 13 examples), Ch 5 15, Ch 6 8; 21,506 embedding tokens to import. Before the fix: Stage 2A 2 of 6 and Stage 1 15 of 18 on preview (5 regressions), all caught before release.
+- **Volume 7 batch (preview, staged):** Ch 1 11 passages, Ch 4 42 (13 tables, 13 examples), Ch 5 15, Ch 6 8; 21,506 embedding tokens to import. Before the fix: Stage 2A 2 of 6 and Stage 1 15 of 18 on preview (5 regressions), all caught before release. After PR #12: 1 regression left (U21) plus a weak U10 answer; both traced to rule edge cases and fixed in PR #13.
+- **Published eval badge:** fresh live run 2026-10-01T00:01:35Z, all 12 golden cases passed (12 of 12), now shown on the page.
+- **CI caught a dependency break:** a routine package security update (applied through Lovable) changed a router type and failed the typecheck in CI before it could ship; fixed in PR #13.
 
 ## 6. Resume bullets you can use truthfully
 

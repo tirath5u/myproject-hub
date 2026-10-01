@@ -89,22 +89,34 @@ export function isTopicTerm(term: string, sectionHeadings: string[], hit: (term:
 export const chapterTitleWords = (officialUrl: string | null | undefined) =>
   (officialUrl?.split(/[?#]/)[0].split("/").filter(Boolean).pop() ?? "").replace(/^ch\d+-/i, "").replace(/-/g, " ");
 
-/**
- * Numbered variants the question names, each a distinct concept that must be covered on its own:
- * "BBAY 1, BBAY 2, or BBAY 3", "Pell Formula 1, 2, 3, or 4", "Formula 5A".
- */
-export function numberedVariants(q: string) {
-  const out: { label: string; re: RegExp }[] = [];
-  const seen = new Set<string>();
-  for (const m of q.matchAll(/\b(Formula|BBAY)\s*(\d+[AB]?)((?:\s*(?:,\s*(?:or\s+|and\s+)?|or\s+|and\s+|&\s*)\d+[AB]?\b)*)/gi)) {
-    const kind = m[1].toUpperCase() === "BBAY" ? "BBAY" : "Formula";
-    for (const n of [m[2], ...(m[3].match(/\d+[AB]?/gi) ?? [])]) {
-      const label = `${kind} ${n.toUpperCase()}`;
-      if (seen.has(label)) continue;
-      seen.add(label);
-      out.push({ label, re: kind === "BBAY" ? new RegExp(`\\bBBAY ?${n}\\b|Borrower-Based Academic Year ${n}\\b`, "i") : new RegExp(`\\bFormula ?${n}\\b`, "i") });
+/** Numbers a text attaches to "Formula(s)" or "BBAY(s)", including lists and ranges: "Formulas 1, 2, and 4", "Formula 1 through 4". */
+export function numberedMentions(text: string, kind: "Formula" | "BBAY") {
+  const out = new Set<string>();
+  const word = kind === "BBAY" ? "BBAYs?" : "Formulas?";
+  const re = new RegExp(`\\b${word}\\s*(\\d+[AB]?)((?:\\s*(?:,\\s*(?:or\\s+|and\\s+)?|or\\s+|and\\s+|&\\s*|through\\s+|to\\s+|[-–]\\s*)\\d+[AB]?\\b)*)`, "gi");
+  for (const m of text.matchAll(re)) {
+    const tokens = [m[1], ...(m[2].match(/(?:through|to|[-–])\s*\d+[AB]?|\d+[AB]?/gi) ?? [])];
+    let prev: number | null = null;
+    for (const t of tokens) {
+      const n = t.match(/\d+[AB]?/i)![0].toUpperCase();
+      if (/^(through|to|[-–])/i.test(t) && prev !== null && /^\d+$/.test(n)) for (let i = prev + 1; i <= Number(n) && i - prev <= 10; i++) out.add(String(i));
+      out.add(n);
+      prev = /^\d+$/.test(n) ? Number(n) : null;
     }
   }
+  if (kind === "BBAY") for (const m of text.matchAll(/Borrower-Based Academic Year (\d+)/gi)) out.add(m[1]);
+  return out;
+}
+
+/**
+ * Numbered variants the question names, each a distinct concept that must be covered on its own:
+ * "BBAY 1, BBAY 2, or BBAY 3", "Pell Formula 1, 2, 3, or 4", "Formula 5A". A passage covers a variant when it
+ * mentions that number for the same kind, also in list or range form ("Formulas 1 through 4").
+ */
+export function numberedVariants(q: string) {
+  const out: { label: string; test: (text: string) => boolean }[] = [];
+  for (const kind of ["BBAY", "Formula"] as const)
+    for (const n of numberedMentions(q, kind)) out.push({ label: `${kind} ${n}`, test: (text: string) => numberedMentions(text, kind).has(n) });
   return out;
 }
 
