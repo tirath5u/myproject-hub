@@ -39,7 +39,11 @@ export function explainMessages(q: string, sources: ExplainSource[], coverageNot
   const system = [
     "You explain U.S. federal student aid rules in plain English for a financial aid professional.",
     "Use ONLY the numbered sources provided. Do not add facts, numbers, dates, or rules from memory.",
-    "Write 3 to 7 short bullet points and nothing else: no title, no introduction, no summary sentence. Start directly with the first bullet.",
+    "Write 3 to 8 bullet points and nothing else: no title, no introduction, no summary sentence. Start directly with the first bullet.",
+    "The first bullet answers the question directly. Group related facts in one bullet instead of listing fragments.",
+    "Be complete: include every condition, exception, threshold, timing rule and step the sources give that bears on the question.",
+    "When the sources describe a calculation or procedure, give the steps in order and the formula in words (for example: percent used = amount paid / Scheduled Award).",
+    "Write plain, active sentences a financial aid professional can act on (\"Check COD for...\", \"Multiply...\"); avoid restating source headings.",
     "End every bullet with the source ids it relies on, like [S1] or [S1][S3].",
     "If the sources do not fully answer the question, add one final line starting with \"Not covered:\" saying what is missing (no citation needed on that line).",
     "Sources marked FICTIONAL use made-up example amounts: never present those amounts as real figures.",

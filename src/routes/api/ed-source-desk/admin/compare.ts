@@ -17,8 +17,21 @@ export const Route = createFileRoute("/api/ed-source-desk/admin/compare")({
         if (!parsed.success) return Response.json({ ok: false, error: 'Body must be {"q": string, "models"?: string[] (1-3), "judge"?: string}.' }, { status: 400 });
         const { runCompare } = await import("@/lib/explain.server");
         const { includeStagedFor } = await import("@/lib/handbook-lookup");
+        const { logUsage, overDailyCap } = await import("@/lib/usage.server");
+        const { AI_CAP_MESSAGE, compareTokens, storableQuestion } = await import("@/lib/usage");
+        const staged = includeStagedFor(import.meta.env.MODE, new URL(request.url).hostname);
+        if (await overDailyCap("ai_tokens")) {
+          await logUsage({ kind: "compare", ok: false, capped: true, staged });
+          return Response.json({ ok: false, capped: true, error: AI_CAP_MESSAGE }, { status: 429 });
+        }
+        const started = Date.now();
         try {
-          const { status, ...body } = await runCompare(parsed.data.q, includeStagedFor(import.meta.env.MODE, new URL(request.url).hostname), parsed.data.models, parsed.data.judge);
+          const { status, ...body } = await runCompare(parsed.data.q, staged, parsed.data.models, parsed.data.judge);
+          await logUsage({
+            kind: "compare", ok: body.ok, mode: typeof body.lookup_mode === "string" ? body.lookup_mode : null, staged,
+            ai_tokens: compareTokens(body.models as { tokens?: unknown; judge_tokens?: unknown }[]), latency_ms: Date.now() - started,
+            question: storableQuestion(parsed.data.q, false),
+          });
           return Response.json(body, { status });
         } catch (e) {
           console.error("compare failed", e);
