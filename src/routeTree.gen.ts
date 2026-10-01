@@ -9,26 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
-import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
+import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 
-const AskRegsRoute = AskRegsRouteImport.update({
-  id: '/ask-regs',
-  path: '/ask-regs',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEdSourceDeskLookupRoute = ApiEdSourceDeskLookupRouteImport.update({
-  id: '/api/ed-source-desk/lookup',
-  path: '/api/ed-source-desk/lookup',
+const AskRegsRoute = AskRegsRouteImport.update({
+  id: '/ask-regs',
+  path: '/ask-regs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
+  id: '/api/ed-source-desk/explain',
+  path: '/api/ed-source-desk/explain',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
@@ -36,9 +36,9 @@ const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
   path: '/api/ed-source-desk/goldens',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
-  id: '/api/ed-source-desk/explain',
-  path: '/api/ed-source-desk/explain',
+const ApiEdSourceDeskLookupRoute = ApiEdSourceDeskLookupRouteImport.update({
+  id: '/api/ed-source-desk/lookup',
+  path: '/api/ed-source-desk/lookup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEdSourceDeskAdminImportRoute =
@@ -111,13 +111,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/ask-regs': {
-      id: '/ask-regs'
-      path: '/ask-regs'
-      fullPath: '/ask-regs'
-      preLoaderRoute: typeof AskRegsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -125,11 +118,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/lookup': {
-      id: '/api/ed-source-desk/lookup'
-      path: '/api/ed-source-desk/lookup'
-      fullPath: '/api/ed-source-desk/lookup'
-      preLoaderRoute: typeof ApiEdSourceDeskLookupRouteImport
+    '/ask-regs': {
+      id: '/ask-regs'
+      path: '/ask-regs'
+      fullPath: '/ask-regs'
+      preLoaderRoute: typeof AskRegsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/explain': {
+      id: '/api/ed-source-desk/explain'
+      path: '/api/ed-source-desk/explain'
+      fullPath: '/api/ed-source-desk/explain'
+      preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ed-source-desk/goldens': {
@@ -139,11 +139,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/explain': {
-      id: '/api/ed-source-desk/explain'
-      path: '/api/ed-source-desk/explain'
-      fullPath: '/api/ed-source-desk/explain'
-      preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
+    '/api/ed-source-desk/lookup': {
+      id: '/api/ed-source-desk/lookup'
+      path: '/api/ed-source-desk/lookup'
+      fullPath: '/api/ed-source-desk/lookup'
+      preLoaderRoute: typeof ApiEdSourceDeskLookupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ed-source-desk/admin/import': {
