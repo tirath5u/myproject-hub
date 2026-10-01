@@ -28,7 +28,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | 2026-09-30 | Eval runner and Stage 2A plan | 18-case routing eval (18 of 18 on its first independent live run); handoff document for the next stage |
 | 2026-09-30 | Stage 2A (PRs #1 to #7) | Staged import pipeline; Vol 7 Ch 2 imported, reviewed and promoted; fixes found by evals and by manual review |
 | 2026-09-30 | Stage 2B + AI (PRs #8 to #10) | Vol 7 Ch 3 imported, reviewed and promoted; owner-only AI explanation with citation enforcement |
-| 2026-10-01 | Red-teaming and model comparison (PR #17) | Adversarial suite found 5 of 7 refusal probes getting through; rules fixed and locked by tests. Owner-only model comparison with rubric grading by a judge model; first run pending |
+| 2026-10-01 | Red-teaming and model comparison (PR #17) | Adversarial suite found 5 of 7 refusal probes getting through; rules fixed and locked by tests. Owner-only model comparison with rubric grading by a judge model. First run (preview): Gemini 2.5 Flash 14/14 source-check passes, all first try; judge scores faithfulness 5.0, completeness 3.71, clarity 5.0; 0 unsupported claims. GPT-5 mini rejected a request setting (temperature) on every call; fixed in PR #18 for the re-run. Adversarial suite 10/10 on preview after the fixes |
 | 2026-09-30 to 10-01 | Volume 7 batch (PRs #11 to #15) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
 
 ## 3. Evidence by skill area
@@ -119,10 +119,10 @@ Edit these to your voice. Each is backed by the sections above.
 
 | Common AI PM requirement | Status | What would fill it |
 |---|---|---|
-| Graded answer quality (rubric or LLM-as-judge) | Built, first run pending (PR #17) | Judge model scores faithfulness, completeness, clarity 1-5 against a written rubric; a grading sheet lets Tirath grade the same replies, and `--agreement` reports how often his grades match the judge's |
-| Model comparison and selection | Built, first run pending (PR #17) | 12 held-out questions + 3 probes through two models with the same source check; per-model pass rate, first-try pass, rubric scores, unsupported claims, tokens and latency |
+| Graded answer quality (rubric or LLM-as-judge) | Partial: judge scores recorded for Gemini 2.5 Flash; owner grading and agreement pending (PR #17) | Judge model scores faithfulness, completeness, clarity 1-5 against a written rubric; a grading sheet lets Tirath grade the same replies, and `--agreement` reports how often his grades match the judge's |
+| Model comparison and selection | Partial: one model measured, second model re-run pending (PRs #17, #18) | 12 held-out questions + 3 probes through two models with the same source check; per-model pass rate, first-try pass, rubric scores, unsupported claims, tokens and latency |
 | Cost governance | Partial (tokens measured) | Per-request cost log and a daily cap |
-| Red-teaming and prompt injection | Partial → in progress (PR #17) | Adversarial suite written; first local check found 5 of 7 refusal probes slipping through (capitalisation, "my daughter"/"my student", vendor word order); fixed, with tests requiring no over-refusal of 41 legitimate questions. Live run of the full suite pending. |
+| Red-teaming and prompt injection | Partial → in progress (PR #17) | Adversarial suite written; first local check found 5 of 7 refusal probes slipping through (capitalisation, "my daughter"/"my student", vendor word order); fixed, with tests requiring no over-refusal of 41 legitimate questions. Preview run after the fixes: 10 of 10 probes pass (82 of 82 checks), with 0 regressions in the regular suites. |
 | Production monitoring | Missing | Log lookups and explanation failures; a weekly quality summary |
 | Users and outcomes | Missing | A few real users (e.g. FA colleagues), a feedback button, a usage count |
 
