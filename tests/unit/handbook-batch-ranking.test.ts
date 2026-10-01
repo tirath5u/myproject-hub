@@ -61,3 +61,34 @@ describe("programs", () => {
     expect(offProgram(new Set(), new Set(["pell"]))).toBe(false);
   });
 });
+
+describe("second preview run fixes", () => {
+  test("U21: list and range wording covers each named formula", async () => {
+    const { numberedMentions } = await import("../../src/lib/handbook-lookup");
+    expect([...numberedMentions("Schools use Pell Formulas 1, 2, 3, and 4 for term programs.", "Formula")]).toEqual(["1", "2", "3", "4"]);
+    expect([...numberedMentions("Formula 1 through 4 apply; Formula 5 is for correspondence.", "Formula")].sort()).toEqual(["1", "2", "3", "4", "5"]);
+    expect([...numberedMentions("Formulas 5A and 5B", "Formula")]).toEqual(["5A", "5B"]);
+    const q = "How does a school select Pell Formula 1, 2, 3, or 4 for a program?";
+    const basic = handbookFit(q, "Basic Pell Grant Formulas", "A school selects among Pell Formulas 1 through 4 based on its academic calendar for the program.", volTopic);
+    expect(basic.missing.filter((m) => m.startsWith("Formula"))).toEqual([]);
+    expect(handbookFit(q, "Pell Formula 1", "Formula 1 applies to standard terms.", volTopic).missing).toEqual(expect.arrayContaining(["Formula 2", "Formula 3", "Formula 4"]));
+  });
+
+  test("U10: 'enrollment intensity' names most Ch 3 headings, so it counts in no Volume 7 chapter", () => {
+    const CH3 = [
+      "Pell Grants and Enrollment Intensity", "Enrollment Intensity for Term-Based Programs", "Enrollment Intensity for Clock-Hour or Non-Term-Based Programs",
+      "Enrollment Intensity for a Consortium Program", "Students Enrolled in Only Correspondence Courses", "Combination of Regular and Correspondence Courses",
+      "Determining Enrollment Intensity Using Credit Hour Equivalencies", "Enrollment Intensity for Cooperative Education", "Academic Calendar and Enrollment Intensity Changes",
+      "Pell Grant Cost of Attendance", "Less Than Half Time Cost of Attendance", "Cost of Attendance for Cooperative Education", "Cost of Attendance for a Consortium Program",
+    ];
+    const anyChapterTopic = (t: string) => isTopicTerm(t, CH3, stemHit) || volTopic(t);
+    expect(anyChapterTopic("enrollment")).toBe(true);
+    expect(anyChapterTopic("intensity")).toBe(true);
+    const q = "How is a payment-period Pell amount affected when enrollment intensity differs from full time?";
+    const corr = handbookFit(q, "Pell Enrollment Intensity for Correspondence Study Programs", "", anyChapterTopic);
+    const pay = handbookFit(q, "Pell Grant Payments by Payment Period", "", anyChapterTopic);
+    expect(corr.headingHits).toBe(0);
+    expect(pay.headingHits).toBe(1);
+    expect(pay.headingPrecision).toBeGreaterThan(corr.headingPrecision);
+  });
+});

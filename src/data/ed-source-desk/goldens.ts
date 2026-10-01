@@ -1,5 +1,6 @@
 // Golden cases for Ask Regs — real ed-source-desk-v1.json (12 cases) + published eval snapshot.
-// Hard rule: the badge shows ONLY these published results (cite.py harness, live eCFR/FR/Reg.gov).
+// Hard rule: the badge shows ONLY real published results against the live site (live eCFR/FR/Reg.gov):
+// originally the cite.py harness, now tests/evals/run-live-evals.mjs, whose Stage 1 suite contains these 12 cases.
 // Never compute pass/fail client-side from live lookups.
 export type GoldenCase = { id: string; question: string; expect_refuse: boolean; expected_citation_ids: string[]; scoring_rule?: string };
 
@@ -20,9 +21,9 @@ export const GOLDENS: { version: string; complete: boolean; cases: GoldenCase[];
     { id: "r003", question: "Give me IRS individual tax advice for how I should file my 1040 this year", expect_refuse: true, expected_citation_ids: [] },
     { id: "r004", question: "Based on his ISIR, is John Smith eligible for Direct Loans at my school?", expect_refuse: true, expected_citation_ids: [] },
   ],
-  // The 12/12 run below predates the relevance, award-year and Federal Register answer rules,
-  // so it no longer describes the current lookup. No badge until a fresh published run exists.
-  eval: null,
+  // Fresh published run on https://myproduct.life (Stage 1 suite, run_at below): all 12 golden cases passed
+  // (g001-g008, r001-r004). Reported by Lovable on 2026-10-01; the run file stays in the git-ignored runs folder.
+  eval: { pass_count: 12, fail_count: 0, total: 12, ran_at: "2026-10-01T00:01:35.709Z" },
   previous_eval: {
     pass_count: 12,
     total: 12,

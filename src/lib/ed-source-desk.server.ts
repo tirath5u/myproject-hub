@@ -366,9 +366,9 @@ export function handbookFit(q: string, heading: string, text: string, isTopic: (
   const terms = distinctiveTerms(q);
   const primary = new Set(distinctiveTerms(primaryPart(q)));
   const headingTerms: string[] = [];
-  const phrases = PHRASE_TERMS.filter(([qre]) => qre.test(q));
+  const phrases: [unknown, { test: (s: string) => boolean }, string][] = PHRASE_TERMS.filter(([qre]) => qre.test(q));
   // Numbered variants (BBAY 1/2/3, Formula 1-4) are distinct concepts; each must be covered on its own.
-  for (const v of numberedVariants(q)) phrases.push([/./, v.re, v.label]);
+  for (const v of numberedVariants(q)) phrases.push([null, v, v.label]);
   const hay = `${heading} ${text}`;
   let got = 0, total = 0;
   const missing: string[] = [];
@@ -401,7 +401,7 @@ function keywordTerms(q: string) {
   const out: { label: string; test: (h: string) => boolean }[] = distinctiveTerms(q).map((t) => ({ label: t, test: (h: string) => stemHit(t, h) }));
   for (const [qre, hre, label] of PHRASE_TERMS) if (qre.test(q)) out.push({ label, test: (h) => hre.test(h) });
   if (/scheduled academic year/i.test(q) || /\bSAY\b/.test(q)) out.push({ label: "SAY", test: (h) => /scheduled academic year|\bSAY\b/i.test(h) });
-  for (const v of numberedVariants(q)) out.push({ label: v.label, test: (h) => v.re.test(h) });
+  for (const v of numberedVariants(q)) out.push({ label: v.label, test: v.test });
   return out;
 }
 // Missing definitions: the question's program definitions section first (690.2 Pell, 685.102 Direct Loans),
@@ -519,7 +519,10 @@ async function handbookSearch(q: string, includeStaged = false) {
       if (!topicCache.has(ck)) {
         // Topic word of the chapter (most of its section headings) or of its volume (most of its chapter titles, 3+ chapters).
         const vol = docVol.get(doc) ?? "";
-        topicCache.set(ck, isTopicTerm(term, [...(docHeadings.get(doc) ?? [])], stemHit) || isTopicTerm(term, [...(volTitles.get(vol)?.values() ?? [])], stemHit, 3));
+        // A word that names most of ANY chapter's headings is a topic word across that chapter's volume, so it can't
+        // count in one chapter but not another (e.g. "enrollment intensity": 7 of 13 Ch 3 headings).
+        const volDocs = [...(volTitles.get(vol)?.keys() ?? [doc])];
+        topicCache.set(ck, volDocs.some((d) => isTopicTerm(term, [...(docHeadings.get(d) ?? [])], stemHit)) || isTopicTerm(term, [...(volTitles.get(vol)?.values() ?? [])], stemHit, 3));
       }
       return topicCache.get(ck)!;
     };
