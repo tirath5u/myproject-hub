@@ -115,6 +115,84 @@ export type Database = {
         }
         Relationships: []
       }
+      ed_feedback: {
+        Row: {
+          citation_id: string | null
+          comment: string | null
+          created_at: string
+          helpful: boolean
+          id: number
+          lookup_mode: string | null
+          question: string | null
+        }
+        Insert: {
+          citation_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful: boolean
+          id?: never
+          lookup_mode?: string | null
+          question?: string | null
+        }
+        Update: {
+          citation_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean
+          id?: never
+          lookup_mode?: string | null
+          question?: string | null
+        }
+        Relationships: []
+      }
+      ed_usage_log: {
+        Row: {
+          ai_tokens: number | null
+          capped: boolean
+          check_failed: boolean
+          created_at: string
+          embedding_tokens: number | null
+          id: number
+          kind: string
+          latency_ms: number | null
+          mode: string | null
+          ok: boolean
+          question: string | null
+          refused: boolean
+          staged: boolean
+        }
+        Insert: {
+          ai_tokens?: number | null
+          capped?: boolean
+          check_failed?: boolean
+          created_at?: string
+          embedding_tokens?: number | null
+          id?: never
+          kind: string
+          latency_ms?: number | null
+          mode?: string | null
+          ok: boolean
+          question?: string | null
+          refused?: boolean
+          staged?: boolean
+        }
+        Update: {
+          ai_tokens?: number | null
+          capped?: boolean
+          check_failed?: boolean
+          created_at?: string
+          embedding_tokens?: number | null
+          id?: never
+          kind?: string
+          latency_ms?: number | null
+          mode?: string | null
+          ok?: boolean
+          question?: string | null
+          refused?: boolean
+          staged?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
