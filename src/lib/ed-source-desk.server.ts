@@ -367,8 +367,14 @@ export function handbookFit(q: string, heading: string, text: string, isTopic: (
   const primary = new Set(distinctiveTerms(primaryPart(q)));
   const headingTerms: string[] = [];
   const phrases: [unknown, { test: (s: string) => boolean }, string][] = PHRASE_TERMS.filter(([qre]) => qre.test(q));
-  // Numbered variants (BBAY 1/2/3, Formula 1-4) are distinct concepts; each must be covered on its own.
-  for (const v of numberedVariants(q)) phrases.push([null, v, v.label]);
+  // Numbered variants are distinct concepts. BBAY 1/2/3 count toward fit (tuned on reviewed Vol 3 cases).
+  // Formula N decides completeness only: a section explaining how formulas are chosen ("Basic Pell Grant Formulas")
+  // never names Formula 1-4 but is still the relevant passage (U21). Uncovered ones are listed as missing, not scored.
+  const completenessOnly: { test: (s: string) => boolean; label: string }[] = [];
+  for (const v of numberedVariants(q)) {
+    if (v.label.startsWith("BBAY")) phrases.push([null, v, v.label]);
+    else completenessOnly.push(v);
+  }
   const hay = `${heading} ${text}`;
   let got = 0, total = 0;
   const missing: string[] = [];
@@ -381,6 +387,7 @@ export function handbookFit(q: string, heading: string, text: string, isTopic: (
     if (inHead && primary.has(t) && !isTopic(t)) { headingHits++; headingTerms.push(t); }
   }
   for (const [, hre, label] of phrases) { total += 1; if (hre.test(hay)) got += 1; else missing.push(label); }
+  for (const v of completenessOnly) if (!v.test(hay)) missing.push(v.label);
   // Heading precision: share of the heading's own distinctive words that the question names,
   // so "Nonstandard Terms" outranks a long heading that only mentions terms in passing.
   // Main heading only (text before any ":" subtitle); examples use their own title.

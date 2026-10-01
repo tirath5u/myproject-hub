@@ -88,4 +88,20 @@ describe("second preview run fixes", () => {
     // Chapter 2's own headings: "formula" is in 1 of 10, so not a chapter topic there.
     expect(handbookFit(q, "Basic Pell Grant Formulas", "", volTopic).headingHits).toBe(1);
   });
+
+  test("U21: 'Basic Pell Grant Formulas' keeps its fit without naming Formula 1-4, but is not complete", () => {
+    const q = "How does a school select Pell Formula 1, 2, 3, or 4 for a program?";
+    // Wording of the stored section (preview 2026-10-01): it explains choosing a formula, never names Formula 1-4.
+    const text = "When calculating Pell Grants, you must generally use the same formula for all years in a student's program. In most cases, a program's academic calendar determines the formula that must be used. However, for programs offered in standard terms a school has the option of choosing between different Pell formulas. A school may change from the originally selected formula to a different allowable formula.";
+    const f = handbookFit(q, "Basic Pell Grant Formulas", text, volTopic);
+    expect(f.score).toBeGreaterThanOrEqual(0.8);
+    expect(f.missing).toEqual(expect.arrayContaining(["Formula 1", "Formula 2", "Formula 3", "Formula 4"]));
+    expect(f.headingHits).toBe(1);
+  });
+  test("BBAY variants still count toward fit", () => {
+    const q = "Explain when a school uses a Scheduled Academic Year, BBAY 1, BBAY 2, or BBAY 3.";
+    const without = handbookFit(q, "Scheduled Academic Year", "A scheduled academic year is used by schools.", volTopic);
+    const withAll = handbookFit(q, "Scheduled Academic Year", "A scheduled academic year, BBAY 1, BBAY 2 and BBAY 3 are used by schools.", volTopic);
+    expect(withAll.score).toBeGreaterThan(without.score);
+  });
 });
