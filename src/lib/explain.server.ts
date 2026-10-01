@@ -12,11 +12,18 @@ type Usage = { prompt_tokens?: number; completion_tokens?: number; total_tokens?
 async function chat(messages: { role: "system" | "user" | "assistant"; content: string }[], model: string) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const send = (withTemperature: boolean) => fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages, temperature: 0 }),
+    body: JSON.stringify({ model, messages, ...(withTemperature ? { temperature: 0 } : {}) }),
   });
+  let res = await send(true);
+  // Some models (e.g. openai/gpt-5-mini) only accept their default temperature: resend without it.
+  if (res.status === 400) {
+    const err = await res.text();
+    if (!/temperature/i.test(err)) throw new Error(`AI gateway returned HTTP 400: ${err.slice(0, 200)}`);
+    res = await send(false);
+  }
   if (!res.ok) throw new Error(`AI gateway returned HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const j = (await res.json()) as { choices?: { message?: { content?: string } }[]; usage?: Usage };
   return { text: j.choices?.[0]?.message?.content?.trim() ?? "", usage: j.usage ?? null };
