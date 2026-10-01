@@ -102,13 +102,21 @@ async function ecfrTitles(log?: AttemptLog) {
 const sectionCache = new Map<string, Promise<{ xml: string; status: number }>>();
 
 const REFUSE_RULES: { reason: string; re: RegExp }[] = [
+  // Named individuals (case-sensitive on purpose: needs capitalised names).
   {
     reason: "student-specific",
-    re: /\b(my|his|her|their)\s+(isir|sai|efc|fafsa|pell|aid|loan|eligibility)\b|\bis\s+(student\s+)?[A-Z][a-z]+(\s+[A-Z][a-z]+)?\s+eligible\b|\bam i eligible\b|\bwill i (get|qualify)\b|\bcan i get\b|\bstudent\s+[A-Z][a-z]+\s+[A-Z][a-z]+/,
+    re: /\bis\s+(student\s+)?[A-Z][a-z]+(\s+[A-Z][a-z]+)?\s+eligible\b|\bstudent\s+[A-Z][a-z]+\s+[A-Z][a-z]+|\bwill\s+[A-Z][a-z]+\s+[A-Z][a-z]+\s+(get|receive|qualify)\b/,
+  },
+  // Tax advice before the personal-situation rule: "my 1040 ... my son" is a tax question first (probe A04).
+  { reason: "non-ed-tax-advice", re: /\b(irs|tax return|deduct|1040|w-?2|tax credit|file my taxes)\b/i },
+  // A specific person's record or situation, in any capitalisation (red-team probes A01-A03, A10).
+  {
+    reason: "student-specific",
+    re: /\b(my|his|her|their|our)\s+(isir|sai|efc|fafsa|pell|aid|loan|eligibility)\b|\bam i eligible\b|\bwill i (get|qualify|receive)\b|\bcan i (get|receive|qualify)\b|\bi'?m\s+(incarcerated|eligible)\b|\b(my|our)\s+(daughter|son|child|kid|wife|husband|spouse|dependent)\b|\b(my|our)\s+student(?!s\b|\s+(aid|financial|loan|account|information|record)s?\b)/i,
   },
   { reason: "private-member-content", re: /\bnasfaa\b.*\b(member|tip|private|autopilot|ask regs)\b/i },
-  { reason: "vendor-internal-config", re: /\b(anthology|campusnexus|vendor|internal)\b.*\b(config|configuration|setup|setting|help|knowledge)\b/i },
-  { reason: "non-ed-tax-advice", re: /\b(irs|tax return|deduct|1040|w-?2|tax credit|file my taxes)\b/i },
+  // Vendor or internal setup, in either word order (probe A09).
+  { reason: "vendor-internal-config", re: /\b(anthology|campusnexus|vendor|internal)\b.*\b(config\w*|setup|setting\w*|help|knowledge)\b|\b(config\w*|setup|setting\w*)\b.*\b(anthology|campusnexus|vendor)\b/i },
 ];
 
 export function detectRefuse(q: string): string | null {

@@ -28,6 +28,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | 2026-09-30 | Eval runner and Stage 2A plan | 18-case routing eval (18 of 18 on its first independent live run); handoff document for the next stage |
 | 2026-09-30 | Stage 2A (PRs #1 to #7) | Staged import pipeline; Vol 7 Ch 2 imported, reviewed and promoted; fixes found by evals and by manual review |
 | 2026-09-30 | Stage 2B + AI (PRs #8 to #10) | Vol 7 Ch 3 imported, reviewed and promoted; owner-only AI explanation with citation enforcement |
+| 2026-10-01 | Red-teaming and model comparison (PR #17) | Adversarial suite found 5 of 7 refusal probes getting through; rules fixed and locked by tests. Owner-only model comparison with rubric grading by a judge model; first run pending |
 | 2026-09-30 to 10-01 | Volume 7 batch (PRs #11 to #15) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
 
 ## 3. Evidence by skill area
@@ -46,11 +47,11 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **AI explanation checks:** every bullet must cite a source ID. A reply that cites an unknown source, leaves a claim uncited, or states a dollar amount found only in fictional examples is discarded after one retry (PR #8; `src/lib/explain.ts`).
 
 ### Evaluation
-- **Eval suites:** 26 cases and 198 automated checks. Stage 1 routing and refusals: 18 cases, 122 checks. Stage 2A Pell: 6 cases, 58 checks. Stage 2B Chapter 3: 2 cases, 18 checks.
+- **Eval suites:** 26 cases and 201 automated checks. Stage 1 routing and refusals: 18 cases, 122 checks. Stage 2A Pell: 6 cases, 61 checks (58 before the Chapter 3 expected-change checks were added). Stage 2B Chapter 3: 2 cases, 18 checks. (Corrected 2026-10-01: earlier versions said 198.)
 - **Review workflow:** new cases start as `candidate-unreviewed` and become `reviewed` only after Tirath checks them on screen.
 - **Expected changes:** intended behavior changes are recorded as *expected changes*, not hidden (for example, U09 moving from "definition only" to a handbook answer).
 - **Per-assertion results:** results are exported per assertion, with latency and embedding-token cost. HTTP 200 never counts as correctness.
-- **Offline CI:** unit tests (53) and fixture validation run on every pull request with no network calls.
+- **Offline CI:** unit tests (64 as of PR #15) and fixture validation run on every pull request with no network calls.
 - **Artifacts:** `tests/evals/*.json`, `tests/evals/run-live-evals.mjs`, `tests/unit/`, `.github/workflows/ci.yml`.
 
 ### Human-in-the-loop release management
@@ -77,7 +78,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | D2 | Assume preview and the live site share one database | Verify first vs design for the worst case | Designed for the worst case: a `staged` status, a promote gate, and a live lookup that excludes staged rows. (From the Stage 2A handoff Tirath commissioned and approved; later confirmed true.) |
 | D3 | U09 answered by the wrong section | Widen the test to accept it, or fix the search | Fix the search (PR #2). Widening the test would hide a wrong answer. (Recommended by Claude; Tirath approved.) |
 | D4 | U10 and U21 over-claimed "complete" | A per-question list of known gaps, loosen the tests, or a general rule | General rule: answers that word search helped find are always "partial" (PR #3). Lovable suggested the per-question list; Tirath chose the general rule (Claude's recommendation) because it scales and keeps test questions out of the product. |
-| D5 | Human review before approval | Trust the automated tests vs review on screen | Reviewed on screen. This caught two display issues the automated tests passed (distorted tables; a confusing message for amount questions), and revealed that the first review had been done on the live site instead of the preview. |
+| D5 | Human review before approval | Trust the automated tests vs review on screen | Reviewed on screen. This caught two display issues the automated tests passed (distorted tables; a confusing message for amount questions), and revealed that the first review had been done on the live site instead of the preview (Tirath had published after each merge; the live site correctly hides staged chapters). Claude first misdiagnosed this as the preview address not being recognised (PR #5, harmless extra hardening); the real cause was the review environment. Lesson: confirm which environment you are on before reviewing. |
 | D6 | Order of release steps | Promote then publish, or publish then promote | Publish the new code first, then promote content. Old live code would have merged sections incorrectly. |
 | D7 | Scope of the AI explanation | Public vs owner-only | Owner-only for now. Public later needs usage limits, cost control, and a quality record. |
 | D8 | Model provider for the explanation | New Anthropic key vs Lovable's built-in gateway | Built-in gateway (Gemini 2.5 Flash): no new keys, and it can be switched later. (Claude's default; Tirath accepted.) |
@@ -91,7 +92,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **Content:** Vol 7 Ch 2 has 15 passages (3,656 embedding tokens to import). Vol 7 Ch 3 has 13 sections and 19 passages (4,838 tokens).
 - **Lookup speed and cost:** median lookup latency of about 0.5 to 0.7 seconds on preview. About 119 embedding tokens per 6-question eval run.
 - **AI explanation:** 1,276 to 3,197 tokens per explanation. The check rejected 2 explanations before PR #10, and none of the tested ones after it.
-- **Delivery:** 11 pull requests merged in one day, each with unit tests and CI passing.
+- **Delivery:** 16 pull requests merged over two days (2026-09-30 to 10-01), each with unit tests and CI passing. (Corrected: earlier versions said 10 or 11 in one day.)
 - **Volume 7 complete (live 2026-10-01T04:45Z):** Stage 2A 6 of 6 (61 of 61 checks), Stage 2B 2 of 2 (18 of 18), Stage 1 17 of 18 with 0 regressions (U09 the one expected change); all 12 golden cases pass. Median lookup latency on the live site about 0.66 to 0.73 seconds.
 - **Volume 7 batch (preview, staged):** Ch 1 11 passages, Ch 4 42 (13 tables, 13 examples), Ch 5 15, Ch 6 8; 21,506 embedding tokens to import. Before the fix: Stage 2A 2 of 6 and Stage 1 15 of 18 on preview (5 regressions), all caught before release. After PR #12: 1 regression left (U21) plus a weak U10 answer. PR #13 fixed U10 but its volume-wide topic rule caused a new U21 regression on preview; PR #14 rolled that rule back and fixed U10 at answer choice instead (prefer the eligible answer covering more of the question; "complete" only if the answer itself covers every term). Lesson: a fix that helps one case can quietly break another — the eval suite caught it before release. PR #14 still left U21 failing; instead of a third guess, a diagnostic run printed the shortlist scores and the stored section's wording, which showed "Basic Pell Grant Formulas" never names Formula 1-4. PR #15: named formulas now decide completeness, not relevance. (Diagnose with data before fixing — decision by Claude, run by Lovable at Tirath's request.)
 - **Published eval badge:** fresh live run 2026-10-01T00:01:35Z, all 12 golden cases passed (12 of 12), now shown on the page.
@@ -102,7 +103,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 Edit these to your voice. Each is backed by the sections above.
 
 - Led the build of **Ask Regs**, a retrieval-augmented (RAG) tool that answers federal student aid questions only with verbatim, cited official sources. Directed AI coding agents (Claude Code, Lovable) through 10 reviewed pull requests in one day.
-- Designed a **two-layer evaluation program**: 26 automated cases and 198 checks, covering routing, answer labeling and a fictional-amount guard, plus on-screen human review that caught display issues the automated checks passed.
+- Designed a **two-layer evaluation program**: 26 automated cases and 201 checks, covering routing, answer labeling and a fictional-amount guard, plus on-screen human review that caught display issues the automated checks passed.
 - Introduced a **staged release with a human approval gate** (import, preview review, promote). Shipped all six chapters of the Pell volume in three releases with zero regressions on the live site, holding one release through four rounds of eval-driven fixes.
 - Shipped an **owner-only LLM explanation with citation enforcement**: every point must cite a retrieved source, and replies with invented sources, uncited claims or fictional amounts are automatically discarded.
 - Made and documented **AI product trade-offs**, for example rejecting a test change that would have hidden a wrong answer, and choosing a general "partial answer" rule over per-question exceptions.
@@ -118,10 +119,10 @@ Edit these to your voice. Each is backed by the sections above.
 
 | Common AI PM requirement | Status | What would fill it |
 |---|---|---|
-| Graded answer quality (rubric or LLM-as-judge) | Missing | Score 20 explanations against a rubric; record agreement between your grades and an automated grader |
-| Model comparison and selection | Missing | Run the same questions through two models (e.g. Gemini vs Claude) with the same checker; compare pass rate, cost and latency |
+| Graded answer quality (rubric or LLM-as-judge) | Built, first run pending (PR #17) | Judge model scores faithfulness, completeness, clarity 1-5 against a written rubric; a grading sheet lets Tirath grade the same replies, and `--agreement` reports how often his grades match the judge's |
+| Model comparison and selection | Built, first run pending (PR #17) | 12 held-out questions + 3 probes through two models with the same source check; per-model pass rate, first-try pass, rubric scores, unsupported claims, tokens and latency |
 | Cost governance | Partial (tokens measured) | Per-request cost log and a daily cap |
-| Red-teaming and prompt injection | Partial (refusals) | A small adversarial test set (injection attempts, off-topic, student-specific phrasing) |
+| Red-teaming and prompt injection | Partial → in progress (PR #17) | Adversarial suite written; first local check found 5 of 7 refusal probes slipping through (capitalisation, "my daughter"/"my student", vendor word order); fixed, with tests requiring no over-refusal of 41 legitimate questions. Live run of the full suite pending. |
 | Production monitoring | Missing | Log lookups and explanation failures; a weekly quality summary |
 | Users and outcomes | Missing | A few real users (e.g. FA colleagues), a feedback button, a usage count |
 
