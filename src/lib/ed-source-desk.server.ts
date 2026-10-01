@@ -519,10 +519,9 @@ async function handbookSearch(q: string, includeStaged = false) {
       if (!topicCache.has(ck)) {
         // Topic word of the chapter (most of its section headings) or of its volume (most of its chapter titles, 3+ chapters).
         const vol = docVol.get(doc) ?? "";
-        // A word that names most of ANY chapter's headings is a topic word across that chapter's volume, so it can't
-        // count in one chapter but not another (e.g. "enrollment intensity": 7 of 13 Ch 3 headings).
-        const volDocs = [...(volTitles.get(vol)?.keys() ?? [doc])];
-        topicCache.set(ck, volDocs.some((d) => isTopicTerm(term, [...(docHeadings.get(d) ?? [])], stemHit)) || isTopicTerm(term, [...(volTitles.get(vol)?.values() ?? [])], stemHit, 3));
+        // Chapter topic words stay per chapter: spreading them across the volume made "Formula" (most Ch 4 headings)
+        // erase Ch 2's "Basic Pell Grant Formulas" heading hit (U21). Answer choice handles U10 instead.
+        topicCache.set(ck, isTopicTerm(term, [...(docHeadings.get(doc) ?? [])], stemHit) || isTopicTerm(term, [...(volTitles.get(vol)?.values() ?? [])], stemHit, 3));
       }
       return topicCache.get(ck)!;
     };
@@ -642,6 +641,11 @@ async function handbookSearch(q: string, includeStaged = false) {
   }
 }
 
+/** Among passages allowed to be the answer, one covering more of the question's terms comes first; ties keep rank order. */
+export function orderAnswers<T extends { missing_terms: string[] }>(eligible: T[]) {
+  return eligible.map((p, i) => ({ p, i })).sort((a, b) => a.p.missing_terms.length - b.p.missing_terms.length || a.i - b.i).map((x) => x.p);
+}
+
 export type AnswerCandidate = {
   found_by: string[]; meaning_qualified: boolean; missing_terms: string[]; heading_hits: number;
   is_example: boolean; contains_named: boolean; fictional_amounts: boolean;
@@ -706,7 +710,7 @@ export async function lookup(input: LookupInput, opts: LookupOptions = {}) {
     //   is never the answer, and an example is only ever related.
     const amountQuestion = asksPellAmount(q);
     const eligible = (p: (typeof handbook)[number]) => answerEligible(q, p);
-    const answers = handbook.filter(eligible);
+    const answers = orderAnswers(handbook.filter(eligible));
     if (result.mode === "no-confident-cite" && answers.length) {
       const top = answers[0];
       result = {
@@ -742,6 +746,9 @@ export async function lookup(input: LookupInput, opts: LookupOptions = {}) {
         if (still.length) notes.unshift(`The passages shown don't cover: ${still.map((t) => `"${t}"`).join(", ")}.`);
         notes.push(defNote(defs));
       }
+      // "Complete" needs the answer itself to cover every question term, not just the related passages beside it.
+      const answerOwnGaps = (handbook.find((p) => p.citation_id === result.citation_id)?.missing_terms ?? []).filter((t) => !missing.includes(t));
+      if (answerOwnGaps.length) notes.push(`The answer passage itself doesn't cover ${answerOwnGaps.map((t) => `"${t}"`).join(", ")}; the related passages may.`);
       const wordNote = wordAssistedNote(handbook.find((p) => p.citation_id === result.citation_id)?.found_by ?? []);
       if (wordNote) notes.push(wordNote);
       if (amountQuestion) notes.push(OFFICIAL_AMOUNT_NOTICE);
