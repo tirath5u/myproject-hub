@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
 import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
+import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
 import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 
 const AskRegsRoute = AskRegsRouteImport.update({
@@ -47,6 +48,12 @@ const ApiEdSourceDeskAdminImportRoute =
     path: '/api/ed-source-desk/admin/import',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiEdSourceDeskAdminCompareRoute =
+  ApiEdSourceDeskAdminCompareRouteImport.update({
+    id: '/api/ed-source-desk/admin/compare',
+    path: '/api/ed-source-desk/admin/compare',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -55,6 +62,7 @@ export interface FileRoutesByFullPath {
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
+  '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -63,6 +71,7 @@ export interface FileRoutesByTo {
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
+  '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -72,6 +81,7 @@ export interface FileRoutesById {
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
+  '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -82,6 +92,7 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
+    | '/api/ed-source-desk/admin/compare'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -90,6 +101,7 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
+    | '/api/ed-source-desk/admin/compare'
   id:
     | '__root__'
     | '/'
@@ -98,6 +110,7 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/import'
+    | '/api/ed-source-desk/admin/compare'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -107,10 +120,18 @@ export interface RootRouteChildren {
   ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
   ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
   ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
+  ApiEdSourceDeskAdminCompareRoute: typeof ApiEdSourceDeskAdminCompareRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/ed-source-desk/admin/compare': {
+      id: '/api/ed-source-desk/admin/compare'
+      path: '/api/ed-source-desk/admin/compare'
+      fullPath: '/api/ed-source-desk/admin/compare'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ask-regs': {
       id: '/ask-regs'
       path: '/ask-regs'
@@ -163,6 +184,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
   ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
   ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
+  ApiEdSourceDeskAdminCompareRoute: ApiEdSourceDeskAdminCompareRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

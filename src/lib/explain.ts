@@ -81,3 +81,38 @@ export function checkExplanation(text: string, sources: ExplainSource[]) {
   ];
   return { ok: problems.length === 0, problems, cited_sources: [...new Set(cited)].filter((c) => ids.has(c)) };
 }
+
+// ---- Model comparison: rubric grading by a separate judge model ------------------------------------------
+export const RUBRIC = {
+  faithfulness: "5 = every statement is directly supported by the cited source text; 3 = mostly supported with minor overreach; 1 = contains claims the sources do not support.",
+  completeness: "5 = covers everything in the sources that answers the question; 3 = covers the main point but misses relevant detail; 1 = misses the main point.",
+  clarity: "5 = plain English a financial aid professional can act on, well organized; 3 = understandable but wordy or jargon-heavy; 1 = confusing.",
+} as const;
+export type JudgeScores = { faithfulness: number; completeness: number; clarity: number; unsupported_claims: string[]; ok: boolean; error?: string };
+
+export function judgeMessages(q: string, sources: ExplainSource[], explanation: string) {
+  const system = [
+    "You grade an AI explanation of U.S. federal student aid sources. Judge ONLY against the numbered sources given; do not use outside knowledge.",
+    `Score each 1-5. Faithfulness: ${RUBRIC.faithfulness} Completeness: ${RUBRIC.completeness} Clarity: ${RUBRIC.clarity}`,
+    "List every statement in the explanation that the sources do not support (quote it briefly).",
+    'Reply with JSON only: {"faithfulness":n,"completeness":n,"clarity":n,"unsupported_claims":["..."]}',
+  ].join("\n");
+  const body = sources.map((s) => `[${s.id}] ${s.label}${s.fictional ? " (FICTIONAL example amounts)" : ""}\n${s.text}`).join("\n\n");
+  return [
+    { role: "system" as const, content: system },
+    { role: "user" as const, content: `Question: ${q}\n\nSources:\n\n${body}\n\nExplanation to grade:\n${explanation}` },
+  ];
+}
+
+/** Parses the judge's JSON reply (tolerates code fences or surrounding prose); scores are clamped to 1-5. */
+export function parseJudge(text: string): JudgeScores {
+  const m = text.match(/\{[\s\S]*\}/);
+  try {
+    const j = JSON.parse(m ? m[0] : text) as Record<string, unknown>;
+    const score = (k: string) => { const n = Math.round(Number(j[k])); if (!Number.isFinite(n)) throw new Error(`missing ${k}`); return Math.min(5, Math.max(1, n)); };
+    const claims = Array.isArray(j.unsupported_claims) ? j.unsupported_claims.map(String).filter(Boolean) : [];
+    return { faithfulness: score("faithfulness"), completeness: score("completeness"), clarity: score("clarity"), unsupported_claims: claims, ok: true };
+  } catch (e) {
+    return { faithfulness: 0, completeness: 0, clarity: 0, unsupported_claims: [], ok: false, error: e instanceof Error ? e.message : "unparseable judge reply" };
+  }
+}

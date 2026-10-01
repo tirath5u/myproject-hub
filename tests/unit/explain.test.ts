@@ -81,3 +81,20 @@ describe("checkExplanation lead-in lines", () => {
     expect(explainMessages("Q?", sources)[0].content).toContain("no introduction");
   });
 });
+
+describe("model comparison judge", () => {
+  test("judge prompt carries the rubric, the sources and the explanation", async () => {
+    const { judgeMessages } = await import("../../src/lib/explain");
+    const [sys, user] = judgeMessages("Q?", explainSources(lookup, false), "- point [S1]");
+    expect(sys.content).toContain("Faithfulness: 5 = every statement");
+    expect(sys.content).toContain("JSON only");
+    expect(user.content).toContain("[S2] Example 1 (FICTIONAL example amounts)");
+    expect(user.content).toContain("Explanation to grade:\n- point [S1]");
+  });
+  test("parseJudge reads fenced JSON, clamps scores, and reports bad replies", async () => {
+    const { parseJudge } = await import("../../src/lib/explain");
+    expect(parseJudge('```json\n{"faithfulness":5,"completeness":4.4,"clarity":9,"unsupported_claims":["x"]}\n```')).toEqual({ faithfulness: 5, completeness: 4, clarity: 5, unsupported_claims: ["x"], ok: true });
+    expect(parseJudge("no json here").ok).toBe(false);
+    expect(parseJudge('{"faithfulness":5}').error).toBe("missing completeness");
+  });
+});

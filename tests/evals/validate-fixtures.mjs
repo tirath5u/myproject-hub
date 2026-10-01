@@ -13,6 +13,7 @@ const KINDS = {
   'recent-ed-fafsa': [],
   'pell-passage': ['expect'],
   'fictional-amount-guard': [],
+  'explain-compare': [],
 };
 const EXPECT = new Set(['answer', 'answer-or-related', 'partial-or-related', 'related-only', 'present']);
 const SECRET = /api[_-]?key|sk-[a-z0-9]{10,}|bearer\s+[a-z0-9._-]{10,}|service_role|eyJ[a-zA-Z0-9_-]{10,}\./i;
