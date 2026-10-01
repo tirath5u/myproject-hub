@@ -13,11 +13,11 @@ import { Route as AskRegsRouteImport } from './routes/ask-regs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as ApiEdSourceDeskFeedbackRouteImport } from './routes/api/ed-source-desk/feedback'
 import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
+import { Route as ApiEdSourceDeskAdminStatsRouteImport } from './routes/api/ed-source-desk/admin/stats'
 import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
 import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
-import { Route as ApiEdSourceDeskFeedbackRouteImport } from './routes/api/ed-source-desk/feedback'
-import { Route as ApiEdSourceDeskAdminStatsRouteImport } from './routes/api/ed-source-desk/admin/stats'
 
 const AskRegsRoute = AskRegsRouteImport.update({
   id: '/ask-regs',
@@ -39,11 +39,22 @@ const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
   path: '/api/ed-source-desk/goldens',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEdSourceDeskFeedbackRoute = ApiEdSourceDeskFeedbackRouteImport.update({
+  id: '/api/ed-source-desk/feedback',
+  path: '/api/ed-source-desk/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
   id: '/api/ed-source-desk/explain',
   path: '/api/ed-source-desk/explain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEdSourceDeskAdminStatsRoute =
+  ApiEdSourceDeskAdminStatsRouteImport.update({
+    id: '/api/ed-source-desk/admin/stats',
+    path: '/api/ed-source-desk/admin/stats',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiEdSourceDeskAdminImportRoute =
   ApiEdSourceDeskAdminImportRouteImport.update({
     id: '/api/ed-source-desk/admin/import',
@@ -56,38 +67,27 @@ const ApiEdSourceDeskAdminCompareRoute =
     path: '/api/ed-source-desk/admin/compare',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiEdSourceDeskFeedbackRoute = ApiEdSourceDeskFeedbackRouteImport.update({
-  id: '/api/ed-source-desk/feedback',
-  path: '/api/ed-source-desk/feedback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiEdSourceDeskAdminStatsRoute =
-  ApiEdSourceDeskAdminStatsRouteImport.update({
-    id: '/api/ed-source-desk/admin/stats',
-    path: '/api/ed-source-desk/admin/stats',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
+  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/admin/stats': typeof ApiEdSourceDeskAdminStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
+  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/admin/stats': typeof ApiEdSourceDeskAdminStatsRoute
 }
 export interface FileRoutesById {
@@ -95,11 +95,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ask-regs': typeof AskRegsRoute
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
+  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
   '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
-  '/api/ed-source-desk/feedback': typeof ApiEdSourceDeskFeedbackRoute
   '/api/ed-source-desk/admin/stats': typeof ApiEdSourceDeskAdminStatsRoute
 }
 export interface FileRouteTypes {
@@ -108,33 +108,33 @@ export interface FileRouteTypes {
     | '/'
     | '/ask-regs'
     | '/api/ed-source-desk/explain'
+    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/compare'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/admin/stats'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ask-regs'
     | '/api/ed-source-desk/explain'
+    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/compare'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/admin/stats'
   id:
     | '__root__'
     | '/'
     | '/ask-regs'
     | '/api/ed-source-desk/explain'
+    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
     | '/api/ed-source-desk/admin/compare'
     | '/api/ed-source-desk/admin/import'
-    | '/api/ed-source-desk/feedback'
     | '/api/ed-source-desk/admin/stats'
   fileRoutesById: FileRoutesById
 }
@@ -142,11 +142,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AskRegsRoute: typeof AskRegsRoute
   ApiEdSourceDeskExplainRoute: typeof ApiEdSourceDeskExplainRoute
+  ApiEdSourceDeskFeedbackRoute: typeof ApiEdSourceDeskFeedbackRoute
   ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
   ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
   ApiEdSourceDeskAdminCompareRoute: typeof ApiEdSourceDeskAdminCompareRoute
   ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
-  ApiEdSourceDeskFeedbackRoute: typeof ApiEdSourceDeskFeedbackRoute
   ApiEdSourceDeskAdminStatsRoute: typeof ApiEdSourceDeskAdminStatsRoute
 }
 
@@ -180,11 +180,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ed-source-desk/feedback': {
+      id: '/api/ed-source-desk/feedback'
+      path: '/api/ed-source-desk/feedback'
+      fullPath: '/api/ed-source-desk/feedback'
+      preLoaderRoute: typeof ApiEdSourceDeskFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ed-source-desk/explain': {
       id: '/api/ed-source-desk/explain'
       path: '/api/ed-source-desk/explain'
       fullPath: '/api/ed-source-desk/explain'
       preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/admin/stats': {
+      id: '/api/ed-source-desk/admin/stats'
+      path: '/api/ed-source-desk/admin/stats'
+      fullPath: '/api/ed-source-desk/admin/stats'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ed-source-desk/admin/import': {
@@ -201,20 +215,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/feedback': {
-      id: '/api/ed-source-desk/feedback'
-      path: '/api/ed-source-desk/feedback'
-      fullPath: '/api/ed-source-desk/feedback'
-      preLoaderRoute: typeof ApiEdSourceDeskFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ed-source-desk/admin/stats': {
-      id: '/api/ed-source-desk/admin/stats'
-      path: '/api/ed-source-desk/admin/stats'
-      fullPath: '/api/ed-source-desk/admin/stats'
-      preLoaderRoute: typeof ApiEdSourceDeskAdminStatsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -222,11 +222,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AskRegsRoute: AskRegsRoute,
   ApiEdSourceDeskExplainRoute: ApiEdSourceDeskExplainRoute,
+  ApiEdSourceDeskFeedbackRoute: ApiEdSourceDeskFeedbackRoute,
   ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
   ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
   ApiEdSourceDeskAdminCompareRoute: ApiEdSourceDeskAdminCompareRoute,
   ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
-  ApiEdSourceDeskFeedbackRoute: ApiEdSourceDeskFeedbackRoute,
   ApiEdSourceDeskAdminStatsRoute: ApiEdSourceDeskAdminStatsRoute,
 }
 export const routeTree = rootRouteImport
