@@ -198,6 +198,7 @@ function AskRegsPage() {
         <div className="mt-8" aria-live="polite">
           {loading && <div className="border p-6 bg-muted animate-pulse text-sm opacity-70">Fetching from official sources…</div>}
           {result && <ResultCard r={result} />}
+          {result && !loading && result.ok && <Feedback key={`${asked}|${result.citation_id ?? ""}`} q={asked} r={result} />}
           {result && !loading && owner.token && result.ok && !result.refuse && <OwnerExplain key={`${asked}|${result.citation_id ?? ""}`} q={asked} token={owner.token} onUnauthorized={owner.clear} />}
         </div>
         <OwnerSignIn owner={owner} />
@@ -471,6 +472,43 @@ type Explained = {
   ok: boolean; error?: string; explanation?: string | null; reason?: string | null; model?: string; tokens?: number | string;
   sources?: { id: string; citation_id: string; label: string; kind: string; fictional: boolean }[];
 };
+function Feedback({ q, r }: { q: string; r: Result }) {
+  const [state, setState] = useState<"idle" | "comment" | "sending" | "done" | "error">("idle");
+  const [helpful, setHelpful] = useState<boolean | null>(null);
+  const [comment, setComment] = useState("");
+  async function send(h: boolean, text: string) {
+    setState("sending");
+    try {
+      const res = await fetch("/api/ed-source-desk/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ helpful: h, q, lookup_mode: r.mode, citation_id: r.citation_id, comment: text.trim() || undefined }),
+      });
+      setState(res.ok ? "done" : "error");
+    } catch {
+      setState("error");
+    }
+  }
+  if (state === "done") return <p className="mt-3 text-xs opacity-70">Thanks — your feedback helps improve Ask Regs.</p>;
+  if (state === "error") return <p className="mt-3 text-xs opacity-70">Couldn't send feedback right now.</p>;
+  if (state === "comment" || (state === "sending" && helpful !== null))
+    return (
+      <form className="mt-3 flex flex-col sm:flex-row gap-2" onSubmit={(e) => { e.preventDefault(); void send(helpful ?? false, comment); }}>
+        <Input value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder={helpful ? "What was useful? (optional)" : "What was wrong or missing? (optional, no personal details)"} aria-label="Feedback comment" className="h-9 text-sm" />
+        <Button type="submit" variant="outline" disabled={state === "sending"} className="h-9 text-sm">Send</Button>
+      </form>
+    );
+  return (
+    <div className="mt-3 flex items-center gap-2 text-xs">
+      <span className="opacity-70">Was this helpful?</span>
+      {[true, false].map((h) => (
+        <button key={String(h)} type="button" onClick={() => { setHelpful(h); setState("comment"); }}
+          className="border rounded-full px-3 py-1 hover:bg-muted transition-colors">{h ? "Yes" : "No"}</button>
+      ))}
+    </div>
+  );
+}
+
 function OwnerExplain({ q, token, onUnauthorized }: { q: string; token: string; onUnauthorized: () => void }) {
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
   const [data, setData] = useState<Explained | null>(null);

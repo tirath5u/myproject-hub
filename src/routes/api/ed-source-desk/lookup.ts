@@ -20,10 +20,25 @@ export const Route = createFileRoute("/api/ed-source-desk/lookup")({
         }
         const { lookup } = await import("@/lib/ed-source-desk.server");
         const { includeStagedFor } = await import("@/lib/handbook-lookup");
+        const { logUsage, overDailyCap } = await import("@/lib/usage.server");
+        const { LOOKUP_CAP_MESSAGE, storableQuestion } = await import("@/lib/usage");
+        const question = "q" in parsed.data ? parsed.data.q : null;
         // Staged (unreviewed) handbook rows only in preview builds (development mode) or on known preview hosts, never the published site.
         const host = new URL(request.url).hostname;
         const includeStaged = includeStagedFor(import.meta.env.MODE, host);
-        const result = (await lookup(parsed.data, { includeStaged })) as { ok: boolean; http_status?: number };
+        if (await overDailyCap("lookups")) {
+          await logUsage({ kind: "lookup", ok: false, capped: true, staged: includeStaged });
+          return Response.json({ ok: false, capped: true, error: LOOKUP_CAP_MESSAGE }, { status: 429 });
+        }
+        const started = Date.now();
+        const result = (await lookup(parsed.data, { includeStaged })) as {
+          ok: boolean; http_status?: number; mode?: string; refuse?: boolean; handbook_embedding_tokens?: number | null;
+        };
+        await logUsage({
+          kind: "lookup", ok: result.ok, mode: result.mode ?? null, refused: !!result.refuse, staged: includeStaged,
+          latency_ms: Date.now() - started, embedding_tokens: result.handbook_embedding_tokens ?? null,
+          question: storableQuestion(question, !!result.refuse),
+        });
         // Which build and address answered, so a reviewer can tell a preview from the published site.
         Object.assign(result, { served_by: { build_mode: import.meta.env.MODE, host, staged_included: includeStaged } });
         const hs = result.http_status ?? 500;
