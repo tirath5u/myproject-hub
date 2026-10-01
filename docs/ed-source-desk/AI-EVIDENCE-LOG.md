@@ -1,6 +1,6 @@
 # Ask Regs: AI evidence log
 
-Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-01.
+Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-01 (Volume 7 complete).
 
 This log records what was built, the decisions Tirath made, and the measured results, so resume and interview claims can be checked against real artifacts: pull requests, test files, and eval runs. Every number below comes from a recorded run or a commit.
 
@@ -16,7 +16,7 @@ Sources it covers:
 - eCFR regulations
 - the Federal Register
 - Regulations.gov
-- the 2026-27 FSA Handbook: Volume 3 Chapter 1, and Volume 7 Chapters 2 and 3 (Pell Grants)
+- the 2026-27 FSA Handbook: Volume 3 Chapter 1, and all of Volume 7, Chapters 1 to 6 (Pell Grants)
 
 On top of this sits an **owner-only AI explanation**. It turns the cited passages into plain English, and it is checked so that every point names its source.
 
@@ -57,7 +57,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **Staged release:** new content imports as `staged`. It's visible only on preview builds, and it goes live only after a named `promote` (Stage 2A).
 - **Safety of the live site:** the published site kept working unchanged while unreviewed content sat in the shared database.
 - **Import checks:** an import refuses to write unless structural checks pass. For chapters without a reviewed manifest, it also requires the content fingerprint from the dry-run.
-- **Result:** two promotions (Vol 7 Ch 2 and Ch 3), with zero regressions on the live site.
+- **Result:** three promotions (Vol 7 Ch 2; Ch 3; Ch 1, 4, 5 and 6 together), with zero regressions on the live site. The batch was held on preview through four fix rounds until every suite was clean.
 
 ### Responsible AI and safety
 - **Refusals:** student-specific eligibility, individual tax advice, private or vendor-internal content.
@@ -92,6 +92,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 - **Lookup speed and cost:** median lookup latency of about 0.5 to 0.7 seconds on preview. About 119 embedding tokens per 6-question eval run.
 - **AI explanation:** 1,276 to 3,197 tokens per explanation. The check rejected 2 explanations before PR #10, and none of the tested ones after it.
 - **Delivery:** 11 pull requests merged in one day, each with unit tests and CI passing.
+- **Volume 7 complete (live 2026-10-01T04:45Z):** Stage 2A 6 of 6 (61 of 61 checks), Stage 2B 2 of 2 (18 of 18), Stage 1 17 of 18 with 0 regressions (U09 the one expected change); all 12 golden cases pass. Median lookup latency on the live site about 0.66 to 0.73 seconds.
 - **Volume 7 batch (preview, staged):** Ch 1 11 passages, Ch 4 42 (13 tables, 13 examples), Ch 5 15, Ch 6 8; 21,506 embedding tokens to import. Before the fix: Stage 2A 2 of 6 and Stage 1 15 of 18 on preview (5 regressions), all caught before release. After PR #12: 1 regression left (U21) plus a weak U10 answer. PR #13 fixed U10 but its volume-wide topic rule caused a new U21 regression on preview; PR #14 rolled that rule back and fixed U10 at answer choice instead (prefer the eligible answer covering more of the question; "complete" only if the answer itself covers every term). Lesson: a fix that helps one case can quietly break another — the eval suite caught it before release. PR #14 still left U21 failing; instead of a third guess, a diagnostic run printed the shortlist scores and the stored section's wording, which showed "Basic Pell Grant Formulas" never names Formula 1-4. PR #15: named formulas now decide completeness, not relevance. (Diagnose with data before fixing — decision by Claude, run by Lovable at Tirath's request.)
 - **Published eval badge:** fresh live run 2026-10-01T00:01:35Z, all 12 golden cases passed (12 of 12), now shown on the page.
 - **CI caught a dependency break:** a routine package security update (applied through Lovable) changed a router type and failed the typecheck in CI before it could ship; fixed in PR #13.
@@ -102,7 +103,7 @@ Edit these to your voice. Each is backed by the sections above.
 
 - Led the build of **Ask Regs**, a retrieval-augmented (RAG) tool that answers federal student aid questions only with verbatim, cited official sources. Directed AI coding agents (Claude Code, Lovable) through 10 reviewed pull requests in one day.
 - Designed a **two-layer evaluation program**: 26 automated cases and 198 checks, covering routing, answer labeling and a fictional-amount guard, plus on-screen human review that caught display issues the automated checks passed.
-- Introduced a **staged release with a human approval gate** (import, preview review, promote). Shipped two handbook chapters with zero regressions on the live site.
+- Introduced a **staged release with a human approval gate** (import, preview review, promote). Shipped all six chapters of the Pell volume in three releases with zero regressions on the live site, holding one release through four rounds of eval-driven fixes.
 - Shipped an **owner-only LLM explanation with citation enforcement**: every point must cite a retrieved source, and replies with invented sources, uncited claims or fictional amounts are automatically discarded.
 - Made and documented **AI product trade-offs**, for example rejecting a test change that would have hidden a wrong answer, and choosing a general "partial answer" rule over per-question exceptions.
 
