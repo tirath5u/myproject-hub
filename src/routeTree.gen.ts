@@ -14,8 +14,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
 import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
 import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
-import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
 import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
+import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
 
 const AskRegsRoute = AskRegsRouteImport.update({
   id: '/ask-regs',
@@ -61,8 +61,8 @@ export interface FileRoutesByFullPath {
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
-  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,8 +70,8 @@ export interface FileRoutesByTo {
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
-  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,8 +80,8 @@ export interface FileRoutesById {
   '/api/ed-source-desk/explain': typeof ApiEdSourceDeskExplainRoute
   '/api/ed-source-desk/goldens': typeof ApiEdSourceDeskGoldensRoute
   '/api/ed-source-desk/lookup': typeof ApiEdSourceDeskLookupRoute
-  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
   '/api/ed-source-desk/admin/compare': typeof ApiEdSourceDeskAdminCompareRoute
+  '/api/ed-source-desk/admin/import': typeof ApiEdSourceDeskAdminImportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,8 +91,8 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
-    | '/api/ed-source-desk/admin/import'
     | '/api/ed-source-desk/admin/compare'
+    | '/api/ed-source-desk/admin/import'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,8 +100,8 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
-    | '/api/ed-source-desk/admin/import'
     | '/api/ed-source-desk/admin/compare'
+    | '/api/ed-source-desk/admin/import'
   id:
     | '__root__'
     | '/'
@@ -109,8 +109,8 @@ export interface FileRouteTypes {
     | '/api/ed-source-desk/explain'
     | '/api/ed-source-desk/goldens'
     | '/api/ed-source-desk/lookup'
-    | '/api/ed-source-desk/admin/import'
     | '/api/ed-source-desk/admin/compare'
+    | '/api/ed-source-desk/admin/import'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,19 +119,12 @@ export interface RootRouteChildren {
   ApiEdSourceDeskExplainRoute: typeof ApiEdSourceDeskExplainRoute
   ApiEdSourceDeskGoldensRoute: typeof ApiEdSourceDeskGoldensRoute
   ApiEdSourceDeskLookupRoute: typeof ApiEdSourceDeskLookupRoute
-  ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
   ApiEdSourceDeskAdminCompareRoute: typeof ApiEdSourceDeskAdminCompareRoute
+  ApiEdSourceDeskAdminImportRoute: typeof ApiEdSourceDeskAdminImportRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/api/ed-source-desk/admin/compare': {
-      id: '/api/ed-source-desk/admin/compare'
-      path: '/api/ed-source-desk/admin/compare'
-      fullPath: '/api/ed-source-desk/admin/compare'
-      preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/ask-regs': {
       id: '/ask-regs'
       path: '/ask-regs'
@@ -174,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskAdminImportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ed-source-desk/admin/compare': {
+      id: '/api/ed-source-desk/admin/compare'
+      path: '/api/ed-source-desk/admin/compare'
+      fullPath: '/api/ed-source-desk/admin/compare'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,8 +183,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEdSourceDeskExplainRoute: ApiEdSourceDeskExplainRoute,
   ApiEdSourceDeskGoldensRoute: ApiEdSourceDeskGoldensRoute,
   ApiEdSourceDeskLookupRoute: ApiEdSourceDeskLookupRoute,
-  ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
   ApiEdSourceDeskAdminCompareRoute: ApiEdSourceDeskAdminCompareRoute,
+  ApiEdSourceDeskAdminImportRoute: ApiEdSourceDeskAdminImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
