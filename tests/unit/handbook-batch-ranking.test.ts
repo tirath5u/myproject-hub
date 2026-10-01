@@ -74,21 +74,18 @@ describe("second preview run fixes", () => {
     expect(handbookFit(q, "Pell Formula 1", "Formula 1 applies to standard terms.", volTopic).missing).toEqual(expect.arrayContaining(["Formula 2", "Formula 3", "Formula 4"]));
   });
 
-  test("U10: 'enrollment intensity' names most Ch 3 headings, so it counts in no Volume 7 chapter", () => {
-    const CH3 = [
-      "Pell Grants and Enrollment Intensity", "Enrollment Intensity for Term-Based Programs", "Enrollment Intensity for Clock-Hour or Non-Term-Based Programs",
-      "Enrollment Intensity for a Consortium Program", "Students Enrolled in Only Correspondence Courses", "Combination of Regular and Correspondence Courses",
-      "Determining Enrollment Intensity Using Credit Hour Equivalencies", "Enrollment Intensity for Cooperative Education", "Academic Calendar and Enrollment Intensity Changes",
-      "Pell Grant Cost of Attendance", "Less Than Half Time Cost of Attendance", "Cost of Attendance for Cooperative Education", "Cost of Attendance for a Consortium Program",
-    ];
-    const anyChapterTopic = (t: string) => isTopicTerm(t, CH3, stemHit) || volTopic(t);
-    expect(anyChapterTopic("enrollment")).toBe(true);
-    expect(anyChapterTopic("intensity")).toBe(true);
-    const q = "How is a payment-period Pell amount affected when enrollment intensity differs from full time?";
-    const corr = handbookFit(q, "Pell Enrollment Intensity for Correspondence Study Programs", "", anyChapterTopic);
-    const pay = handbookFit(q, "Pell Grant Payments by Payment Period", "", anyChapterTopic);
-    expect(corr.headingHits).toBe(0);
-    expect(pay.headingHits).toBe(1);
-    expect(pay.headingPrecision).toBeGreaterThan(corr.headingPrecision);
+  test("U10: the eligible answer covering every term beats a higher-ranked one missing terms", async () => {
+    const { orderAnswers } = await import("../../src/lib/ed-source-desk.server");
+    const corr = { heading: "Pell Enrollment Intensity for Correspondence Study Programs", missing_terms: ["payment-period", "affected", "differs"] };
+    const pay = { heading: "Pell Grant Payments by Payment Period", missing_terms: [] as string[] };
+    expect(orderAnswers([corr, pay])[0]).toBe(pay);
+    const a = { heading: "A", missing_terms: [] as string[] }, b = { heading: "B", missing_terms: [] as string[] };
+    expect(orderAnswers([a, b])).toEqual([a, b]); // ties keep rank order
+  });
+
+  test("U21: 'Formula' stays a heading hit for Chapter 2 even though it names most Chapter 4 headings", () => {
+    const q = "How does a school select Pell Formula 1, 2, 3, or 4 for a program?";
+    // Chapter 2's own headings: "formula" is in 1 of 10, so not a chapter topic there.
+    expect(handbookFit(q, "Basic Pell Grant Formulas", "", volTopic).headingHits).toBe(1);
   });
 });
