@@ -1,6 +1,6 @@
 # Ask Regs: AI evidence log
 
-Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-01 (Volume 7 complete).
+Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-02 (real-user pilot UI review).
 
 This log records what was built, the decisions Tirath made, and the measured results, so resume and interview claims can be checked against real artifacts: pull requests, test files, and eval runs. Every number below comes from a recorded run or a commit.
 
@@ -33,6 +33,7 @@ On top of this sits an **owner-only AI explanation**. It turns the cited passage
 | 2026-10-01 | Model decision, monitoring, cost cap, feedback (PR #20) | Tirath kept Gemini 2.5 Flash and tightened its instructions for completeness and clarity. Usage log, daily caps, public feedback button and owner-only weekly summary added |
 | 2026-10-01 | Flash re-run and monitoring check | Flash re-run with the new instructions under two judges (Gemini 2.5 Pro and GPT-5): completeness up, faithfulness slightly down, all source checks passed. Monitoring and feedback verified on preview |
 | 2026-09-30 to 10-01 | Volume 7 batch (PRs #11 to #15) | Chapters 1, 4, 5, 6 imported as staged (76 passages); preview evals caught 5 regressions before release; general ranking fixes |
+| 2026-10-02 | Real-user pilot UI review | Muse exploratory feedback identified four public-page usability issues: results stayed off-screen, limitations were too quiet, written feedback was hard to discover, and internal badges distracted from the task. Tirath approved fixes limited to presentation and interaction; retrieval and logging were unchanged. |
 
 ## 3. Evidence by skill area
 
