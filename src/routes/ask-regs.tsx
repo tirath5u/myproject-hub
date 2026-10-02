@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,7 +78,7 @@ function PassageMeta({ p }: { p: Passage }) {
   return (
     <div className="text-xs opacity-60 mb-1">
       FSA Handbook {p.award_year} · {p.source_status === "staged" ? "staged (preview only, not yet approved)" : p.source_status} · last modified {p.last_modified_date ?? "unknown"}
-      {p.page_published_date && ` · FSA page first published ${p.page_published_date}`} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
+      {p.page_published_date && ` · FSA page first published ${p.page_published_date}`} · fetched {formatUtcDate(p.retrieved_at)}
     </div>
   );
 }
@@ -100,6 +100,12 @@ const REASONS: Record<string, string> = {
 const DISPLAY_CAP = 6000;
 const CURRENT_AWARD_YEAR = "2026-27";
 const isPriorYear = (y?: string | null) => !!y && y !== CURRENT_AWARD_YEAR;
+const formatUtcDate = (value: string) => new Intl.DateTimeFormat("en-US", {
+  year: "numeric", month: "short", day: "numeric", timeZone: "UTC",
+}).format(new Date(value));
+const formatUtcDateTime = (value: string) => new Intl.DateTimeFormat("en-US", {
+  year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short",
+}).format(new Date(value));
 
 function PriorYearWarning({ year }: { year?: string | null }) {
   if (!isPriorYear(year)) return null;
@@ -115,6 +121,14 @@ function AskRegsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [asked, setAsked] = useState("");
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!result || loading || !resultRef.current) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    resultRef.current.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    resultRef.current.focus({ preventScroll: true });
+  }, [loading, result]);
 
   async function ask(query: string) {
     if (query.trim().length < 2) return;
@@ -147,14 +161,6 @@ function AskRegsPage() {
       </nav>
 
       <section className="px-5 sm:px-8 pt-14 pb-8 max-w-[900px] mx-auto">
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Badge className="bg-accent-hover text-accent-foreground">$0 model cost</Badge>
-          {g.eval ? (
-            <Badge variant="outline" className="border-accent text-accent">Eval {g.eval.pass_count}/{g.eval.total} pass</Badge>
-          ) : (
-            <Badge variant="outline">Beta · eval re-run pending</Badge>
-          )}
-        </div>
         <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-2">
           Ask <span className="text-accent">Regs</span>
         </h1>
@@ -195,7 +201,7 @@ function AskRegsPage() {
           ))}
         </div>
 
-        <div className="mt-8" aria-live="polite">
+        <div ref={resultRef} tabIndex={-1} className="mt-8 scroll-mt-4 outline-none" aria-live="polite" aria-label="Lookup result">
           {loading && <div className="border p-6 bg-muted animate-pulse text-sm opacity-70">Fetching from official sources…</div>}
           {result && <ResultCard r={result} />}
           {result && !loading && result.ok && <Feedback key={`${asked}|${result.citation_id ?? ""}`} q={asked} r={result} />}
@@ -225,19 +231,10 @@ function AskRegsPage() {
       <section className="px-5 sm:px-8 py-8 max-w-[900px] mx-auto">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <h6 className="text-accent text-xs font-bold uppercase tracking-wide">Test cases (golden set {g.version})</h6>
-          {g.eval ? (
-            <span className="text-xs">
-              <Badge className="bg-accent-hover text-accent-foreground mr-2">Eval {g.eval.pass_count}/{g.eval.total} pass</Badge>
-              <span className="opacity-60">ran {new Date(g.eval.ran_at).toLocaleString()}</span>
-            </span>
-          ) : (
-            <span className="text-xs opacity-60">
-              {g.previous_eval
-                ? `Earlier run ${g.previous_eval.pass_count}/${g.previous_eval.total} (${new Date(g.previous_eval.ran_at).toLocaleDateString()}) is out of date. ${g.previous_eval.superseded_reason}`
-                : "Results pending"}
-            </span>
-          )}
         </div>
+        <p className="text-xs opacity-60 mb-3">
+          Archived checks test citation routing and refusal behavior, not whether every answer is correct.
+        </p>
         <div className="border divide-y">
           {g.cases.map((c) => (
             <button
@@ -342,8 +339,10 @@ function ResultCard({ r }: { r: Result }) {
   }
   const text = r.text ?? "";
   const shown = text.length > DISPLAY_CAP ? text.slice(0, DISPLAY_CAP) + "…" : text;
+  const answerPassage = r.handbook_passages?.find((p) => p.citation_id === r.citation_id);
   return (
     <div className="border-2 border-accent/40 bg-background">
+      <ResultLimitation r={r} text={text} passage={answerPassage} />
       <div className="p-6 border-b bg-accent-soft">
         <div className="flex flex-wrap items-center gap-2 mb-1">
           <span className="font-mono text-xs text-accent font-bold">{r.citation_id}</span>
@@ -356,24 +355,17 @@ function ResultCard({ r }: { r: Result }) {
         </div>
         <h2 className="text-xl font-extrabold">{r.title}</h2>
         <div className="text-xs opacity-60 mt-1">
-          Fetched {r.fetched_at ? new Date(r.fetched_at).toLocaleString() : ""}
+          Fetched {r.fetched_at ? formatUtcDateTime(r.fetched_at) : ""}
           {r.as_of_date && ` · eCFR as of ${r.as_of_date}`}
           {r.award_year && ` · Award year ${r.award_year}`}
         </div>
       </div>
       <div className="p-6">
         <PriorYearWarning year={r.award_year} />
-        <OfficialAmountNotice r={r} />
-        {r.mode === "handbook-passage" && <FictionalWarning p={r.handbook_passages?.find((p) => p.citation_id === r.citation_id)} />}
-        {r.mode === "handbook-passage" && (() => { const p = r.handbook_passages?.find((x) => x.citation_id === r.citation_id); return p ? <PassageMeta p={p} /> : null; })()}
+        {r.mode === "handbook-passage" && answerPassage ? <PassageMeta p={answerPassage} /> : null}
         {r.conditional && <div className="border border-accent/40 bg-accent-soft text-sm p-3 my-3">{r.conditional}</div>}
         {r.mode === "handbook-passage" && (
           <p className="text-xs opacity-70 my-2">Retrieved source text, not a complete answer. Read the full section at the official source.</p>
-        )}
-        {r.coverage?.status === "partial" && (
-          <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-3">
-            <strong className="text-accent-complement">Partial answer:</strong> {r.coverage.notes.join(" ")}
-          </div>
         )}
         <PassageText text={shown} className="max-h-96" />
         {(r.truncated || text.length > DISPLAY_CAP) && <p className="text-xs opacity-60 mt-2">Excerpt shortened. Read the full text at the source.</p>}
@@ -400,6 +392,35 @@ function ResultCard({ r }: { r: Result }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function ResultLimitation({ r, text, passage }: { r: Result; text: string; passage?: Passage }) {
+  const shortened = r.truncated || text.length > DISPLAY_CAP;
+  const partial = r.coverage?.status === "partial";
+  const fictional = Boolean(passage?.warning || passage?.fictional_amounts);
+  const exactFigureMissing = Boolean(r.official_amount_notice);
+  if (!shortened && !partial && !fictional && !exactFigureMissing) return null;
+
+  const title = exactFigureMissing
+    ? "We couldn’t find the exact official figure."
+    : fictional
+      ? "This is not an official award amount."
+      : partial
+        ? "This is only a partial answer."
+        : "This excerpt is shortened.";
+  const details = [
+    r.official_amount_notice,
+    fictional ? passage?.warning?.replace(/^Fictional amounts:\s*/, "") ?? "This handbook example uses fictional amounts for illustration." : null,
+    partial ? r.coverage?.notes.join(" ") : null,
+    shortened ? "The complete source text is available through the official-source link below." : null,
+  ].filter((value): value is string => Boolean(value));
+
+  return (
+    <div className="border-b-2 border-accent-complement/60 bg-accent-complement-soft p-5" role="status">
+      <p className="font-extrabold text-accent-complement">{title}</p>
+      {details.map((detail) => <p key={detail} className="mt-1 text-sm text-foreground/80">{detail}</p>)}
     </div>
   );
 }
@@ -499,12 +520,13 @@ function Feedback({ q, r }: { q: string; r: Result }) {
       </form>
     );
   return (
-    <div className="mt-3 flex items-center gap-2 text-xs">
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
       <span className="opacity-70">Was this helpful?</span>
       {[true, false].map((h) => (
-        <button key={String(h)} type="button" onClick={() => { setHelpful(h); setState("comment"); }}
-          className="border rounded-full px-3 py-1 hover:bg-muted transition-colors">{h ? "Yes" : "No"}</button>
+        <Button key={String(h)} type="button" variant="outline" size="sm" onClick={() => { setHelpful(h); setState("comment"); }}
+          className="h-7 rounded-full px-3 text-xs">{h ? "Yes" : "No"}</Button>
       ))}
+      <span className="basis-full text-muted-foreground sm:basis-auto">Optional comment after you rate.</span>
     </div>
   );
 }
