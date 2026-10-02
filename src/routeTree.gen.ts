@@ -9,39 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AskRegsRouteImport } from './routes/ask-regs'
-import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
-import { Route as ApiEdSourceDeskFeedbackRouteImport } from './routes/api/ed-source-desk/feedback'
-import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiEdSourceDeskLookupRouteImport } from './routes/api/ed-source-desk/lookup'
-import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
-import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
+import { Route as ApiEdSourceDeskGoldensRouteImport } from './routes/api/ed-source-desk/goldens'
+import { Route as ApiEdSourceDeskFeedbackRouteImport } from './routes/api/ed-source-desk/feedback'
+import { Route as ApiEdSourceDeskExplainRouteImport } from './routes/api/ed-source-desk/explain'
 import { Route as ApiEdSourceDeskAdminStatsRouteImport } from './routes/api/ed-source-desk/admin/stats'
+import { Route as ApiEdSourceDeskAdminImportRouteImport } from './routes/api/ed-source-desk/admin/import'
+import { Route as ApiEdSourceDeskAdminCompareRouteImport } from './routes/api/ed-source-desk/admin/compare'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AskRegsRoute = AskRegsRouteImport.update({
   id: '/ask-regs',
   path: '/ask-regs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
-  id: '/api/ed-source-desk/explain',
-  path: '/api/ed-source-desk/explain',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiEdSourceDeskFeedbackRoute = ApiEdSourceDeskFeedbackRouteImport.update({
-  id: '/api/ed-source-desk/feedback',
-  path: '/api/ed-source-desk/feedback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
-  id: '/api/ed-source-desk/goldens',
-  path: '/api/ed-source-desk/goldens',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEdSourceDeskLookupRoute = ApiEdSourceDeskLookupRouteImport.update({
@@ -49,10 +34,25 @@ const ApiEdSourceDeskLookupRoute = ApiEdSourceDeskLookupRouteImport.update({
   path: '/api/ed-source-desk/lookup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEdSourceDeskAdminCompareRoute =
-  ApiEdSourceDeskAdminCompareRouteImport.update({
-    id: '/api/ed-source-desk/admin/compare',
-    path: '/api/ed-source-desk/admin/compare',
+const ApiEdSourceDeskGoldensRoute = ApiEdSourceDeskGoldensRouteImport.update({
+  id: '/api/ed-source-desk/goldens',
+  path: '/api/ed-source-desk/goldens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEdSourceDeskFeedbackRoute = ApiEdSourceDeskFeedbackRouteImport.update({
+  id: '/api/ed-source-desk/feedback',
+  path: '/api/ed-source-desk/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEdSourceDeskExplainRoute = ApiEdSourceDeskExplainRouteImport.update({
+  id: '/api/ed-source-desk/explain',
+  path: '/api/ed-source-desk/explain',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEdSourceDeskAdminStatsRoute =
+  ApiEdSourceDeskAdminStatsRouteImport.update({
+    id: '/api/ed-source-desk/admin/stats',
+    path: '/api/ed-source-desk/admin/stats',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiEdSourceDeskAdminImportRoute =
@@ -61,10 +61,10 @@ const ApiEdSourceDeskAdminImportRoute =
     path: '/api/ed-source-desk/admin/import',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiEdSourceDeskAdminStatsRoute =
-  ApiEdSourceDeskAdminStatsRouteImport.update({
-    id: '/api/ed-source-desk/admin/stats',
-    path: '/api/ed-source-desk/admin/stats',
+const ApiEdSourceDeskAdminCompareRoute =
+  ApiEdSourceDeskAdminCompareRouteImport.update({
+    id: '/api/ed-source-desk/admin/compare',
+    path: '/api/ed-source-desk/admin/compare',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -152,13 +152,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/ask-regs': {
       id: '/ask-regs'
       path: '/ask-regs'
@@ -166,25 +159,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskRegsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/explain': {
-      id: '/api/ed-source-desk/explain'
-      path: '/api/ed-source-desk/explain'
-      fullPath: '/api/ed-source-desk/explain'
-      preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ed-source-desk/feedback': {
-      id: '/api/ed-source-desk/feedback'
-      path: '/api/ed-source-desk/feedback'
-      fullPath: '/api/ed-source-desk/feedback'
-      preLoaderRoute: typeof ApiEdSourceDeskFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ed-source-desk/goldens': {
-      id: '/api/ed-source-desk/goldens'
-      path: '/api/ed-source-desk/goldens'
-      fullPath: '/api/ed-source-desk/goldens'
-      preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ed-source-desk/lookup': {
@@ -194,11 +173,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskLookupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/admin/compare': {
-      id: '/api/ed-source-desk/admin/compare'
-      path: '/api/ed-source-desk/admin/compare'
-      fullPath: '/api/ed-source-desk/admin/compare'
-      preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
+    '/api/ed-source-desk/goldens': {
+      id: '/api/ed-source-desk/goldens'
+      path: '/api/ed-source-desk/goldens'
+      fullPath: '/api/ed-source-desk/goldens'
+      preLoaderRoute: typeof ApiEdSourceDeskGoldensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/feedback': {
+      id: '/api/ed-source-desk/feedback'
+      path: '/api/ed-source-desk/feedback'
+      fullPath: '/api/ed-source-desk/feedback'
+      preLoaderRoute: typeof ApiEdSourceDeskFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/explain': {
+      id: '/api/ed-source-desk/explain'
+      path: '/api/ed-source-desk/explain'
+      fullPath: '/api/ed-source-desk/explain'
+      preLoaderRoute: typeof ApiEdSourceDeskExplainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ed-source-desk/admin/stats': {
+      id: '/api/ed-source-desk/admin/stats'
+      path: '/api/ed-source-desk/admin/stats'
+      fullPath: '/api/ed-source-desk/admin/stats'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ed-source-desk/admin/import': {
@@ -208,11 +208,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdSourceDeskAdminImportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ed-source-desk/admin/stats': {
-      id: '/api/ed-source-desk/admin/stats'
-      path: '/api/ed-source-desk/admin/stats'
-      fullPath: '/api/ed-source-desk/admin/stats'
-      preLoaderRoute: typeof ApiEdSourceDeskAdminStatsRouteImport
+    '/api/ed-source-desk/admin/compare': {
+      id: '/api/ed-source-desk/admin/compare'
+      path: '/api/ed-source-desk/admin/compare'
+      fullPath: '/api/ed-source-desk/admin/compare'
+      preLoaderRoute: typeof ApiEdSourceDeskAdminCompareRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
