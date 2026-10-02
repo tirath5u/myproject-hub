@@ -412,7 +412,7 @@ function ResultLimitation({ r, text, passage }: { r: Result; text: string; passa
         : "This excerpt is shortened.";
   const details = [
     r.official_amount_notice,
-    fictional ? passage?.warning?.replace(/^Fictional amounts:\s*/, "").replace(/\bhandbook\b/g, "FSA Handbook") ?? "This FSA Handbook example uses fictional amounts for illustration." : null,
+    fictional ? passage?.warning?.replace(/^Fictional amounts:\s*/, "").replace(/\bhandbook\b/g, "Handbook") ?? "This handbook example uses fictional amounts for illustration." : null,
     partial ? r.coverage?.notes.join(" ") : null,
     shortened ? "The complete source text is available through the official-source link below." : null,
   ].filter((value): value is string => Boolean(value));
