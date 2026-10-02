@@ -78,7 +78,7 @@ function PassageMeta({ p }: { p: Passage }) {
   return (
     <div className="text-xs opacity-60 mb-1">
       FSA Handbook {p.award_year} · {p.source_status === "staged" ? "staged (preview only, not yet approved)" : p.source_status} · last modified {p.last_modified_date ?? "unknown"}
-      {p.page_published_date && ` · FSA page first published ${p.page_published_date}`} · fetched {new Date(p.retrieved_at).toLocaleDateString()}
+      {p.page_published_date && ` · FSA page first published ${p.page_published_date}`} · fetched {formatUtcDate(p.retrieved_at)}
     </div>
   );
 }
@@ -100,6 +100,12 @@ const REASONS: Record<string, string> = {
 const DISPLAY_CAP = 6000;
 const CURRENT_AWARD_YEAR = "2026-27";
 const isPriorYear = (y?: string | null) => !!y && y !== CURRENT_AWARD_YEAR;
+const formatUtcDate = (value: string) => new Intl.DateTimeFormat("en-US", {
+  year: "numeric", month: "short", day: "numeric", timeZone: "UTC",
+}).format(new Date(value));
+const formatUtcDateTime = (value: string) => new Intl.DateTimeFormat("en-US", {
+  year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short",
+}).format(new Date(value));
 
 function PriorYearWarning({ year }: { year?: string | null }) {
   if (!isPriorYear(year)) return null;
@@ -349,7 +355,7 @@ function ResultCard({ r }: { r: Result }) {
         </div>
         <h2 className="text-xl font-extrabold">{r.title}</h2>
         <div className="text-xs opacity-60 mt-1">
-          Fetched {r.fetched_at ? new Date(r.fetched_at).toLocaleString() : ""}
+          Fetched {r.fetched_at ? formatUtcDateTime(r.fetched_at) : ""}
           {r.as_of_date && ` · eCFR as of ${r.as_of_date}`}
           {r.award_year && ` · Award year ${r.award_year}`}
         </div>
