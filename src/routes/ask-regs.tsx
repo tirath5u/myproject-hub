@@ -111,7 +111,7 @@ function PriorYearWarning({ year }: { year?: string | null }) {
   if (!isPriorYear(year)) return null;
   return (
     <div className="border border-accent-complement/60 bg-accent-complement-soft text-sm p-3 my-3">
-      <strong className="text-accent-complement">Prior award year:</strong> this is {year} guidance. This site answers for {CURRENT_AWARD_YEAR}; the {CURRENT_AWARD_YEAR} handbook chapter has not been imported yet, so confirm the rule still applies.
+      <strong className="text-accent-complement">Prior award year:</strong> this is {year} guidance. This site answers for {CURRENT_AWARD_YEAR}; the {CURRENT_AWARD_YEAR} FSA Handbook chapter has not been imported yet, so confirm the rule still applies.
     </div>
   );
 }
@@ -412,7 +412,7 @@ function ResultLimitation({ r, text, passage }: { r: Result; text: string; passa
         : "This excerpt is shortened.";
   const details = [
     r.official_amount_notice,
-    fictional ? passage?.warning?.replace(/^Fictional amounts:\s*/, "") ?? "This handbook example uses fictional amounts for illustration." : null,
+    fictional ? passage?.warning?.replace(/^Fictional amounts:\s*/, "").replace(/\bhandbook\b/g, "FSA Handbook") ?? "This FSA Handbook example uses fictional amounts for illustration." : null,
     partial ? r.coverage?.notes.join(" ") : null,
     shortened ? "The complete source text is available through the official-source link below." : null,
   ].filter((value): value is string => Boolean(value));
@@ -494,7 +494,7 @@ type Explained = {
   sources?: { id: string; citation_id: string; label: string; kind: string; fictional: boolean }[];
 };
 function Feedback({ q, r }: { q: string; r: Result }) {
-  const [state, setState] = useState<"idle" | "comment" | "sending" | "done" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [helpful, setHelpful] = useState<boolean | null>(null);
   const [comment, setComment] = useState("");
   async function send(h: boolean, text: string) {
@@ -512,22 +512,20 @@ function Feedback({ q, r }: { q: string; r: Result }) {
   }
   if (state === "done") return <p className="mt-3 text-xs opacity-70">Thanks — your feedback helps improve Ask Regs.</p>;
   if (state === "error") return <p className="mt-3 text-xs opacity-70">Couldn't send feedback right now.</p>;
-  if (state === "comment" || (state === "sending" && helpful !== null))
-    return (
-      <form className="mt-3 flex flex-col sm:flex-row gap-2" onSubmit={(e) => { e.preventDefault(); void send(helpful ?? false, comment); }}>
-        <Input value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder={helpful ? "What was useful? (optional)" : "What was wrong or missing? (optional, no personal details)"} aria-label="Feedback comment" className="h-9 text-sm" />
-        <Button type="submit" variant="outline" disabled={state === "sending"} className="h-9 text-sm">Send</Button>
-      </form>
-    );
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-      <span className="opacity-70">Was this helpful?</span>
-      {[true, false].map((h) => (
-        <Button key={String(h)} type="button" variant="outline" size="sm" onClick={() => { setHelpful(h); setState("comment"); }}
-          className="h-7 rounded-full px-3 text-xs">{h ? "Yes" : "No"}</Button>
-      ))}
-      <span className="basis-full text-muted-foreground sm:basis-auto">Optional comment after you rate.</span>
-    </div>
+    <form className="mt-3 space-y-2 text-xs" onSubmit={(e) => { e.preventDefault(); if (helpful !== null) void send(helpful, comment); }}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="opacity-70">Was this helpful?</span>
+        {[true, false].map((h) => (
+          <Button key={String(h)} type="button" variant={helpful === h ? "default" : "outline"} size="sm" onClick={() => setHelpful(h)}
+            className="h-7 rounded-full px-3 text-xs">{h ? "Yes" : "No"}</Button>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Input value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder="Optional comment (no personal details)" aria-label="Optional feedback comment" className="h-9 text-sm" />
+        <Button type="submit" variant="outline" disabled={helpful === null || state === "sending"} className="h-9 text-sm">Send feedback</Button>
+      </div>
+    </form>
   );
 }
 
