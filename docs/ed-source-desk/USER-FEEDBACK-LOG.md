@@ -12,6 +12,7 @@ Record here what users tell you directly (chat, email, in person). No names of s
 | 2026-10-02 | (in tool) | 668.34 maximum timeframe | Answer truncated | No | Day-7 fix list (C4?) |
 | 2026-10-02 | (in tool) | R2T4 modules | Got Pell passages instead of 668.22 | No | Day-7 fix list (C2?) |
 | 2026-10-02 | (in tool) | OBBBA loan limits (several) | No confident citation; testers say too cautious | No | Day-7 fix list (C1/C3?) |
+| 2026-10-04 | (outside review + live check) | Student identifiers and pasted ISIR data | Live wording got past the refusal rules, and 2 such questions had been stored | n/a | Refusal and comment screening fixed (PR #24); live suite 15 of 15; 2 rows purged, contents not viewed |
 
 ## Weekly stats snapshots
 
