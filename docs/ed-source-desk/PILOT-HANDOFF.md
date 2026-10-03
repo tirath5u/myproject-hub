@@ -1,6 +1,6 @@
 # Ask Regs: pilot handoff and day-7 playbook
 
-**Read this first** if you are an AI assistant (Claude Code, Lovable, ChatGPT, Gemini…) picking up this project. Then read `AGENTS.md` (rules) and `AI-EVIDENCE-LOG.md` (what was built, who decided what, measured results, open gaps).
+**Start with `PORTFOLIO-PLAN.md`** (the single plan, status tracker and fact corrections), then this file. **Read this first** if you are an AI assistant (Claude Code, Lovable, ChatGPT, Gemini…) picking up this project. Then read `AGENTS.md` (rules) and `AI-EVIDENCE-LOG.md` (what was built, who decided what, measured results, open gaps).
 
 Owner: Tirath, a product manager in U.S. federal student aid software. The project is **proof of AI product work**: finding a real problem, solving it with AI, and measuring, evaluating and governing the result. Tirath directs AI coding agents and makes the product decisions. **Never write that Tirath hand-coded anything.**
 
