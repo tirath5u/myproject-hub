@@ -125,7 +125,7 @@ Edit these to your voice. Each is backed by the sections above.
 
 - **Writing the code by hand.** Say you led, designed, specified, reviewed, or directed.
 - **Answer correctness proven by the evals.** The automated checks verify sources and labels; correctness came from your on-screen review.
-- **Real users, adoption, or business impact.** There is no usage data yet.
+- **Real users, adoption, or business impact** beyond what the weekly stats and `USER-FEEDBACK-LOG.md` show. A colleague pilot started 2026-10-02; claim only its measured numbers.
 - **Training, fine-tuning, or building models.** The project uses existing models through APIs.
 
 ## 8. Evidence gaps still open, and what would fill them
@@ -133,10 +133,10 @@ Edit these to your voice. Each is backed by the sections above.
 | Common AI PM requirement | Status | What would fill it |
 |---|---|---|
 | Graded answer quality (rubric or LLM-as-judge) | Covered (PRs #17 to #20): judge scores for both models, Tirath's grading of 25 of 28 replies with measured agreement (faithfulness 52% exact / 80% within one), and a cross-family judge (GPT-5) re-run of the chosen model | Optional: Tirath grades one of the new Flash sheets to see which judge he agrees with |
-| Model comparison and selection | Covered for the explanation step (PRs #17, #18; run 2026-10-01T13:35Z). Judge favoured Flash; owner grading favoured GPT-5 mini on all three measures. Final model choice (D12) pending | Tirath picks the model (or a third-family judge re-run first) and the choice is recorded in D12 |
+| Model comparison and selection | Covered (PRs #17 to #21): Flash vs GPT-5 mini under a judge model and owner grading; owner grading reversed the judge; Tirath chose Flash for cost and speed (D12) and closed part of the quality gap through instructions (completeness 3.71 → 3.93 same judge; 4.71 under a GPT-5 judge) | Nothing required |
 | Cost governance | Built, pending live data (PR #20): tokens logged per request; daily caps on lookups (1,000), AI tokens (300,000) and feedback (200) | A week of live logs showing actual daily cost under the cap |
-| Red-teaming and prompt injection | Partial → in progress (PR #17) | Adversarial suite written; first local check found 5 of 7 refusal probes slipping through (capitalisation, "my daughter"/"my student", vendor word order); fixed, with tests requiring no over-refusal of 41 legitimate questions. Preview run after the fixes: 10 of 10 probes pass (82 of 82 checks), with 0 regressions in the regular suites. |
+| Red-teaming and prompt injection | Covered (PR #17): adversarial suite found 5 of 7 refusal probes slipping through (capitalisation, "my daughter"/"my student", vendor word order); fixed, with tests requiring no over-refusal of 41 legitimate questions. Preview: 10 of 10 probes pass (82 of 82 checks), 0 regressions. Explanation probes (instruction injection, "add your own tips") held in every model run | Optional: an injection probe hidden inside a long legitimate question |
 | Production monitoring | Built, pending live data (PR #20): every lookup and AI call logged (mode, refusals, latency, tokens, check failures); owner-only summary at `/api/ed-source-desk/admin/stats?days=7` with no-answer rate, p95 latency and top unanswered questions | A week of live data and one fix driven by it (e.g. a top unanswered question) |
-| Users and outcomes | Partial (PR #20): public Yes/No feedback button with optional comment, usage counts in the weekly summary | 3-5 financial aid colleagues use it for a week; report helpful rate and what changed because of their feedback |
+| Users and outcomes | In progress (started 2026-10-02): colleagues using the live tool a few times a day and giving feedback in the tool and directly; public Yes/No feedback button, usage counts in the weekly summary; outside-the-tool feedback recorded in `USER-FEEDBACK-LOG.md` | After about a week: users count, helpful rate, top unanswered questions, and at least one change made because of their feedback |
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
