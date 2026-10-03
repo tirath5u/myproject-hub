@@ -102,6 +102,13 @@ async function ecfrTitles(log?: AttemptLog) {
 const sectionCache = new Map<string, Promise<{ xml: string; status: number }>>();
 
 const REFUSE_RULES: { reason: string; re: RegExp }[] = [
+  // A personal identifier or a pasted record, whatever else is asked (live probes A11-A13, 2026-10-04):
+  // an SSN-shaped number, "SSN"/"social security" next to digits, or "this/attached ISIR…" and "ISIR:" with data.
+  // Questions *about* ISIRs ("what does this ISIR comment code mean") stay answerable.
+  {
+    reason: "student-specific",
+    re: /\b\d{3}-\d{2}-\d{4}\b|\b\d{9}\b|\b(ssn|social security( number)?)\b[^?.]{0,25}\d{4}|\b(this|the following|attached|below|pasted)\s+(student'?s\s+)?(isir|fafsa|record|transcript)\b(?!\s+(comment|code|field|flag|transaction|layout|processing|correction)s?\b)|\bhere\s+(is|are)\b[^?]{0,30}\b(isir|fafsa|record|transcript)s?\b|\b(isir|fafsa|record)\s*:\s*\S/i,
+  },
   // Named individuals (case-sensitive on purpose: needs capitalised names).
   {
     reason: "student-specific",
@@ -119,10 +126,37 @@ const REFUSE_RULES: { reason: string; re: RegExp }[] = [
   { reason: "vendor-internal-config", re: /\b(anthology|campusnexus|vendor|internal)\b.*\b(config\w*|setup|setting\w*|help|knowledge)\b|\b(config\w*|setup|setting\w*)\b.*\b(anthology|campusnexus|vendor)\b/i },
 ];
 
+// Words that can sit where a name would ("will independent students qualify", "Student Aid Index"), so a
+// two-word "name" made of them is not a person. Names typed in lowercase are caught only in the strongly
+// personal frames "is/will/can/does X Y (be) eligible/get/receive/qualify" (live probe A14).
+const NOT_A_NAME = new Set((
+  "the a an my your our their his her its this that these those each every any all some such no one two both either neither " +
+  "part full half less more most first second third new returning continuing current former prospective transfer summer " +
+  "independent dependent graduate undergraduate professional incarcerated eligible ineligible enrolled admitted international " +
+  "student students borrower borrowers parent parents school schools institution institutions applicant applicants recipient recipients " +
+  "people person they we you he she it someone anyone everyone nobody aid financial federal pell grant grants loan loans direct plus " +
+  "teach fseog work study index information record records office services service account accounts status level year years award awards " +
+  "eligibility enrollment verification identification number id isir sai fafsa cost attendance program programs department education " +
+  "title iv still also then there here now ever just really actually automatically always never"
+).split(" "));
+const realName = (a: string, b: string) => !NOT_A_NAME.has(a.toLowerCase()) && !NOT_A_NAME.has(b.toLowerCase());
+function namesPerson(q: string) {
+  const frame = q.match(/\b(?:is|will|can|does|did)\s+([a-z]+)\s+([a-z]+)\s+(?:be\s+)?(?:eligible|get|receive|qualify)\b/i);
+  if (frame && realName(frame[1], frame[2])) return true;
+  // "Student Maria Lopez …" at the start of a sentence (capital S); both name words capitalised.
+  const labelled = q.match(/\b[Ss]tudent\s+([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/);
+  return !!labelled && realName(labelled[1], labelled[2]);
+}
+
 export function detectRefuse(q: string): string | null {
   for (const r of REFUSE_RULES) if (r.re.test(q)) return r.reason;
+  if (namesPerson(q)) return "student-specific";
   return null;
 }
+
+/** Free-text feedback comments get the same privacy screen as questions: anything the refusal rules would refuse is not stored. */
+export const COMMENT_REMOVED = "[removed: may contain student details]";
+export const screenComment = (c: string | null | undefined) => (!c ? null : detectRefuse(c) ? COMMENT_REMOVED : c);
 
 const KEYWORD_SECTIONS: [RegExp, string][] = [
   [/satisfactory academic progress|\bsap\b/i, "668.34"],
