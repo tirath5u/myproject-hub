@@ -304,7 +304,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 0.5 to 0.6 stop rule and golden-set rules | Not started (Tirath decides) | |
 | Fresh security scan before sharing the site more widely (Lovable flagged that its last scan predates PR #24) | Not started | |
 | 1.1 to 1.8 analyses (1.7 eval method, 1.8 experiment registry added from Torres) | Not started (Codex) | |
-| GAP-PROOF-MAP.md skill map + bank proposals AR-01 to AR-04 | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
+| GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |
 | Phase 4 fixes and week 2 | Not started | |
