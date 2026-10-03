@@ -18,13 +18,13 @@ export const Route = createFileRoute("/api/ed-source-desk/feedback")({
         if (!parsed.success) return Response.json({ ok: false, error: "Feedback must include helpful: true or false (comment up to 500 characters)." }, { status: 400 });
         const { overDailyCap, saveFeedback } = await import("@/lib/usage.server");
         const { storableQuestion } = await import("@/lib/usage");
-        const { detectRefuse } = await import("@/lib/ed-source-desk.server");
+        const { detectRefuse, screenComment } = await import("@/lib/ed-source-desk.server");
         if (await overDailyCap("feedback")) return Response.json({ ok: false, error: "Thanks — feedback is paused for today." }, { status: 429 });
         const d = parsed.data;
         try {
           await saveFeedback({
             helpful: d.helpful, lookup_mode: d.lookup_mode ?? null, citation_id: d.citation_id ?? null,
-            question: storableQuestion(d.q, !!d.q && detectRefuse(d.q) !== null), comment: d.comment || null,
+            question: storableQuestion(d.q, !!d.q && detectRefuse(d.q) !== null), comment: screenComment(d.comment),
           });
           return Response.json({ ok: true });
         } catch (e) {

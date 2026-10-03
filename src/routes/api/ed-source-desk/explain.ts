@@ -21,6 +21,7 @@ export const Route = createFileRoute("/api/ed-source-desk/explain")({
         const { includeStagedFor } = await import("@/lib/handbook-lookup");
         const { logUsage, overDailyCap } = await import("@/lib/usage.server");
         const { AI_CAP_MESSAGE, storableQuestion } = await import("@/lib/usage");
+        const { detectRefuse } = await import("@/lib/ed-source-desk.server");
         const staged = includeStagedFor(import.meta.env.MODE, new URL(request.url).hostname);
         if (await overDailyCap("ai_tokens")) {
           await logUsage({ kind: "explain", ok: false, capped: true, staged });
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/api/ed-source-desk/explain")({
           await logUsage({
             kind: "explain", ok: b.ok, mode: typeof b.lookup_mode === "string" ? b.lookup_mode : null, staged,
             check_failed: b.checks ? !b.checks.ok : false, ai_tokens: typeof b.tokens === "number" ? b.tokens : null,
-            latency_ms: Date.now() - started, question: storableQuestion(parsed.data.q, false),
+            latency_ms: Date.now() - started, question: storableQuestion(parsed.data.q, detectRefuse(parsed.data.q) !== null),
           });
           return Response.json(body, { status });
         } catch (e) {

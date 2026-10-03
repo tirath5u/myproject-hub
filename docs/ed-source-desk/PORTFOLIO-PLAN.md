@@ -279,7 +279,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 |---|---|---|
 | Day-1 miss diagnosis (4c) | Done 2026-10-04 (Claude) | this file |
 | Plan synthesized from 8 reviews | Done 2026-10-04 (Claude) | this file |
-| 0.1 to 0.3 refusal and feedback screening | Not started | |
+| 0.1 to 0.3 refusal and feedback screening | Done in PR #24; live adversarial run pending after publish | PR #24 |
 | 0.4 purge stored sensitive rows | Not started | |
 | 0.5 to 0.6 stop rule and golden-set rules | Not started (Tirath decides) | |
 | 1.1 to 1.6 analyses | Not started | |
