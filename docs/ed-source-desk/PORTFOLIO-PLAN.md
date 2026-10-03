@@ -4,6 +4,8 @@ Owner: Tirath Chhatriwala, product manager. Written 2026-10-04 by Claude Code at
 
 **If you are an AI assistant, read this first**, then read `PILOT-HANDOFF.md`, `AGENTS.md`, `AI-EVIDENCE-LOG.md` and `USER-FEEDBACK-LOG.md`. Pick the next unchecked item in section 9, do only that item, open a pull request, and update section 9 and the evidence log.
 
+**Companion file:** `GAP-PROOF-MAP.md` explains what each skill means, what interviewers ask, and which plan item, artifact, website section and resume bank entry proves it. Update both files together.
+
 ---
 
 ## 1. The goal
@@ -86,6 +88,18 @@ Several reviews contain errors. Any assistant drafting resume lines, stories or 
 
 ---
 
+## 4d. Teresa Torres's eval method, built into this plan (added 2026-10-04)
+
+Source: Teresa Torres, ["AI Evals: A Hands-On Guide for Product Teams"](https://www.producttalk.org/ai-evals/). Her method has three steps. Ask Regs already does parts of each; the plan now does all of them.
+
+| Torres step | What it means | Where Ask Regs does it |
+|---|---|---|
+| **1. Error analysis first** | Read a few real traces closely (1 to 3 in depth), then annotate every mistake, group them into categories, and prioritize what matters to users. Don't fix anything until you've seen the whole error landscape. | Day-1 diagnosis (4c); 2.4 taxonomy now starts with an in-depth read of 3 real lookup records before coding the rest (open coding, then grouping). |
+| **2. Choose how to measure each error** | Four types, in this order: **code checks** (cheapest; no judgment), **known-answer sets** (one correct answer), **AI judge** (only where judgment is needed; binary true/false criteria; aligned with human labels; report the judge's own error rate), **user signals** (ratings, plus behavior like rephrasing and retrying). | Code: fit check, refusal rules, citation enforcement. Known-answer: goldens, 3.1 labels. Judge: 5.2, now **binary** criteria with the judge's error reported. User signals: votes plus new item 2.6. Written up in new item 1.7. |
+| **3. Improve by experiment** | Baseline on a fixed input set, change **one** thing, re-run **all** evals (a fix can improve one category and break another), and record every variant with an ID and commit so it can be rolled back. | Held release (5 regressions, 4 rounds) already shows this; new item 1.8 adds the experiment registry; Phase 4 runs on it. |
+
+**What the PM owns (Torres):** defining correctness ("don't let a vendor define correctness for your product"), prioritizing errors by user impact, choosing which experiment to run, and keeping baselines reproducible. Tirath's decision log and his confirmation of every miss code are the evidence.
+
 ## 5. The plan: phases and work items
 
 Each item lists **who** (T = Tirath, C = Claude Code, X = Codex or any analysis LLM, L = Lovable), **what Tirath learns**, the **committed artifact**, and the **gap it closes**. Every artifact lives under `docs/ed-source-desk/` unless noted. No number goes on the website unless it is in one of these files.
@@ -115,6 +129,8 @@ Good learning exercises for Tirath, with any LLM helping. No code change.
 | 1.4 | **Cost economics:** cost per lookup (embedding only, no generation), per explanation, and per comparison, from logged tokens × dated list prices; a clearly labeled **projection** for 10,000 queries a month; the GPT-5 mini alternative | X drafts, T checks the prices | `COST-ECONOMICS.md` |
 | 1.5 | **Long-context vs RAG memo** (section 3 decision) | X drafts, T decides | `CONTEXT-VS-RAG.md` |
 | 1.6 | **Small-sample statistics primer:** Wilson interval with a worked example on day-1 votes once counts exist, plus the sentence you would *not* say because the interval is wide | T with X | `STATS-NOTES.md` |
+| 1.7 | **Eval method inventory (Torres):** every check Ask Regs runs, sorted into the four types (code check, known-answer set, AI judge, user signal), why each type was chosen, and the gaps | X drafts, T approves | `EVAL-METHOD.md` |
+| 1.8 | **Experiment registry:** a table of every change that was measured (ID, what changed, commit or PR, baseline, result across all suites), back-filled for PRs #2, #3, #12 to #15 and #24; every later fix adds a row | X back-fills, C keeps it current | `EXPERIMENTS.md` |
 
 *Closes:* LLM-as-judge depth, model selection with numbers, the human-gate proof, cost governance (design side), and eval statistics as a learning gap.
 
@@ -128,6 +144,7 @@ Run `PILOT-HANDOFF.md` section 3, steps 1 to 3, plus three additions from the re
 | 2.3 | **Keep sources separate:** colleague traffic, Tirath's tests, automated or bot sessions. Tirath tells us which time windows or wording were his own tests. | T + X | section inside the week-1 report |
 | 2.4 | **Miss taxonomy** C1 to C6 with counts (existing step 3); Tirath confirms each code | X drafts, **T confirms** | table in the week-1 report |
 | 2.5 | **Task observations (new, Codex):** sit with 3 to 5 colleagues on a real question; record whether they reached a source they verified, the time to get there, and why any attempt failed. No names, no student details. | **T** | `pilot/TASK-OBSERVATIONS.md` |
+| 2.6 | **Behavior signals (Torres):** from the log, count questions rephrased and re-asked within a few minutes of a no-answer result (a sign the first result failed). The log has no session ID, so first check what time-adjacency alone can show; adding an anonymous session ID is a privacy decision for Tirath, not a default. | X analyses, **T decides** on session IDs | section in the week-1 report |
 
 *Tirath learns:* production monitoring, error analysis, user research. *Closes:* monitoring as operations, users and outcomes (week 1), discovery.
 
@@ -161,6 +178,7 @@ The single most-requested artifact: seven of the eight reviews asked for it.
 | # | Item | Who | Artifact |
 |---|---|---|---|
 | 5.1 | **Claim-support review:** 25 fresh explanations (questions not used before), each split into claims marked supported, unsupported or not covered by its citation, plus missing conditions marked separately | C generates, **T grades blind** | `CLAIM-SUPPORT.md` + CSV |
+| 5.1b | **Judge criteria are binary (Torres):** each judge question is true/false (for example "every claim is supported by its cited passage"), not a 1-5 score, and results are reported with the judge's measured error against Tirath's labels | C | in `JUDGE-CALIBRATION.md` |
 | 5.2 | Same outputs graded by a **cross-family judge** and the Gemini judge; agreement and kappa by question type | C runs | in `JUDGE-CALIBRATION.md` |
 | 5.3 | **Escalation rule:** when an automated grade can guide a release, and when a human sample is required | T decides | `RELEASE-GATE.md` |
 
@@ -185,6 +203,8 @@ When eCFR's issue date or a handbook page changes, detect it through `content_ha
 The page lives at `/ai-work/ask-regs`, is linked from the home page, and reads **only committed JSON and Markdown files** at build time. No number is typed into page copy by hand.
 
 Title: **"Ask Regs: helping aid staff verify the rule before trusting an answer."**
+
+**Interview mode (added 2026-10-04):** the page opens with a **skills map**: one tile per skill in `GAP-PROOF-MAP.md`, each labeled Proven, Partial or Planned and linking to the section and file that prove it. Tirath can screen-share it in an interview and click straight to the evidence for whatever the interviewer asks. Tiles marked Planned say so honestly; they are the public roadmap.
 
 Every section shows evidence rather than claims:
 
@@ -246,7 +266,7 @@ Builder: L builds the page (hosts the site, cheapest), from a spec C or X writes
 
 ## 7. What Tirath learns, and how (one exercise each, all on this project)
 
-| Skill | Read (from the reviews' NotebookLM extracts and links) | Do |
+| Skill | Read (Tirath's NotebookLM notebooks, queried 2026-10-04, plus links) | Do |
 |---|---|---|
 | Eval design and statistics | Teresa Torres, "AI Evals: A Hands-On Guide for Product Teams" (producttalk.org); Chip Huyen, *AI Engineering*, evaluation chapters | 1.6, 0.6, 4.4 |
 | Retrieval metrics | *AI Engineering*, RAG chapter; *LLM Engineer's Handbook*, evaluation | Label the set (3.1), read the scorecard (3.4) |
@@ -257,7 +277,7 @@ Builder: L builds the page (hosts the site, cheapest), from a spec C or X writes
 | Discovery and outcomes | Torres, *Continuous Discovery Habits*; Cagan, *INSPIRED* (four risks); Patton, *User Story Mapping* (release slices); Doerr, *Measure What Matters* | 2.5, website sections 1 and 2 |
 | AI policy | model card examples | Website section 8 |
 
-Claude did not query NotebookLM for this plan, to save credits. The reading list comes from what the reviews extracted from Tirath's notebooks (AI and LLM Fundamentals for PM; Product Manager Book). As Codex and Grok both did, any assistant using the notebooks takes **concepts and language only**, never numbers or claimed results.
+Both notebooks were queried directly on 2026-10-04 (definitions are in `GAP-PROOF-MAP.md`). **Read first:** Teresa Torres's AI evals guide, since it is the method this plan follows. Any assistant using the notebooks takes **concepts and language only**, never numbers or claimed results; the notebooks' sample targets were discarded.
 
 ---
 
@@ -283,7 +303,8 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 0.4 purge stored sensitive rows | Done 2026-10-04: 2 usage-log rows deleted, 0 feedback rows | evidence log |
 | 0.5 to 0.6 stop rule and golden-set rules | Not started (Tirath decides) | |
 | Fresh security scan before sharing the site more widely (Lovable flagged that its last scan predates PR #24) | Not started | |
-| 1.1 to 1.6 analyses | Not started | |
+| 1.1 to 1.8 analyses (1.7 eval method, 1.8 experiment registry added from Torres) | Not started (Codex) | |
+| GAP-PROOF-MAP.md skill map + bank proposals AR-01 to AR-04 | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |
 | Phase 4 fixes and week 2 | Not started | |
