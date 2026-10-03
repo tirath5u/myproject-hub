@@ -279,9 +279,10 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 |---|---|---|
 | Day-1 miss diagnosis (4c) | Done 2026-10-04 (Claude) | this file |
 | Plan synthesized from 8 reviews | Done 2026-10-04 (Claude) | this file |
-| 0.1 to 0.3 refusal and feedback screening | Done in PR #24; live adversarial run pending after publish | PR #24 |
-| 0.4 purge stored sensitive rows | Not started | |
+| 0.1 to 0.3 refusal and feedback screening | Done 2026-10-04; live adversarial suite 15 of 15 | PR #24 |
+| 0.4 purge stored sensitive rows | Done 2026-10-04: 2 usage-log rows deleted, 0 feedback rows | evidence log |
 | 0.5 to 0.6 stop rule and golden-set rules | Not started (Tirath decides) | |
+| Fresh security scan before sharing the site more widely (Lovable flagged that its last scan predates PR #24) | Not started | |
 | 1.1 to 1.6 analyses | Not started | |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |
