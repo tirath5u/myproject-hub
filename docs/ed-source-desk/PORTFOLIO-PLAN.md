@@ -301,8 +301,8 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | Plan synthesized from 8 reviews | Done 2026-10-04 (Claude) | this file |
 | 0.1 to 0.3 refusal and feedback screening | Done 2026-10-04; live adversarial suite 15 of 15 | PR #24 |
 | 0.4 purge stored sensitive rows | Done 2026-10-04: 2 usage-log rows deleted, 0 feedback rows | evidence log |
-| 0.5 to 0.6 stop rule and golden-set rules | Not started (Tirath decides) | |
-| Fresh security scan before sharing the site more widely (Lovable flagged that its last scan predates PR #24) | Not started | |
+| 0.5 to 0.6 stop rule and golden-set rules | Done 2026-10-04: Tirath approved all (R1-R6, G1-G6) | `RELEASE-GATE.md`, PR #27 |
+| Fresh security scan before sharing the site more widely | Done 2026-10-04: Lovable standard scan clean (tables server-only, no misconfigurations). Not a deep code audit. | evidence log |
 | 1.1 to 1.8 analyses (1.7 eval method, 1.8 experiment registry added from Torres) | Not started (Codex) | |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
