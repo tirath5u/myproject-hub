@@ -148,3 +148,4 @@ Edit these to your voice. Each is backed by the sections above.
 | Users and outcomes | In progress (started 2026-10-02): colleagues using the live tool a few times a day and giving feedback in the tool and directly; public Yes/No feedback button, usage counts in the weekly summary; outside-the-tool feedback recorded in `USER-FEEDBACK-LOG.md` | After about a week: users count, helpful rate, top unanswered questions, and at least one change made because of their feedback |
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
+| 2026-10-06 | Phase 1 item 1.2, proposed model decision memo | Codex drafted MODEL-DECISION.md from D12, comparison sheets, calibration and Tirath teach-back. It records the owner-only Flash choice despite stronger human grades for GPT, measured speed/token trade, same-set tuning caveat and human gate. No new model run or approval occurred; Tirath review pending. |
