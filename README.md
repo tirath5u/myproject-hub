@@ -107,5 +107,5 @@ Live at [myproduct.life/ask-regs](https://myproduct.life/ask-regs). Current awar
 I'm Tirath Chhatriwala, an AI product manager building trustworthy AI for regulated financial workflows. Fourteen years in ed-tech and federal student aid, Army veteran, and I built my company's first AI assistant in Copilot Studio. This repo is my portfolio and my lab: I define the product, direct AI coding agents, and hold the quality bar with evals and release gates. I'm currently looking for principal product manager roles where domain depth and AI judgment matter.
 
 - GitHub: [tirath5u](https://github.com/tirath5u)
-- LinkedIn: www.linkedin.com/in/tirath-c-7228b814
+- LinkedIn: [Tirath Chhatriwala](https://www.linkedin.com/in/tirath-c-7228b814)
 - Live work: [Ask Regs](https://myproduct.life/ask-regs) · [myproduct.life](https://myproduct.life) · [SOR engine](https://sor.myproduct.life)
