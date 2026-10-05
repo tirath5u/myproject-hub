@@ -310,7 +310,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 1.5 long context versus RAG | Merged PR #36; Tirath decision pending | CONTEXT-VS-RAG.md |
 | 1.6 small-sample statistics | Merged PR #37; exact day-one vote counts pending export | STATS-NOTES.md |
 | 1.7 eval method inventory | Merged PR #38; Tirath review pending | EVAL-METHOD.md |
-| 1.8 experiment registry | Proposed in PR #39; merge pending | EXPERIMENTS.md |
+| 1.8 experiment registry | Merged PR #39; Tirath review pending | EXPERIMENTS.md |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |
