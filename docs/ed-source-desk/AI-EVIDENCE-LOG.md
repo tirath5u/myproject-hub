@@ -149,3 +149,4 @@ Edit these to your voice. Each is backed by the sections above.
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
 | 2026-10-06 | Phase 1 item 1.2, proposed model decision memo | Codex drafted MODEL-DECISION.md from D12, comparison sheets, calibration and Tirath teach-back. It records the owner-only Flash choice despite stronger human grades for GPT, measured speed/token trade, same-set tuning caveat and human gate. No new model run or approval occurred; Tirath review pending. |
+| 2026-10-06 | Phase 1 item 1.5, proposed context versus RAG memo | Codex used the logged 30,000 embedding-token Volume 7 total and dated Google list prices to compare uncached and cached full-context input with current retrieval. CONTEXT-VS-RAG.md recommends retaining cited retrieval pending a blind challenger test. No challenger was run, no architecture changed and Tirath decision is pending. |
