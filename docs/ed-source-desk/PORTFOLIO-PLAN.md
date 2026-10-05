@@ -303,7 +303,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 0.4 purge stored sensitive rows | Done 2026-10-04: 2 usage-log rows deleted, 0 feedback rows | evidence log |
 | 0.5 to 0.6 stop rule and golden-set rules | Done 2026-10-04: Tirath approved all (R1-R6, G1-G6) | `RELEASE-GATE.md`, PR #27 |
 | Fresh security scan before sharing the site more widely | Done 2026-10-04: Lovable standard scan clean (tables server-only, no misconfigurations). Not a deep code audit. | evidence log |
-| 1.1 judge calibration | Done 2026-10-04 (Codex computed; Tirath teach-back pending) | `JUDGE-CALIBRATION.md`; `tests/evals/judge-calibration.mjs` |
+| 1.1 judge calibration | Done 2026-10-04 (Codex computed); Tirath teach-back done 2026-10-06 | `JUDGE-CALIBRATION.md`; `tests/evals/judge-calibration.mjs` |
 | 1.2 to 1.8 analyses (1.7 eval method, 1.8 experiment registry added from Torres) | Not started (Codex) | |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |

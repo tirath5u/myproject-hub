@@ -31,4 +31,10 @@ Teach-back for Tirath:
 2. What does a negative kappa prove? Only that this sheet's weighted disagreement exceeds the expectation from these raters' score frequencies; it does not identify a cause.
 3. What would change a product decision? A fresh, blind calibration showing whether judge scores correctly separate supported, incomplete and unsupported answers at the release boundary.
 
+**Tirath's teach-back (2026-10-06, in his words):**
+
+> Kappa is the gold-standard metric for judge calibration. When setting up an automated LLM-as-a-judge system (e.g., using GPT-4o to score RAG outputs), you run a sample of 200-300 queries through both your LLM judge and human experts, then calculate $\kappa$. If $\kappa < 0.80$, you know your judge prompt or rubric is ambiguous and needs calibration before relying on it for automated CI/CD deployments.
+
+The 200 to 300 query sample and the 0.80 cutoff come from Tirath's study notes as general practice. Neither was set or tested in this item. Applied here: 25 pairs is far below that sample size, and every kappa is at or below zero, so this judge does not qualify as an automated release gate. Setting a target kappa for the Phase 5 calibration is an open decision for Tirath.
+
 Source boundary: the comparison set was later inspected during prompt tuning, so do not use this same set to claim an unbiased improvement from the revised prompt. No public correctness, user outcome, same-family bias or production-scale claim follows from this item.
