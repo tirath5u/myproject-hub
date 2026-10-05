@@ -304,14 +304,16 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 0.5 to 0.6 stop rule and golden-set rules | Done 2026-10-04: Tirath approved all (R1-R6, G1-G6) | `RELEASE-GATE.md`, PR #27 |
 | Fresh security scan before sharing the site more widely | Done 2026-10-04: Lovable standard scan clean (tables server-only, no misconfigurations). Not a deep code audit. | evidence log |
 | 1.1 judge calibration | Done 2026-10-04 (Codex computed); Tirath teach-back done 2026-10-06 | `JUDGE-CALIBRATION.md`; `tests/evals/judge-calibration.mjs` |
-| 1.2 model decision memo | Proposed in PR (Codex); Tirath review pending | MODEL-DECISION.md |
+| 1.2 model decision memo | Done 2026-10-06 (Codex drafted; Claude checked figures against D12; Tirath merged PR #32) | MODEL-DECISION.md |
+| 1.3 release record | Proposed in PR (Codex); Tirath review pending | RELEASE-RECORD.md |
+| 1.4 cost economics | Proposed in PR (Codex); Tirath price review pending | COST-ECONOMICS.md |
 | 1.5 long context versus RAG | Proposed in PR (Codex); Tirath decision pending | CONTEXT-VS-RAG.md |
-| 1.3 to 1.4 and 1.6 to 1.8 analyses | Not started or in separate PR | |
+| 1.6 to 1.8 analyses (1.7 eval method, 1.8 experiment registry added from Torres) | Not started or in separate PR (Codex) | |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |
 | Phase 4 fixes and week 2 | Not started | |
-| Phase 5 claim support and judges | Not started | |
+| Phase 5 claim support and judges | Judge bar set 2026-10-06 (D15, `RELEASE-GATE.md` section 3); measurement not started | |
 | Phase 6 agent experiment | Not started | |
 | Phase 7 freshness | Not started | |
 | Phase 8 website and hero copy | Not started | |
