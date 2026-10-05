@@ -1,6 +1,6 @@
 # Ask Regs evaluation method inventory, item 1.7
 
-Status: proposed inventory for Tirath's review. This classifies existing checks; it does not certify the answers.
+Status: approved by Tirath 2026-10-06. This classifies existing checks; it does not certify the answers.
 
 ## The product question
 

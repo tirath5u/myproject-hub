@@ -1,6 +1,6 @@
 # Ask Regs experiment registry, item 1.8
 
-Status: proposed retrospective backfill. PR descriptions, the evidence log and named test files are the sources. "Not recorded" means no executed receipt was found in those sources, not that a suite passed.
+Status: retrospective backfill approved by Tirath 2026-10-06. PR descriptions, the evidence log and named test files are the sources. "Not recorded" means no executed receipt was found in those sources, not that a suite passed.
 
 ## How to use this registry
 

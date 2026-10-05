@@ -1,6 +1,6 @@
 # Ask Regs cost economics, item 1.4
 
-Status: proposed list-price model, checked 2026-10-06. This is not a Lovable invoice or a forecast of public AI usage.
+Status: list prices checked by Tirath 2026-10-06 ("prices OK"). List-price model, checked 2026-10-06. This is not a Lovable invoice or a forecast of public AI usage.
 
 ## Decision this supports
 
