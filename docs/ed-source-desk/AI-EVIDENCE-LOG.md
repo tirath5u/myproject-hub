@@ -151,3 +151,4 @@ Edit these to your voice. Each is backed by the sections above.
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
 | 2026-10-06 | Phase 1 item 1.2, proposed model decision memo | Codex drafted MODEL-DECISION.md from D12, comparison sheets, calibration and Tirath teach-back. It records the owner-only Flash choice despite stronger human grades for GPT, measured speed/token trade, same-set tuning caveat and human gate. No new model run or approval occurred; Tirath review pending. |
+| 2026-10-06 | Phase 1 item 1.6, proposed small-sample primer | Codex wrote STATS-NOTES.md with Wilson arithmetic on an explicitly hypothetical 3 of 6 example. The recorded day-one vote count is only 15+ and lacks exact Yes/No counts, so no pilot helpful rate or interval was asserted. Day-seven export and Tirath review remain pending. |
