@@ -15,7 +15,7 @@ A staff member needs the right official source for the right award year, and mus
 
 ## Error analysis precedes metric choice
 
-The day-one record has distinct failure causes: a maximum-timeframe definition was below the 6,000-character display cap; an R2T4 modules phrasing missed the relevant eCFR section and surfaced Pell material; OBBBA wording was not routed to a rule already present. These are display, retrieval and routing/fit issues, not one generic "AI accuracy" failure. The source of truth for each diagnosis is the trace, the full official section and the reviewer label. A fix should name its error class before changing a threshold or prompt.
+The day-one record has distinct failure causes: the maximum-timeframe section (§668.34) ran past the 6,000-character display cap, so its definition was cut off; an R2T4 modules phrasing missed the relevant eCFR section and surfaced Pell material; OBBBA wording was not routed to a rule already present. These are display, retrieval and routing/fit issues, not one generic "AI accuracy" failure. The source of truth for each diagnosis is the trace, the full official section and the reviewer label. A fix should name its error class before changing a threshold or prompt.
 
 The failure taxonomy in the plan and pilot handoff is the starting hypothesis. Read at least three real traces closely, then classify the remaining misses; if a new class appears, update the taxonomy and re-review nearby cases. Tirath confirms which errors matter most to users and which expected answer is acceptable.
 
