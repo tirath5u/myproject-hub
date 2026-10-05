@@ -14,7 +14,11 @@ const KINDS = {
   'pell-passage': ['expect'],
   'fictional-amount-guard': [],
   'explain-compare': [],
+  'retrieval': ['expect', 'split'],
 };
+// Retrieval labels (plan 3.1): what answers the question, and whether it may be used to tune.
+const RETRIEVAL_EXPECT = new Set(['answer', 'not-in-library', 'refuse', 'needs-label']);
+const ACCEPT = /^(ecfr:\d{1,2}-\d{1,4}\.\d{1,4}[a-z]?|fr:\d{4}-\d{3,6}|reggov:[A-Z0-9-]{5,60}|hb:([a-z0-9:]+\|)?\S.*)$/i;
 const EXPECT = new Set(['answer', 'answer-or-related', 'partial-or-related', 'related-only', 'present']);
 const SECRET = /api[_-]?key|sk-[a-z0-9]{10,}|bearer\s+[a-z0-9._-]{10,}|service_role|eyJ[a-zA-Z0-9_-]{10,}\./i;
 const errors = [];
@@ -35,6 +39,13 @@ for (const f of files) {
     if (!req) { errors.push(`${where}: unknown kind ${c.kind}`); continue; }
     for (const k of req) if (c[k] === undefined) errors.push(`${where}: kind ${c.kind} needs "${k}"`);
     if (c.kind === 'pell-passage' && !EXPECT.has(c.expect)) errors.push(`${where}: expect must be one of ${[...EXPECT].join(', ')}`);
+    if (c.kind === 'retrieval') {
+      if (!RETRIEVAL_EXPECT.has(c.expect)) errors.push(`${where}: expect must be one of ${[...RETRIEVAL_EXPECT].join(', ')}`);
+      if (!['build', 'held-out'].includes(c.split)) errors.push(`${where}: split must be build or held-out`);
+      if (!Array.isArray(c.accept) || !c.accept.every((a) => typeof a === 'string' && ACCEPT.test(a))) errors.push(`${where}: accept must list ecfr:, fr:, reggov: or hb: entries`);
+      else if (c.expect === 'answer' && !c.accept.length) errors.push(`${where}: an answer label needs at least one accept entry`);
+      if (![true, false, null].includes(c.in_library)) errors.push(`${where}: in_library must be true, false or null`);
+    }
     if (c.accepted_headings && !(Array.isArray(c.accepted_headings) && c.accepted_headings.every((h) => typeof h === 'string' && h))) errors.push(`${where}: accepted_headings must be strings`);
     if (suite.status === 'candidate-unreviewed' && c.status !== 'candidate-unreviewed') errors.push(`${where}: candidate suites mark every case candidate-unreviewed`);
   }

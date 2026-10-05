@@ -1,0 +1,262 @@
+{
+  "suite": "retrieval-labels-v0",
+  "status": "candidate-unreviewed",
+  "description": "Labeled questions for the retrieval-only eval (plan 3.1 to 3.4). Each case names the sources that answer it. Only Tirath marks a case reviewed (G2) and decides its split (G3).",
+  "label_format": {
+    "accept": "ecfr:34-<section> (or fr:/reggov: ids) for a regulation; hb:<heading prefix> or hb:<document>|<heading prefix> for a handbook section",
+    "expect": "answer | not-in-library | refuse | needs-label",
+    "in_library": "true if the answering source is in the searchable library (eCFR or imported handbook chapters); false if not; null until labeled",
+    "split": "build cases may be used to tune; held-out cases never are. Every build case here came from a suite already used in tuning."
+  },
+  "cases": [
+    {
+      "id": "R-U09",
+      "question": "What inputs determine a student's scheduled full-time Pell Grant award?",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch2|Introduction",
+        "hb:vol7:ch2|Scheduled Award, Award Year, and Annual Award",
+        "ecfr:34-690.2"
+      ],
+      "in_library": true,
+      "from": "stage2a U09 accepted_headings; stage1 U09 definition",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-U08",
+      "question": "Does a low Student Aid Index by itself establish eligibility for the maximum Pell Grant?",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch2|Maximum Pell Grant Eligibility Criteria"
+      ],
+      "in_library": true,
+      "from": "stage2a U08",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-U21",
+      "question": "How does a school select Pell Formula 1, 2, 3, or 4 for a program?",
+      "expect": "answer",
+      "accept": [
+        "hb:Basic Pell Grant Formulas"
+      ],
+      "in_library": true,
+      "from": "stage2a U21 (partial answer accepted there)",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-U30",
+      "question": "Explain when a school uses a Scheduled Academic Year, BBAY 1, BBAY 2, or BBAY 3.",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 13"
+      ],
+      "in_library": true,
+      "from": "stage1 U30 required_heading (full handbook heading)",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-U19",
+      "question": "What withdrawal exemptions should a school check before starting an R2T4 calculation?",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "stage1 U19",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-N-r2t4",
+      "question": "Which programs offered in modules are exempt from R2T4?",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "stage1 N-r2t4 (same topic as a day-1 pilot miss)",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-g001",
+      "question": "What is satisfactory academic progress (SAP) under Title IV?",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.34"
+      ],
+      "in_library": true,
+      "from": "stage1 g001",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-g002",
+      "question": "What is Return of Title IV (R2T4) in the regulations?",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "stage1 g002",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-U25",
+      "question": "When a school reports a Direct Loan disbursement, which amounts use dollars and cents versus whole dollars?",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "stage1 U25 (no confident citation; Direct Loan reporting is not in the imported handbook)",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build"
+    },
+    {
+      "id": "R-MC01",
+      "question": "How is enrollment intensity determined for a student in a clock-hour program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC01 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC02",
+      "question": "What is year-round Pell and who can receive it?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC02 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC03",
+      "question": "How does a school decide which award year a crossover payment period belongs to?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC03 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC04",
+      "question": "Can incarcerated students receive Pell Grants, and what limits apply?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC04 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC05",
+      "question": "How is remaining Pell eligibility handled when a student transfers between schools mid-year?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC05 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC06",
+      "question": "When may a school use Pell Formula 3 instead of Formula 1 for a standard-term program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC06 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC07",
+      "question": "Which costs are included in the Pell Grant cost of attendance for a less than half time student?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC07 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC08",
+      "question": "What is the Pell Potential Overaward Process and when does it apply?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC08 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC09",
+      "question": "What documentation is needed for maximum Pell eligibility for children of deceased servicemembers or public safety officers?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC09 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC10",
+      "question": "How are Pell payments calculated for students in correspondence programs?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC10 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC11",
+      "question": "How are fractions and rounding handled when calculating Pell Grant disbursements?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC11 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-MC12",
+      "question": "What makes a postbaccalaureate teacher certification program eligible for Pell?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "model-compare-questions MC12 (held out for retrieval; never tune on it)"
+    }
+  ]
+}
