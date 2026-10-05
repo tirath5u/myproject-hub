@@ -101,3 +101,11 @@ Live at [myproduct.life/ask-regs](https://myproduct.life/ask-regs). Current awar
 - **Project SOR** ([tirath5u/project-sor](https://github.com/tirath5u/project-sor)): the sibling project, a deterministic OBBBA loan-limit engine exposed as a public API and MCP server. SOR is the engine-as-a-tool; Ask Regs is grounded retrieval. Same domain, complementary AI patterns.
 - **Source corpus** ([tirath5u/financial-aid-documents](https://github.com/tirath5u/financial-aid-documents)): the versioned public sources (FSA Handbook, COD Technical Reference, HR1 text) that retrieval systems like this one draw from.
 - **Live portfolio**: [myproduct.life](https://myproduct.life)
+
+## About
+
+I'm Tirath Chhatriwala, an AI product manager building trustworthy AI for regulated financial workflows. Fourteen years in ed-tech and federal student aid, Army veteran, and I built my company's first AI assistant in Copilot Studio. This repo is my portfolio and my lab: I define the product, direct AI coding agents, and hold the quality bar with evals and release gates. I'm currently looking for principal product manager roles where domain depth and AI judgment matter.
+
+- GitHub: [tirath5u](https://github.com/tirath5u)
+- LinkedIn: [VERIFY: LinkedIn URL]
+- Live work: [Ask Regs](https://myproduct.life/ask-regs) · [myproduct.life](https://myproduct.life) · [SOR engine](https://sor.myproduct.life)
