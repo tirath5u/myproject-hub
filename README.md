@@ -28,10 +28,37 @@ Ask Regs ("ED Source Desk") takes the opposite position: **cite the official tex
 
 ## Architecture
 
-```
-Browser → TanStack Start server → eCFR / Federal Register / Regulations.gov
-                                  + Supabase (handbook chunks, service_role only)
-                                  → citation + verbatim excerpt + official link
+### How a question flows
+
+```mermaid
+flowchart TD
+    Q["Ask a question<br/>plain language or section number"] --> RR{"Refusal rules<br/>run in code, not vibes"}
+    RR -->|Refusable| RF["Refuse honestly<br/>says what was checked"]
+    RR -->|Answerable| RT["Router picks the source"]
+    RT --> S1["eCFR API"]
+    RT --> S2["Federal Register API"]
+    RT --> S3["Regulations.gov API"]
+    RT --> S4["FSA Handbook chunks<br/>vector + word search"]
+    S1 --> CF["Topical-fit citation check<br/>question terms must appear in cited text"]
+    S2 --> CF
+    S3 --> CF
+    S4 --> CF
+    CF -->|Passes| AN["Answer<br/>citation + verbatim excerpt + official link"]
+    CF -->|Fails| RF
+
+    classDef ask fill:#FAF1EE,stroke:#A93226,stroke-width:2px,color:#23262F;
+    classDef gate fill:#F8EEDC,stroke:#BD7E20,stroke-width:2px,color:#23262F;
+    classDef src fill:#ffffff,stroke:#BD7E20,stroke-width:1.5px,color:#23262F;
+    classDef check fill:#FAF1EE,stroke:#A93226,stroke-width:2px,color:#23262F;
+    classDef answer fill:#A93226,stroke:#7E241A,stroke-width:2px,color:#ffffff;
+    classDef refuse fill:#F3F4F6,stroke:#9CA3AF,stroke-width:1.5px,stroke-dasharray:5 5,color:#4B5563;
+
+    class Q ask;
+    class RR,RT gate;
+    class S1,S2,S3,S4 src;
+    class CF check;
+    class AN answer;
+    class RF refuse;
 ```
 
 - **Server-side lookups** (`src/lib/ed-source-desk.server.ts`): all regulation calls run server-side. API keys never reach the client, and refusal rules cannot be bypassed from the browser.
