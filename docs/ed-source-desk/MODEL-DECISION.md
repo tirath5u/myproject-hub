@@ -1,6 +1,6 @@
 # Ask Regs model decision, item 1.2
 
-Status: proposed analysis for Tirath's review. This records decision D12; it does not approve a new model release.
+Status: reviewed and merged by Tirath 2026-10-06 (PR #32). This records decision D12; it does not approve a new model release.
 
 ## Decision
 
