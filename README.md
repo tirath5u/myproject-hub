@@ -1,6 +1,6 @@
 # myproject-hub: Ask Regs (ED Source Desk) + PM portfolio
 
-A grounded regulation lookup for U.S. federal student aid, built and governed like a real AI product: retrieval over generation, verified citations, engineered refusals, and an eval suite with human review. This repo is also my product portfolio homepage. Live: [myproduct.life/ask-regs](https://myproduct.life/ask-regs)
+A grounded regulation lookup for U.S. federal student aid, built and governed like a real AI product: retrieval over generation, verified citations, rule-based refusals, and an eval suite with human review. This repo is also my product portfolio homepage. Live: [myproduct.life/ask-regs](https://myproduct.life/ask-regs)
 
 > The repo name is historical. Think of this as two things in one codebase: **Ask Regs**, the product, and **myproduct.life**, the portfolio site it ships on.
 
@@ -21,7 +21,7 @@ Ask Regs ("ED Source Desk") takes the opposite position: **cite the official tex
 ## Key product decisions
 
 1. **Retrieval, not generation.** Nothing is ever generated as an answer. The system retrieves official text and displays it; the model's only job is the gated, owner-only explanation, which is itself source-checked.
-2. **Refuse rather than guess.** Over ten days of real-user testing, the recurring failure mode was over-refusal on answerable questions, not hallucination. That is the failure mode I chose: a missing answer is visible and fixable, a fabricated citation is not.
+2. **Refuse rather than guess.** In the first pilot results, the misses were answerable questions left without a confident citation (testers called it too cautious), not fabricated answers. That is the failure mode I chose: a missing answer is visible and fixable, a fabricated citation is not.
 3. **Citations must earn trust.** Every free-text citation passes a topical-fit check (the question's distinctive terms must appear in the cited text). A section number alone cannot validate an unrelated answer. Handbook example amounts (the FSA Handbook uses fictional Pell figures in examples) are flagged and can never be the answer to an amount question.
 4. **Staged releases for content.** New handbook chapters import as `staged`, visible only on preview builds, and go live only after a named `promote` following human review. The live site kept working unchanged while unreviewed content sat in the shared database.
 5. **Evals gate releases.** A written release gate blocks any release on: a missed refusal, an unexplained citation regression, a fictional amount shown as an answer, a failing test, stored refusable text, or unreviewed new content. Failures are findings, not tests to loosen.
@@ -81,9 +81,9 @@ Methodology, not just scores. The eval runner (`tests/evals/run-live-evals.mjs`)
 
 Total across suites: 26 cases, 201 automated checks. Preview evals caught 5 regressions before release; the batch was held on preview through four fix rounds until every suite was clean.
 
-**Model comparison** (owner-only harness, rubric grading by a separate judge model on faithfulness, completeness, clarity, 1-5): Gemini 2.5 Flash passed 14/14 source checks; the Gemini judge scored it faithfulness 5.0, completeness 3.71, clarity 5.0. I graded 25 of 28 explanations myself and favored GPT-5 mini on all three measures, agreeing with the judge only 52% exactly on faithfulness, a material disagreement consistent with same-family judge bias. I kept Flash and tightened its instructions, recording the cost-versus-quality trade explicitly.
+**Model comparison** (owner-only harness, rubric grading by a separate judge model on faithfulness, completeness, clarity, 1-5): Gemini 2.5 Flash passed 14/14 source checks; the Gemini judge scored it faithfulness 5.0, completeness 3.71, clarity 5.0. I graded 25 of 28 explanations myself and favored GPT-5 mini on all three measures, agreeing with the judge exactly on faithfulness 13 of 25 times. A chance-adjusted check (weighted Cohen's kappa) put our agreement no better than chance on all three measures ([`JUDGE-CALIBRATION.md`](docs/ed-source-desk/JUDGE-CALIBRATION.md)), so judge scores never decide a release on their own. I kept Flash and tightened its instructions, recording the cost-versus-quality trade explicitly.
 
-**Real-user pilot**: live pilot with financial aid colleagues began 2026-10-02 ([VERIFY: current pilot size and lookup counts]). Day-1 misses were each assigned a root-cause code and fixed as general rules with before/after measurement and zero regressions. A privacy review on 2026-10-04 found 2 stored questions that should have been refused; both rows were purged and the refusal rules were closed with general fixes, not per-question patches.
+**Real-user pilot**: live pilot with financial aid colleagues began 2026-10-02. Day 1: 24+ lookups, all under about 1.2 seconds (server time, lookup path only), and 15+ Yes/No votes with comments. Each day-1 miss was assigned a root-cause code (a display cutoff on long sections, routing, the citation-fit threshold). Fixes follow the week-1 review as general rules, measured before and after on held-out questions. A privacy review on 2026-10-04 found 2 stored questions that should have been refused; both rows were purged and the refusal rules were closed with general fixes, not per-question patches.
 
 Full evidence trail: [`docs/ed-source-desk/AI-EVIDENCE-LOG.md`](docs/ed-source-desk/AI-EVIDENCE-LOG.md) (every number traces to a run or commit), [`tests/evals/README.md`](tests/evals/README.md), [`docs/ed-source-desk/RELEASE-GATE.md`](docs/ed-source-desk/RELEASE-GATE.md).
 
@@ -113,15 +113,15 @@ supabase/migrations/             documents/chunks (service_role only), usage + f
 
 ## Tech stack
 
-TanStack Start (React 19) on Cloudflare, Supabase (Postgres + pgvector, RLS, service_role-only tables), Tailwind CSS 4, TypeScript, Zod. Embeddings via `google/gemini-embedding-2`. Built with AI coding agents (Claude Code, Lovable) under my direction; CI runs typecheck, unit tests, and fixture validation on every PR with no network calls.
+TanStack Start (React 19) on Cloudflare, Supabase (Postgres + pgvector, RLS, service_role-only tables), Tailwind CSS 4, TypeScript, Zod. Embeddings via `google/gemini-embedding-2`. Built with AI coding agents (Claude Code, Codex, Lovable) under my direction; CI runs typecheck, unit tests, and fixture validation on every PR with no network calls.
 
 ## How this was built
 
-Plainly: I defined the product, wrote or approved the requirements, reviewed results on screen, and made every release decision. AI coding agents wrote the code under my direction across 21 reviewed pull requests (2026-09-30 to 2026-10-02), each with a description, tests, and a verification section. I merged, published, and ran the checks. The eval suites, the release gate, and the evidence log are the artifacts of that process, and they are the point: directing AI builders with a quality bar is the work this repo demonstrates.
+Plainly: I defined the product, wrote or approved the requirements, reviewed results on screen, and made every release decision. AI coding agents wrote the code under my direction across 21 reviewed pull requests (2026-09-30 to 2026-10-02), each with a description, tests, and a verification section. I approved every merge and release, published through Lovable, and had the live checks run. The eval suites, the release gate, and the evidence log are the artifacts of that process, and they are the point: directing AI builders with a quality bar is the work this repo demonstrates.
 
 ## Status and roadmap
 
-Live at [myproduct.life/ask-regs](https://myproduct.life/ask-regs). Current award year: 2026-27. Handbook coverage: FSA Handbook Vol 3 Ch 1 and Vol 7 Ch 1-6 (Pell Grants), expanding chapter by chapter through the staged import pipeline. A real-user pilot with financial aid colleagues is underway ([VERIFY: pilot status and next milestone]). Planned next: one bounded, owner-only, read-only agent experiment compared against the current router on the same held-out questions.
+Live at [myproduct.life/ask-regs](https://myproduct.life/ask-regs). Current award year: 2026-27. Handbook coverage: FSA Handbook Vol 3 Ch 1 and Vol 7 Ch 1-6 (Pell Grants), expanding chapter by chapter through the staged import pipeline. A real-user pilot with financial aid colleagues is underway; the week-1 review runs on or after 2026-10-09. Planned next: one bounded, owner-only, read-only agent experiment compared against the current router on the same held-out questions.
 
 ## Related
 
