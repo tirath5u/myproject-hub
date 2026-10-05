@@ -313,7 +313,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 1.8 experiment registry | Done 2026-10-06; PR #39; Tirath approved | EXPERIMENTS.md |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
-| Phase 3 retrieval eval | Not started | |
+| Phase 3 retrieval eval | 3.3 runner built 2026-10-06 (Claude): `run-retrieval-eval.mjs`, `retrieval-score.mjs`, 11 unit tests; 21 starter labels in `retrieval-labels.json`, all candidate-unreviewed. 3.1 and 3.2 (Tirath labels and splits about 50 questions) next; 3.4 scorecard after. | |
 | Phase 4 fixes and week 2 | Not started | |
 | Phase 5 claim support and judges | Judge bar set 2026-10-06 (D15, `RELEASE-GATE.md` section 3); measurement not started | |
 | Phase 6 agent experiment | Not started | |
