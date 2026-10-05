@@ -1,6 +1,6 @@
 # Ask Regs: AI evidence log
 
-Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-02 (real-user pilot UI review).
+Owner: Tirath Chhatriwala (product manager and decision-maker). Updated with each phase. Last update: 2026-10-06 (Phase 1 portfolio closeout).
 
 This log records what was built, the decisions Tirath made, and the measured results, so resume and interview claims can be checked against real artifacts: pull requests, test files, and eval runs. Every number below comes from a recorded run or a commit.
 
@@ -150,6 +150,10 @@ Edit these to your voice. Each is backed by the sections above.
 | Users and outcomes | In progress (started 2026-10-02): colleagues using the live tool a few times a day and giving feedback in the tool and directly; public Yes/No feedback button, usage counts in the weekly summary; outside-the-tool feedback recorded in `USER-FEEDBACK-LOG.md` | After about a week: users count, helpful rate, top unanswered questions, and at least one change made because of their feedback |
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
+## 9. Phase 1 portfolio evidence (2026-10-06)
+
+| Date | Item | Evidence and boundary |
+|---|---|---|
 | 2026-10-06 | Phase 1 item 1.2, proposed model decision memo | Codex drafted MODEL-DECISION.md from D12, comparison sheets, calibration and Tirath teach-back. It records the owner-only Flash choice despite stronger human grades for GPT, measured speed/token trade, same-set tuning caveat and human gate. No new model run or approval occurred; Tirath review pending. |
 | 2026-10-06 | Phase 1 item 1.3, proposed release retrospective | Codex traced the four-chapter held batch through PRs #11 to #15 and the existing D11 record. RELEASE-RECORD.md separates preview eval failures, offline tests, the promote gate and the broader live-suite observation. No import or publish occurred; Tirath review pending. |
 | 2026-10-06 | Phase 1 item 1.4, proposed cost economics | Codex combined the logged six-question embedding sample and model-comparison token totals with Google and OpenAI list prices checked 2026-10-06. COST-ECONOMICS.md reports conditional per-call ranges and a labeled 10,000-query scenario. Input/output token split, judge usage, actual Lovable billing and useful-answer denominator remain unknown. Tirath price review pending; no billing claim approved. |
@@ -157,3 +161,4 @@ To map these to your own resume, paste your gap list and each gap will get a row
 | 2026-10-06 | Phase 1 item 1.6, proposed small-sample primer | Codex wrote STATS-NOTES.md with Wilson arithmetic on an explicitly hypothetical 3 of 6 example. The recorded day-one vote count is only 15+ and lacks exact Yes/No counts, so no pilot helpful rate or interval was asserted. Day-seven export and Tirath review remain pending. |
 | 2026-10-06 | Phase 1 item 1.7, proposed eval method inventory | Codex traced code checks, known-answer cases, the uncalibrated AI judge and user signals to repository artifacts in EVAL-METHOD.md. It names what each method cannot prove and the fresh-label work still needed. No new eval run or public quality claim; Tirath review pending. |
 | 2026-10-06 | Phase 1 item 1.8, proposed experiment registry | Codex backfilled EXPERIMENTS.md from PRs #2, #3, #12-#15 and #24. Each row distinguishes observed preview/live results from unit tests and PR predictions; missing full-suite receipts remain marked missing. No new experiment ran. Tirath review pending. |
+| 2026-10-06 | Phase 1 merge reconciliation | PRs #32, #33, #35, #36, #37, #38 and #39 are merged. This records repository state only; pending owner review, exact pilot counts and actual billing remain pending where noted above. |
