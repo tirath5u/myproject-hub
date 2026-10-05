@@ -306,11 +306,11 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | 1.1 judge calibration | Done 2026-10-04 (Codex computed); Tirath teach-back done 2026-10-06 | `JUDGE-CALIBRATION.md`; `tests/evals/judge-calibration.mjs` |
 | 1.2 model decision memo | Done 2026-10-06 (Codex drafted; Claude checked figures against D12; Tirath merged PR #32) | MODEL-DECISION.md |
 | 1.3 release record | Done 2026-10-06; PR #33 merged | RELEASE-RECORD.md |
-| 1.4 cost economics | Merged PR #35; Tirath price review pending | COST-ECONOMICS.md |
-| 1.5 long context versus RAG | Merged PR #36; Tirath decision pending | CONTEXT-VS-RAG.md |
+| 1.4 cost economics | Done 2026-10-06; PR #35; Tirath checked the prices | COST-ECONOMICS.md |
+| 1.5 long context versus RAG | Done 2026-10-06; PR #36; Tirath decided D16 (keep retrieval) | CONTEXT-VS-RAG.md |
 | 1.6 small-sample statistics | Merged PR #37; exact day-one vote counts pending export | STATS-NOTES.md |
-| 1.7 eval method inventory | Merged PR #38; Tirath review pending | EVAL-METHOD.md |
-| 1.8 experiment registry | Merged PR #39; Tirath review pending | EXPERIMENTS.md |
+| 1.7 eval method inventory | Done 2026-10-06; PR #38; Tirath approved (wording fix PR #41) | EVAL-METHOD.md |
+| 1.8 experiment registry | Done 2026-10-06; PR #39; Tirath approved | EXPERIMENTS.md |
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Not started | |

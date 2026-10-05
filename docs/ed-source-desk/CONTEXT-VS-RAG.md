@@ -1,6 +1,6 @@
 # Ask Regs long context versus retrieval, item 1.5
 
-Status: proposed decision memo. No long-context implementation or traffic experiment was run.
+Status: decided by Tirath 2026-10-06 (D16): keep cited retrieval; test full context later, owner-only. No long-context implementation or traffic experiment was run.
 
 ## Recommendation
 
