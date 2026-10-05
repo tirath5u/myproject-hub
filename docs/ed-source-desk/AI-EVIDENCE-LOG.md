@@ -151,3 +151,4 @@ Edit these to your voice. Each is backed by the sections above.
 
 To map these to your own resume, paste your gap list and each gap will get a row here.
 | 2026-10-06 | Phase 1 item 1.2, proposed model decision memo | Codex drafted MODEL-DECISION.md from D12, comparison sheets, calibration and Tirath teach-back. It records the owner-only Flash choice despite stronger human grades for GPT, measured speed/token trade, same-set tuning caveat and human gate. No new model run or approval occurred; Tirath review pending. |
+| 2026-10-06 | Phase 1 item 1.7, proposed eval method inventory | Codex traced code checks, known-answer cases, the uncalibrated AI judge and user signals to repository artifacts in EVAL-METHOD.md. It names what each method cannot prove and the fresh-label work still needed. No new eval run or public quality claim; Tirath review pending. |
