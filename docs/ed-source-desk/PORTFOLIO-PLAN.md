@@ -314,7 +314,7 @@ Tirath has about $17 of Claude credits. Spend them where precision in code matte
 | GAP-PROOF-MAP.md skill map + bank proposals (P-ASK-01 to 07 by Codex, P-ASK-08 by Claude) | Done 2026-10-04 (Claude) | `GAP-PROOF-MAP.md`, `D:/career/bank-proposals.md` |
 | Phase 2 day-7 measurement | Waiting for 2026-10-09 | |
 | Phase 3 retrieval eval | Done 2026-10-06. 3.3 runner built (Claude): `run-retrieval-eval.mjs`, `retrieval-score.mjs`, 11 unit tests. All 75 labels reviewed by Tirath. 3.4 first scorecard (59 labels reviewed at run time): held-out top-1 16 of 25, top-5 20 of 25 (`tests/evals/results/retrieval-2026-10-06.json`, evidence log). Codex wrote `RETRIEVAL-EVAL.md` (PR #47, figures checked by Claude). This scorecard is the Phase 4 baseline; the 16 labels reviewed after the run join the next scorecard. | `RETRIEVAL-EVAL.md` |
-| Phase 4 fixes and week 2 | Not started | |
+| Phase 4 fixes and week 2 | Fix 1 (E47, loan-limit routing and law nicknames) built 2026-10-06; publish after the day-7 export, then live receipt | `EXPERIMENTS.md` E47 |
 | Phase 5 claim support and judges | Judge bar set 2026-10-06 (D15, `RELEASE-GATE.md` section 3); measurement not started | |
 | Phase 6 agent experiment | Not started | |
 | Phase 7 freshness | Not started | |

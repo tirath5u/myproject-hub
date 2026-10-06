@@ -164,14 +164,16 @@ const KEYWORD_SECTIONS: [RegExp, string][] = [
   [/cost of attendance|\bcoa\b/i, "668.2"],
   [/verification/i, "668.53"],
   [/credit balance|disbursement/i, "668.164"],
-  [/schedule of reductions|less-than-full-time|annual loan limit/i, "685.203"],
+  // Any "loan limit(s)" wording, not just the exact phrase "annual loan limit": "annual Direct Subsidized Loan limits"
+  // and "aggregate loan limits" never reached 685.203 (retrieval scorecard 2026-10-06, AG40/AG47; day-1 pilot misses).
+  [/schedule of reductions|less-than-full-time|\bloans?\s+limits?\b/i, "685.203"],
   [/professional judgment/i, "690.75"],
   [/pell grant/i, "690.62"],
   [/student eligibility|eligible student/i, "668.32"],
   [/clock hour|credit hour/i, "600.2"],
 ];
 
-function route(q: string): LookupInput {
+export function route(q: string): LookupInput {
   const sec = q.match(/(?:§\s*)?\b(\d{3})\.(\d{1,4}[a-z]?)\b/);
   if (sec) return { mode: "ecfr-section", title: "34", section: `${sec[1]}.${sec[2]}` };
   const reg = q.match(/\bED-\d{4}-[A-Z]+-\d{4}-\d{4}\b/i);
@@ -282,7 +284,11 @@ const GENERIC = new Set((
 export const normalizeText = (s: string) => s.replace(/\b(full|half|part|less[- ]than[- ]full)[\s-]+time\b/gi, (_m, a: string) => `${a.replace(/\s+/g, "-")}-time`);
 // Abbreviations written in capitals count as terms even when the lowercase word is common (SAY).
 const ABBREV_TERMS = ["ISIR", "SAI", "COA", "BBAY", "SAY", "LEU", "R2T4", "EFC", "MPN", "LOA", "NSLDS", "COD", "FAFSA", "SAP", "OBBBA"];
+// A law's nickname names the statute, not the rule: regulation and handbook text never use it, so it is never a
+// required term (a question saying "under OBBBA" failed the word check on a section that has the rule).
+export const LAW_NICKNAMES = /\bone big beautiful bill(?:\s+act)?\b|\bOBBBA?\b|\bH\.?\s?R\.?\s?1\b(?!\d)/gi;
 export function distinctiveTerms(q: string) {
+  q = q.replace(LAW_NICKNAMES, " ");
   const cleaned = normalizeText(q).toLowerCase().replace(/§\s*/g, " ").replace(/\br2t4\b/g, " r2t4x ").replace(/\b\d+(\.\d+)*[a-z]?\b/g, " ").replace(/\br2t4x\b/g, "r2t4");
   const terms = cleaned.match(/[a-z][a-z0-9-]{2,}/g) ?? [];
   const abbrevs = ABBREV_TERMS.filter((a) => new RegExp(`\\b${a}\\b`).test(q)).map((a) => a.toLowerCase());
