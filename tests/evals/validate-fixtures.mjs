@@ -45,6 +45,9 @@ for (const f of files) {
       if (!Array.isArray(c.accept) || !c.accept.every((a) => typeof a === 'string' && ACCEPT.test(a))) errors.push(`${where}: accept must list ecfr:, fr:, reggov: or hb: entries`);
       else if (c.expect === 'answer' && !c.accept.length) errors.push(`${where}: an answer label needs at least one accept entry`);
       if (![true, false, null].includes(c.in_library)) errors.push(`${where}: in_library must be true, false or null`);
+      // Retrieval labels are reviewed one by one (G2): a reviewed label names who reviewed it and when, and is fully labeled.
+      if (c.status === 'reviewed' && !(c.reviewed_by && c.reviewed_at)) errors.push(`${where}: a reviewed label needs reviewed_by and reviewed_at`);
+      if (c.status === 'reviewed' && c.expect === 'needs-label') errors.push(`${where}: a needs-label case cannot be reviewed`);
     }
     if (c.accepted_headings && !(Array.isArray(c.accepted_headings) && c.accepted_headings.every((h) => typeof h === 'string' && h))) errors.push(`${where}: accepted_headings must be strings`);
     if (suite.status === 'candidate-unreviewed' && c.status !== 'candidate-unreviewed') errors.push(`${where}: candidate suites mark every case candidate-unreviewed`);
