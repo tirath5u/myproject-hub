@@ -257,6 +257,749 @@
       "accept": [],
       "in_library": null,
       "from": "model-compare-questions MC12 (held out for retrieval; never tune on it)"
+    },
+    {
+      "id": "R-AG01",
+      "question": "How do we determine the payment period for a non-term credit-hour program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Payment Periods for Clock-Hour and Non-Term Programs",
+        "hb:vol3:ch1|Clock-Hour and Non-Term Program Payment Periods",
+        "hb:vol3:ch1|Payment Period Summary"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #1; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG02",
+      "question": "Can a student receive Year-Round Pell if they are enrolled less than half-time in the summer?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch5|Year-Round Pell Grant",
+        "hb:vol7:ch5|Volume 7, Chapter 5, Example 5: Year-Round Pell"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #2; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Moved to build: a ranking miss (top candidate not shown) that Phase 4 may fix."
+    },
+    {
+      "id": "R-AG03",
+      "question": "What is the minimum number of weeks of instructional time for a standard academic year?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Weeks of Instructional Time in an Academic Year"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #3; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG04",
+      "question": "How does enrollment intensity affect the Pell Grant calculation for a student taking 9 credits?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Pell Grants and Enrollment Intensity",
+        "hb:vol7:ch3|Pell Grant Enrollment Intensity for Term-Based Programs"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #4; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Moved to build: a ranking miss Phase 4 may fix."
+    },
+    {
+      "id": "R-AG05",
+      "question": "Are crossover payment periods required to be assigned to the new award year for Pell?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch5|Crossover Payment From the Proper Award Year",
+        "hb:vol7:ch2|Determining the Award Year for Crossover Pell Awards"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #5; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG06",
+      "question": "How is Pell calculated for a clock-hour program using Formula 4?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch4|Pell Formula 4"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #6; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Ranking miss: Formula 4 was the top candidate but the general formulas section was the answer."
+    },
+    {
+      "id": "R-AG07",
+      "question": "What is the difference between BBAY 1 and BBAY 2?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 14",
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 15"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #7; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Only BBAY examples exist in the library. Is a rule section on BBAY 1 vs 2 in Vol 3 Ch 1, or are the examples the right answer?"
+    },
+    {
+      "id": "R-AG08",
+      "question": "Can we pay Pell to a student who has reached 600% LEU?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch6|Calculating Remaining Eligibility",
+        "hb:vol7:ch2|Pell Grant Eligibility Criteria"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #8; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Where does the library state the 600% LEU limit? Draft guesses Ch 6 remaining eligibility or Ch 2 eligibility criteria."
+    },
+    {
+      "id": "R-AG09",
+      "question": "How do we treat a module that spans across two standard terms for Pell?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Combining Modules Into a Standard Term",
+        "hb:vol7:ch5|Volume 7, Chapter 5, Example 3: Modules Treated as Nonstandard Terms"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #9; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Confirm: a module spanning two terms is handled by these sections?"
+    },
+    {
+      "id": "R-AG10",
+      "question": "Do we have to recalculate Pell if a student drops a class before the census date?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Academic Calendar and Enrollment Intensity Changes"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #10; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Nothing relevant came back. Where does the library cover Pell recalculation after a drop before census?"
+    },
+    {
+      "id": "R-AG12",
+      "question": "What defines a nonstandard term that is substantially equal in length?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Nonstandard Terms",
+        "hb:vol3:ch1|Payment Periods for Programs Using Standard Terms or Substantially Equal"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #12; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG14",
+      "question": "What is the enrollment intensity for a student taking 11 credits in a term?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Pell Grant Enrollment Intensity for Term-Based Programs",
+        "hb:vol7:ch3|Pell Grants and Enrollment Intensity"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #14; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG17",
+      "question": "How is the first payment period defined for a clock-hour program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Clock-Hour and Non-Term Program Payment Periods for Programs One Academic Year or Less",
+        "hb:vol3:ch1|Payment Periods for Clock-Hour and Non-Term Programs"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #17; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG18",
+      "question": "Do we recalculate Pell if a student withdraws from all classes after attending?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #18; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Withdrawal after attending triggers R2T4 (668.22). Should a Pell recalculation section also count?"
+    },
+    {
+      "id": "R-AG19",
+      "question": "Can we combine two summer sessions into a single cross-over payment period?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch5|Summer Modules",
+        "hb:vol7:ch5|Volume 7, Chapter 5, Example 2: Modules Combined Into One Term"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #19; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG20",
+      "question": "What is the minimum weeks of instruction for an academic year in a clock-hour program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Weeks of Instructional Time in an Academic Year",
+        "hb:vol3:ch1|Credit or Clock Hours in an Academic Year"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #20; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG21",
+      "question": "If a student is taking remedial coursework, does it count toward Pell enrollment intensity?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:Academic Coursework"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #21; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Remedial coursework rules mostly live in Volume 1 (not imported). Is the library's \"Academic Coursework\" section enough, or is this not in library?"
+    },
+    {
+      "id": "R-AG22",
+      "question": "How do you prorate the Pell Grant COA for a program shorter than an academic year?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Pell Grant Cost of Attendance",
+        "hb:vol7:ch3|Volume 7, Chapter 3, Example 3: Prorating"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #22; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Likely wrong confident citation today (668.2 cited)."
+    },
+    {
+      "id": "R-AG23",
+      "question": "What are the Pell Grant rules for a student enrolled in a consortium agreement?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Pell Grant Cost of Attendance for a Consortium Program",
+        "hb:vol7:ch3|Pell Grant Enrollment Intensity for a Consortium Program"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #23; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG24",
+      "question": "Does an LEU of 595% allow for a partial Pell disbursement?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch6|Calculating Remaining Eligibility",
+        "hb:vol7:ch2|Pell Grant Eligibility Criteria"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #24; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Same LEU question as AG08. Likely wrong confident citation today (668.164 cited)."
+    },
+    {
+      "id": "R-AG25",
+      "question": "How do you determine the Pell award for a student who changes programs mid-year?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch3|Academic Calendar and Enrollment Intensity Changes",
+        "hb:vol7:ch6|Calculating and Awarding Remaining Eligibility"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #25; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "A program change at the same school: which section answers it?"
+    },
+    {
+      "id": "R-AG26",
+      "question": "Are we required to use Formula 1 for our traditional semester programs?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch4|Pell Formula 1",
+        "hb:vol7:ch4|Formula 1 Alternate Calculation",
+        "hb:vol7:ch2|Basic Pell Grant Formulas"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #26; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG27",
+      "question": "What is the exact regulatory definition of a Week of Instructional Time?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.3",
+        "hb:vol3:ch1|Weeks of Instructional Time in an Academic Year"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #27; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "\"Exact regulatory definition\" points to 34 CFR 668.3. Confirm both count."
+    },
+    {
+      "id": "R-AG28",
+      "question": "How does a school choose between SAY and BBAY 3 for a non-term program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 13",
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 14",
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 15"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #28; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Nothing came back. SAY and BBAY are loan academic-year concepts: is there a rule section in Vol 3 Ch 1, or only these examples?"
+    },
+    {
+      "id": "R-AG29",
+      "question": "Is a student eligible for Pell for a subsequent payment period if they didn't complete the hours in the previous one?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol3:ch1|Disbursement Timing in Clock-Hour",
+        "hb:vol3:ch1|Clock-Hour and Non-Term Program Payment Periods",
+        "hb:vol3:ch1|Volume 3, Chapter 1, Example 8"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #29; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG31",
+      "question": "How do we handle Pell Grant packaging for a student in a dual enrollment high school program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch1|General Eligibility Requirements for Federal Pell Grants"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #31; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "High school students are generally ineligible (Volume 1, not imported). Answerable from this section, or not in library?"
+    },
+    {
+      "id": "R-AG32",
+      "question": "If a student's SAI changes due to a professional judgment, must we recalculate the Pell award for the whole year?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch2|Calculated Pell Grant"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #32; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Where does the library cover recalculating Pell after a PJ changes the SAI?"
+    },
+    {
+      "id": "R-AG33",
+      "question": "What are the rules for paying Pell retroactively for a completed payment period?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.164",
+        "hb:vol7:ch2|Pell Grant Payments by Payment Period"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #33; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Late disbursements are in 34 CFR 668.164. Confirm."
+    },
+    {
+      "id": "R-AG34",
+      "question": "Can a student receive Pell from two different institutions at the same time?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch1|Prohibition on Receiving Two Pell Grant Payments for Concurrent Enrollment",
+        "hb:vol7:ch6|Concurrent Enrollment and Pell Potential Overaward"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #34; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG35",
+      "question": "How is the crossover term assigned for a BBAY that starts in summer?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "hb:vol7:ch2|Determining the Award Year for Crossover Pell Awards",
+        "hb:vol7:ch5|Crossover Payment From the Proper Award Year"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #35; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "BBAY is a loan concept; for Pell the crossover rules answer it. Agree?"
+    },
+    {
+      "id": "R-AG36",
+      "question": "What is the formula for calculating the percentage of Title IV aid earned in 668.22?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #36; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG37",
+      "question": "Under SAP rules, what is the maximum timeframe for an undergraduate program?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.34"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #37; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG38",
+      "question": "When must an institution return unearned funds for an R2T4 calculation?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22",
+        "ecfr:34-668.173"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #38; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "The 45-day return deadline is in 34 CFR 668.173. Confirm both count."
+    },
+    {
+      "id": "R-AG40",
+      "question": "What are the annual Direct Subsidized Loan limits for a dependent first-year student?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-685.203"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #40; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Moved to build: the loan-limit miss Phase 4 will fix."
+    },
+    {
+      "id": "R-AG41",
+      "question": "How does the regulation define \"pace\" for satisfactory academic progress?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.34"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #41; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG42",
+      "question": "What constitutes an approved leave of absence under R2T4 regulations?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #42; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG43",
+      "question": "Can a school disburse Title IV funds to a student who is on SAP financial aid warning?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.34"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #43; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG44",
+      "question": "What is the exact regulatory definition of a regular student?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-600.2",
+        "ecfr:34-668.2"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #44; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "\"Regular student\" is defined in 34 CFR 600.2. Confirm."
+    },
+    {
+      "id": "R-AG45",
+      "question": "How are post-withdrawal disbursements handled for Pell Grants versus Direct Loans?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #45; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG46",
+      "question": "Are institutional charges prorated in the R2T4 step 5 calculation?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #46; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG47",
+      "question": "What are the aggregate loan limits for an independent undergraduate student?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-685.203"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #47; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Moved to build: the loan-limit miss Phase 4 will fix."
+    },
+    {
+      "id": "R-AG48",
+      "question": "How do we define academic attendance for a distance education program under R2T4?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22",
+        "ecfr:34-600.2"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #48; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Moved to build: a miss Phase 4 may fix. Distance-ed attendance is defined in 668.22(l) and 600.2 (academic engagement)."
+    },
+    {
+      "id": "R-AG49",
+      "question": "Under 668.34, what documentation is required for a SAP appeal?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.34"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #49; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG50",
+      "question": "Look up 668.22(i) regarding the order of return of Title IV funds.",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.22"
+      ],
+      "in_library": true,
+      "from": "Antigravity 60-question suite #50; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Question corrected from 668.22(l) to 668.22(i): (i) is the order of return."
+    },
+    {
+      "id": "R-AG51",
+      "question": "How long is a Master Promissory Note valid for Direct Loans?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "Antigravity 60-question suite #51; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "MPN rules are in 34 CFR Part 685, which eCFR covers. Your call: in library (which section) or not?"
+    },
+    {
+      "id": "R-AG52",
+      "question": "What tax documents are required for Verification Group V1?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #52; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Verification group items are published in a Federal Register notice each year, not in the regulation text. Agree?"
+    },
+    {
+      "id": "R-AG53",
+      "question": "What is the deadline to report a Pell Grant disbursement to the COD system?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #53; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "34 CFR 690.83 says to report by deadlines ED publishes; the actual deadline is in a notice. Agree not in library?"
+    },
+    {
+      "id": "R-AG54",
+      "question": "How do I resolve a reject code 39 on an ISIR?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #54; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG55",
+      "question": "Do we need to verify identity and statement of educational purpose for V4?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #55; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG56",
+      "question": "How do I submit an originations file for an unsubsidized loan in COD?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #56; label drafted by Claude from the 2026-10-06 run"
+    },
+    {
+      "id": "R-AG57",
+      "question": "What are the acceptable documentation standards for citizenship verification?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "Antigravity 60-question suite #57; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "Citizenship rules are in 34 CFR 668.33 and Subpart I (eCFR). Your call: in library or not?"
+    },
+    {
+      "id": "R-AG58",
+      "question": "Can a student endorse a PLUS loan if they have an adverse credit history?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "Antigravity 60-question suite #58; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "PLUS adverse credit is in 34 CFR Part 685 (eCFR). Your call: in library (which section) or not?"
+    },
+    {
+      "id": "R-AG59",
+      "question": "What is the institutional matching requirement for FSEOG?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "build",
+      "expect": "needs-label",
+      "accept": [],
+      "in_library": null,
+      "from": "Antigravity 60-question suite #59; label drafted by Claude from the 2026-10-06 run",
+      "tirath_check": "FSEOG matching is in 34 CFR Part 676 (eCFR). Your call: in library (which section) or not?"
+    },
+    {
+      "id": "R-AG60",
+      "question": "According to the R2T4 handbook examples, how do I round the percentage of aid earned?",
+      "kind": "retrieval",
+      "status": "candidate-unreviewed",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "accept": [],
+      "in_library": false,
+      "from": "Antigravity 60-question suite #60; label drafted by Claude from the 2026-10-06 run"
     }
-  ]
+  ],
+  "split_note": "All 60 Antigravity questions were run and viewed on 2026-10-06 before the split. Questions that will drive Phase 4 fixes are build; fixes are designed only from build questions, and held-out results are measured, never tuned on. Dropped as duplicates: #11, #13, #15, #16 (repeat held-out MC04, MC06, MC07, MC09), #39 (repeats g003), #30 (repeats #12)."
 }
