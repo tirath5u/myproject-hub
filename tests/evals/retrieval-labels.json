@@ -147,7 +147,7 @@
       "id": "R-MC01",
       "question": "How is enrollment intensity determined for a student in a clock-hour program?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -156,26 +156,30 @@
         "hb:vol7:ch3|Pell Grant Enrollment Intensity for Clock-Hour or Non-Term-Based Programs"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC01 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC01 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC02",
       "question": "What is year-round Pell and who can receive it?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
         "hb:vol7:ch5|Year-Round Pell Grant"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC02 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC02 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC03",
       "question": "How does a school decide which award year a crossover payment period belongs to?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -183,26 +187,30 @@
         "hb:vol7:ch2|Determining the Award Year for Crossover Pell Awards"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC03 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC03 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC04",
       "question": "Can incarcerated students receive Pell Grants, and what limits apply?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
         "hb:vol7:ch1|Pell Eligibility for Incarcerated Students"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC04 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC04 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC05",
       "question": "How is remaining Pell eligibility handled when a student transfers between schools mid-year?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -210,13 +218,15 @@
         "hb:vol7:ch6|Calculating and Awarding Remaining Eligibility"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC05 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC05 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC06",
       "question": "When may a school use Pell Formula 3 instead of Formula 1 for a standard-term program?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -225,39 +235,45 @@
         "hb:vol7:ch2|Basic Pell Grant Formulas"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC06 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC06 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC07",
       "question": "Which costs are included in the Pell Grant cost of attendance for a less than half time student?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
         "hb:vol7:ch3|Less Than Half Time Pell Grant Cost of Attendance"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC07 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC07 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC08",
       "question": "What is the Pell Potential Overaward Process and when does it apply?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
         "hb:vol7:ch6|Pell Potential Overaward Process"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC08 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC08 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC09",
       "question": "What documentation is needed for maximum Pell eligibility for children of deceased servicemembers or public safety officers?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -265,13 +281,15 @@
         "hb:vol7:ch1|Maximum Pell Grant Eligibility for Children of Certain Deceased"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC09 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC09 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC10",
       "question": "How are Pell payments calculated for students in correspondence programs?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -280,13 +298,15 @@
         "hb:vol7:ch4|Pell Correspondence Payment Periods"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC10 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC10 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC11",
       "question": "How are fractions and rounding handled when calculating Pell Grant disbursements?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
@@ -294,20 +314,24 @@
         "hb:vol7:ch4|Rounding"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC11 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC11 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-MC12",
       "question": "What makes a postbaccalaureate teacher certification program eligible for Pell?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
       "expect": "answer",
       "accept": [
         "hb:vol7:ch1|Eligible Postbaccalaureate Teacher Certification"
       ],
       "in_library": true,
-      "from": "model-compare-questions MC12 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run"
+      "from": "model-compare-questions MC12 (held out for retrieval; never tune on it); label drafted by Claude from the 2026-10-06 run",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-AG01",
@@ -1027,13 +1051,17 @@
       "id": "R-AG51",
       "question": "How long is a Master Promissory Note valid for Direct Loans?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
-      "expect": "needs-label",
-      "accept": [],
-      "in_library": null,
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-685.102"
+      ],
+      "in_library": true,
       "from": "Antigravity 60-question suite #51; label drafted by Claude from the 2026-10-06 run",
-      "tirath_check": "MPN rules are in 34 CFR Part 685, which eCFR covers. Your call: in library (which section) or not?"
+      "review_note": "Tirath: 10-year MPN life, one year with no disbursement, borrower close; 34 CFR 685.102(b). Answerable from eCFR, which covers all of 34 CFR (Tirath marked it against his own reference sources).",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-AG52",
@@ -1106,37 +1134,49 @@
       "id": "R-AG57",
       "question": "What are the acceptable documentation standards for citizenship verification?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "build",
-      "expect": "needs-label",
-      "accept": [],
-      "in_library": null,
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-668.33"
+      ],
+      "in_library": true,
       "from": "Antigravity 60-question suite #57; label drafted by Claude from the 2026-10-06 run",
-      "tirath_check": "Citizenship rules are in 34 CFR 668.33 and Subpart I (eCFR). Your call: in library or not?"
+      "review_note": "Tirath: SSA match, else documentary evidence and at least 30 days before denial; 34 CFR 668.33(c). Answerable from eCFR, which covers all of 34 CFR (Tirath marked it against his own reference sources).",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-AG58",
       "question": "Can a student endorse a PLUS loan if they have an adverse credit history?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "held-out",
-      "expect": "needs-label",
-      "accept": [],
-      "in_library": null,
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-685.200"
+      ],
+      "in_library": true,
       "from": "Antigravity 60-question suite #58; label drafted by Claude from the 2026-10-06 run",
-      "tirath_check": "PLUS adverse credit is in 34 CFR Part 685 (eCFR). Your call: in library (which section) or not?"
+      "review_note": "Tirath: Endorser must not have an adverse credit history; 34 CFR 685.200(c)(2)(viii)(A)(2). Answerable from eCFR, which covers all of 34 CFR (Tirath marked it against his own reference sources).",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-AG59",
       "question": "What is the institutional matching requirement for FSEOG?",
       "kind": "retrieval",
-      "status": "candidate-unreviewed",
+      "status": "reviewed",
       "split": "build",
-      "expect": "needs-label",
-      "accept": [],
-      "in_library": null,
+      "expect": "answer",
+      "accept": [
+        "ecfr:34-676.21"
+      ],
+      "in_library": true,
       "from": "Antigravity 60-question suite #59; label drafted by Claude from the 2026-10-06 run",
-      "tirath_check": "FSEOG matching is in 34 CFR Part 676 (eCFR). Your call: in library (which section) or not?"
+      "review_note": "Tirath: Federal share at most 75 percent (nonfederal at least 25); 34 CFR 676.21. Answerable from eCFR, which covers all of 34 CFR (Tirath marked it against his own reference sources).",
+      "reviewed_by": "Tirath",
+      "reviewed_at": "2026-10-06"
     },
     {
       "id": "R-AG60",
@@ -1153,5 +1193,5 @@
     }
   ],
   "split_note": "All 60 Antigravity questions were run and viewed on 2026-10-06 before the split. Questions that will drive Phase 4 fixes are build; fixes are designed only from build questions, and held-out results are measured, never tuned on. Dropped as duplicates: #11, #13, #15, #16 (repeat held-out MC04, MC06, MC07, MC09), #39 (repeats g003), #30 (repeats #12).",
-  "review_status": "Labels are reviewed one by one. 2026-10-06: Tirath reviewed the flagged drafts and approved every label as drafted; the 4 eCFR-coverage questions (R-AG51, R-AG57, R-AG58, R-AG59) still need his label and are not scored."
+  "review_status": "Labels are reviewed one by one. 2026-10-06: Tirath approved every drafted label and supplied the four eCFR-coverage answers (R-AG51, R-AG57, R-AG58, R-AG59). All 75 labels are reviewed."
 }
