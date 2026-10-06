@@ -1,0 +1,1198 @@
+{
+  "run_at": "2026-10-06T00:53:23.426Z",
+  "endpoint": "https://myproduct.life/api/ed-source-desk/lookup",
+  "labels_reviewed": 59,
+  "scope": "retrieval only; reviewed labels only; held-out numbers are the ones to publish for before/after claims",
+  "summary": {
+    "all": {
+      "answerable": {
+        "n": 52,
+        "top1": "29 of 52",
+        "top5": "40 of 52",
+        "mrr": 0.624,
+        "confident_answer_correct": "27 of 40",
+        "irrelevant_top_result": "20 of 52",
+        "misses": {
+          "in library, retrieved but not shown (ranking or filters)": 7,
+          "in library, not in the top 12 search candidates": 1,
+          "no source shown": 4
+        }
+      },
+      "not_in_library": {
+        "n": 7,
+        "correctly_no_confident_answer": "7 of 7",
+        "false_confident_citations": 0
+      },
+      "refuse": {
+        "n": 0,
+        "refused": "0 of 0"
+      },
+      "wrong_award_year": "0 of 59",
+      "unscored_needs_label": 0
+    },
+    "build": {
+      "answerable": {
+        "n": 27,
+        "top1": "13 of 27",
+        "top5": "20 of 27",
+        "mrr": 0.554,
+        "confident_answer_correct": "13 of 20",
+        "irrelevant_top_result": "12 of 27",
+        "misses": {
+          "in library, retrieved but not shown (ranking or filters)": 3,
+          "no source shown": 4
+        }
+      },
+      "not_in_library": {
+        "n": 2,
+        "correctly_no_confident_answer": "2 of 2",
+        "false_confident_citations": 0
+      },
+      "refuse": {
+        "n": 0,
+        "refused": "0 of 0"
+      },
+      "wrong_award_year": "0 of 29",
+      "unscored_needs_label": 0
+    },
+    "held_out": {
+      "answerable": {
+        "n": 25,
+        "top1": "16 of 25",
+        "top5": "20 of 25",
+        "mrr": 0.7,
+        "confident_answer_correct": "14 of 20",
+        "irrelevant_top_result": "8 of 25",
+        "misses": {
+          "in library, retrieved but not shown (ranking or filters)": 4,
+          "in library, not in the top 12 search candidates": 1
+        }
+      },
+      "not_in_library": {
+        "n": 5,
+        "correctly_no_confident_answer": "5 of 5",
+        "false_confident_citations": 0
+      },
+      "refuse": {
+        "n": 0,
+        "refused": "0 of 0"
+      },
+      "wrong_award_year": "0 of 30",
+      "unscored_needs_label": 0
+    }
+  },
+  "rows": [
+    {
+      "id": "R-U09",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#12",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#1",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#8",
+        "ecfr:34-690.2"
+      ]
+    },
+    {
+      "id": "R-U08",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 2,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#5",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#7",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#2"
+      ]
+    },
+    {
+      "id": "R-U21",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#14",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#17",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#38"
+      ]
+    },
+    {
+      "id": "R-U30",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": 4,
+      "top1": false,
+      "top5": true,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#40",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#41",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#39"
+      ]
+    },
+    {
+      "id": "R-U19",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22"
+      ]
+    },
+    {
+      "id": "R-N-r2t4",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#43",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#9",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#10",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#10"
+      ]
+    },
+    {
+      "id": "R-g001",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.34"
+      ]
+    },
+    {
+      "id": "R-g002",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22"
+      ]
+    },
+    {
+      "id": "R-U25",
+      "split": "build",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG01",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#20",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#16",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#27",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#28",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#24"
+      ]
+    },
+    {
+      "id": "R-AG02",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 4,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#5",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#17",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#14",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#12"
+      ]
+    },
+    {
+      "id": "R-AG03",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#13"
+      ]
+    },
+    {
+      "id": "R-AG04",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#27",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#36",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#26",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#11"
+      ]
+    },
+    {
+      "id": "R-AG05",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 3,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#37",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#15",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#13",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#5"
+      ]
+    },
+    {
+      "id": "R-AG06",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 4,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#14",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#27",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#25",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#38"
+      ]
+    },
+    {
+      "id": "R-AG07",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#40",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#41"
+      ]
+    },
+    {
+      "id": "R-AG08",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": 3,
+      "top1": false,
+      "top5": true,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 3,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#11",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#5"
+      ]
+    },
+    {
+      "id": "R-AG09",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 3,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#9",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#10",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#9"
+      ]
+    },
+    {
+      "id": "R-AG10",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 11,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6"
+      ]
+    },
+    {
+      "id": "R-AG12",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 3,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 2,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#18",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#17"
+      ]
+    },
+    {
+      "id": "R-AG14",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#26",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#36"
+      ]
+    },
+    {
+      "id": "R-AG17",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#26",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#35",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#16",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#30"
+      ]
+    },
+    {
+      "id": "R-AG18",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#18",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#19",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6"
+      ]
+    },
+    {
+      "id": "R-AG19",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#9",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#5"
+      ]
+    },
+    {
+      "id": "R-AG20",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#24",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#30",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#28"
+      ]
+    },
+    {
+      "id": "R-AG21",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": "in library, not in the top 12 search candidates",
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#36",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#38",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4"
+      ]
+    },
+    {
+      "id": "R-AG22",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 5,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "ecfr:34-668.2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#16",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#35",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#15",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#12",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#18"
+      ]
+    },
+    {
+      "id": "R-AG23",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 2,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#19"
+      ]
+    },
+    {
+      "id": "R-AG24",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 7,
+      "shown": [
+        "ecfr:34-668.164",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#11",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#11"
+      ]
+    },
+    {
+      "id": "R-AG25",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 2,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#11",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#18",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#6"
+      ]
+    },
+    {
+      "id": "R-AG26",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#12",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#8",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6"
+      ]
+    },
+    {
+      "id": "R-AG27",
+      "split": "build",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#5"
+      ]
+    },
+    {
+      "id": "R-AG28",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 2,
+      "shown": []
+    },
+    {
+      "id": "R-AG29",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#15",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#26",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#27",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#5"
+      ]
+    },
+    {
+      "id": "R-AG31",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 4,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#1"
+      ]
+    },
+    {
+      "id": "R-AG32",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "in library, retrieved but not shown (ranking or filters)",
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#11"
+      ]
+    },
+    {
+      "id": "R-AG33",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 2,
+      "top1": false,
+      "top5": true,
+      "confident": true,
+      "answer_correct": false,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#28",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch2:2026-08-21:6b52d61a35c8#15",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#33"
+      ]
+    },
+    {
+      "id": "R-AG34",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "handbook-passage",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 1,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#12",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#5",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#4",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#2"
+      ]
+    },
+    {
+      "id": "R-AG35",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": 4,
+      "top1": false,
+      "top5": true,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": 3,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#41",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#40",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch5:2026-07-29:a0933b4091f9#5"
+      ]
+    },
+    {
+      "id": "R-AG36",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22"
+      ]
+    },
+    {
+      "id": "R-AG37",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.34"
+      ]
+    },
+    {
+      "id": "R-AG38",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22"
+      ]
+    },
+    {
+      "id": "R-AG40",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "no source shown",
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG41",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.34",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#4"
+      ]
+    },
+    {
+      "id": "R-AG42",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22"
+      ]
+    },
+    {
+      "id": "R-AG43",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.34",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#31",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#30",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#8",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#37"
+      ]
+    },
+    {
+      "id": "R-AG44",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "no source shown",
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#4"
+      ]
+    },
+    {
+      "id": "R-AG45",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#31",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#19"
+      ]
+    },
+    {
+      "id": "R-AG46",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#16",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#19"
+      ]
+    },
+    {
+      "id": "R-AG47",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "no source shown",
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG48",
+      "split": "build",
+      "expect": "answer",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": false,
+      "top5": false,
+      "confident": false,
+      "answer_correct": null,
+      "correct": null,
+      "miss": "no source shown",
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol3:ch1:2026-08-18:523f3bfd81c2#2",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#6"
+      ]
+    },
+    {
+      "id": "R-AG49",
+      "split": "held-out",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.34",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#9"
+      ]
+    },
+    {
+      "id": "R-AG50",
+      "split": "build",
+      "expect": "answer",
+      "mode": "ecfr-section",
+      "rank": 1,
+      "top1": true,
+      "top5": true,
+      "confident": true,
+      "answer_correct": true,
+      "correct": null,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "ecfr:34-668.22",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#6",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch1:2026-08-21:cab5017cf238#4"
+      ]
+    },
+    {
+      "id": "R-AG52",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG53",
+      "split": "build",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch4:2026-08-26:599aa9e0095e#3",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#8",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#7",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#12",
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch6:2026-07-29:a561b64d816c#6"
+      ]
+    },
+    {
+      "id": "R-AG54",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG55",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG56",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": []
+    },
+    {
+      "id": "R-AG60",
+      "split": "held-out",
+      "expect": "not-in-library",
+      "mode": "no-confident-cite",
+      "rank": null,
+      "top1": null,
+      "top5": null,
+      "confident": false,
+      "answer_correct": null,
+      "correct": true,
+      "miss": null,
+      "candidate_rank": null,
+      "shown": [
+        "fsa-hb:2026-27:fsa-handbook:2026-27:vol7:ch3:2026-08-21:5e165e053097#1"
+      ]
+    }
+  ]
+}
