@@ -77,7 +77,8 @@ Methodology, not just scores. The eval runner (`tests/evals/run-live-evals.mjs`)
 | Stage 2A: Pell passages (Vol 7 Ch 2) | 6 cases, 61 checks | 6/6 live after promote | 2026-09-30 |
 | Stage 2B: Pell Ch 3 | 2 cases, 18 checks | 2/2 live after promote | 2026-09-30 |
 | Adversarial refusals | 15 probes | 15/15 on live after Phase 0 fixes | 2026-10-04 |
-| Unit tests (CI, offline) | 77 | 77/77 | 2026-10-04 |
+| Unit tests (CI, offline) | 88 | 88/88 | 2026-10-06 |
+| Phase 3.4: retrieval scorecard | 25 held-out | 16/25 top-1 (Wilson 45-80%), 20/25 top-5 (Wilson 61-91%), MRR 0.70; 5/5 no confident answer when not in library; 0 wrong-award-year | 2026-10-06 |
 
 Total across suites: 26 cases, 201 automated checks. Preview evals caught 5 regressions before release; the batch was held on preview through four fix rounds until every suite was clean.
 
